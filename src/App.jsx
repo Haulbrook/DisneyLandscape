@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
-  Flower2, Trees, Shrub, Leaf, Grid3X3, ZoomIn, ZoomOut, 
+  Flower2, Trees, Shrub, Leaf, Grid, ZoomIn, ZoomOut, 
   RotateCcw, Download, Upload, Eye, Palette, Ruler, Check, 
   X, ChevronRight, ChevronDown, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
@@ -653,7 +653,7 @@ export default function DisneyLandscapeStudio() {
                 }`}
                 title="Toggle Grid"
               >
-                <Grid3X3 className="w-4 h-4" />
+                <Grid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setShowRuler(!showRuler)}
