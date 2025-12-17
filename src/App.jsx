@@ -33,6 +33,183 @@ const DISNEY_RULES = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// DISNEY PLACEMENT ENGINE - Creative Pattern Generation
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DISNEY_PATTERNS = {
+  // Golden ratio for natural aesthetics
+  PHI: 1.618033988749,
+
+  // Plant size mapping (in inches for collision detection)
+  getPlantRadius: (category) => {
+    const radii = {
+      focal: 24,      // Large trees need big space
+      topiary: 18,    // Medium formal shapes
+      back: 15,       // Tall shrubs
+      middle: 10,     // Mid-height plants
+      front: 7,       // Edging plants
+      groundcover: 5  // Low spreaders
+    };
+    return radii[category] || 10;
+  },
+
+  // Check if two plants would collide
+  wouldCollide: (newPlant, existingPlants, allPlantsData) => {
+    const newPlantData = allPlantsData.find(p => p.id === newPlant.plantId);
+    const newRadius = DISNEY_PATTERNS.getPlantRadius(newPlantData?.category);
+
+    for (const existing of existingPlants) {
+      const existingData = allPlantsData.find(p => p.id === existing.plantId);
+      const existingRadius = DISNEY_PATTERNS.getPlantRadius(existingData?.category);
+
+      const minDistance = newRadius + existingRadius + 2; // 2 inch buffer
+      const distance = Math.sqrt(
+        Math.pow(newPlant.x - existing.x, 2) +
+        Math.pow(newPlant.y - existing.y, 2)
+      );
+
+      if (distance < minDistance) return true;
+    }
+    return false;
+  },
+
+  // Find valid position with collision avoidance
+  findValidPosition: (targetX, targetY, plantId, existingPlants, allPlantsData, bedWidth, bedHeight, maxAttempts = 50) => {
+    const plantData = allPlantsData.find(p => p.id === plantId);
+    const radius = DISNEY_PATTERNS.getPlantRadius(plantData?.category);
+
+    // Try original position first
+    let candidate = { x: targetX, y: targetY, plantId };
+    if (!DISNEY_PATTERNS.wouldCollide(candidate, existingPlants, allPlantsData) &&
+        targetX > radius && targetX < bedWidth - radius &&
+        targetY > radius && targetY < bedHeight - radius) {
+      return { x: targetX, y: targetY };
+    }
+
+    // Spiral outward to find valid spot
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const angle = attempt * 2.399963; // Golden angle in radians
+      const distance = Math.sqrt(attempt) * 8;
+
+      const newX = targetX + Math.cos(angle) * distance;
+      const newY = targetY + Math.sin(angle) * distance;
+
+      // Clamp to bed bounds
+      const clampedX = Math.max(radius + 2, Math.min(bedWidth - radius - 2, newX));
+      const clampedY = Math.max(radius + 2, Math.min(bedHeight - radius - 2, newY));
+
+      candidate = { x: clampedX, y: clampedY, plantId };
+
+      if (!DISNEY_PATTERNS.wouldCollide(candidate, existingPlants, allPlantsData)) {
+        return { x: clampedX, y: clampedY };
+      }
+    }
+
+    return null; // Could not find valid position
+  },
+
+  // Generate curved drift pattern (signature Disney look)
+  generateDriftCurve: (startX, startY, endX, endY, count, variance = 0.3) => {
+    const points = [];
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+
+    // Create bezier-like curve with asymmetric bulge
+    const curveOffset = (endX - startX) * 0.3 * (Math.random() > 0.5 ? 1 : -1);
+
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 0.5;
+
+      // Quadratic bezier with control point
+      const controlX = midX + curveOffset;
+      const controlY = midY - Math.abs(endY - startY) * 0.2;
+
+      let x = Math.pow(1 - t, 2) * startX + 2 * (1 - t) * t * controlX + Math.pow(t, 2) * endX;
+      let y = Math.pow(1 - t, 2) * startY + 2 * (1 - t) * t * controlY + Math.pow(t, 2) * endY;
+
+      // Add natural variance
+      x += (Math.random() - 0.5) * variance * 20;
+      y += (Math.random() - 0.5) * variance * 15;
+
+      points.push({ x, y });
+    }
+    return points;
+  },
+
+  // Generate asymmetric cluster (odd numbers, golden ratio spacing)
+  generateCluster: (centerX, centerY, count, baseRadius) => {
+    const points = [];
+    const PHI = DISNEY_PATTERNS.PHI;
+
+    if (count === 1) {
+      points.push({ x: centerX, y: centerY });
+    } else if (count === 3) {
+      // Triangle with golden ratio proportions
+      points.push({ x: centerX, y: centerY - baseRadius * 0.6 });
+      points.push({ x: centerX - baseRadius * 0.8, y: centerY + baseRadius * 0.5 });
+      points.push({ x: centerX + baseRadius * 0.5, y: centerY + baseRadius * 0.3 });
+    } else if (count === 5) {
+      // Asymmetric pentagon
+      points.push({ x: centerX, y: centerY }); // Center
+      points.push({ x: centerX - baseRadius, y: centerY - baseRadius * 0.4 });
+      points.push({ x: centerX + baseRadius * 0.8, y: centerY - baseRadius * 0.6 });
+      points.push({ x: centerX - baseRadius * 0.6, y: centerY + baseRadius * 0.7 });
+      points.push({ x: centerX + baseRadius * 0.9, y: centerY + baseRadius * 0.5 });
+    } else {
+      // Golden spiral for larger counts
+      for (let i = 0; i < count; i++) {
+        const angle = i * 2.399963; // Golden angle
+        const r = baseRadius * Math.sqrt(i / count) * PHI;
+        points.push({
+          x: centerX + Math.cos(angle) * r * (0.8 + Math.random() * 0.4),
+          y: centerY + Math.sin(angle) * r * (0.8 + Math.random() * 0.4)
+        });
+      }
+    }
+    return points;
+  },
+
+  // Generate sweeping wave pattern for mass plantings
+  generateWavePattern: (bedWidth, bedHeight, yPosition, count) => {
+    const points = [];
+    const amplitude = bedHeight * 0.08;
+    const frequency = 2 + Math.random();
+
+    for (let i = 0; i < count; i++) {
+      const t = i / (count - 1 || 1);
+      const x = bedWidth * 0.08 + t * bedWidth * 0.84;
+      const wave = Math.sin(t * Math.PI * frequency) * amplitude;
+      const y = yPosition + wave + (Math.random() - 0.5) * 10;
+      points.push({ x, y });
+    }
+    return points;
+  },
+
+  // Disney's Rule of Thirds focal placement
+  getFocalPoints: (bedWidth, bedHeight) => {
+    return [
+      { x: bedWidth * 0.33, y: bedHeight * 0.7, weight: 0.8 },   // Left third, back
+      { x: bedWidth * 0.67, y: bedHeight * 0.75, weight: 1.0 },  // Right third, back (primary)
+      { x: bedWidth * 0.5, y: bedHeight * 0.85, weight: 0.6 },   // Center back (secondary)
+    ];
+  },
+
+  // Layer zones for proper depth staging
+  getLayerZone: (role, bedHeight) => {
+    const zones = {
+      focal: { yMin: bedHeight * 0.7, yMax: bedHeight * 0.9 },
+      back: { yMin: bedHeight * 0.6, yMax: bedHeight * 0.85 },
+      topiary: { yMin: bedHeight * 0.5, yMax: bedHeight * 0.8 },
+      middle: { yMin: bedHeight * 0.35, yMax: bedHeight * 0.6 },
+      front: { yMin: bedHeight * 0.15, yMax: bedHeight * 0.4 },
+      edge: { yMin: bedHeight * 0.05, yMax: bedHeight * 0.2 },
+      groundcover: { yMin: bedHeight * 0.05, yMax: bedHeight * 0.25 }
+    };
+    return zones[role] || zones.middle;
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // DISNEY PLANT DATABASE - Curated Species Collection
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -383,59 +560,166 @@ export default function DisneyLandscapeStudio() {
     }
   };
 
-  // Apply bed bundle
+  // Apply bed bundle with Disney-style creative placement
   const applyBundle = (bundle) => {
     const newPlants = [];
     const baseWidth = bedDimensions.width;
     const baseHeight = bedDimensions.height;
-    
-    bundle.plants.forEach((bundlePlant, index) => {
-      const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
-      if (!plantData) return;
-      
-      const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
-      
-      for (let i = 0; i < scaledQuantity; i++) {
-        let x, y;
-        
-        // Position based on role
-        switch (bundlePlant.role) {
-          case 'focal':
-            x = baseWidth * 0.5 + (i * 20);
-            y = baseHeight * 0.85;
-            break;
-          case 'back':
-            x = baseWidth * (0.2 + (i * 0.2));
-            y = baseHeight * 0.8;
-            break;
-          case 'middle':
-            x = baseWidth * (0.15 + (i * 0.12));
-            y = baseHeight * 0.5;
-            break;
-          case 'front':
-            x = baseWidth * (0.1 + (i * 0.06));
-            y = baseHeight * 0.2;
-            break;
-          case 'edge':
-            x = baseWidth * (0.05 + (i * 0.06));
-            y = baseHeight * 0.1;
-            break;
-          default:
-            x = Math.random() * baseWidth;
-            y = Math.random() * baseHeight;
-        }
-        
-        newPlants.push({
-          id: `bundle-${Date.now()}-${index}-${i}`,
-          plantId: bundlePlant.plantId,
-          x: Math.max(10, Math.min(baseWidth - 10, x)),
-          y: Math.max(10, Math.min(baseHeight - 10, y)),
-          rotation: 0,
-          scale: 1
-        });
-      }
+
+    // Group plants by role for coordinated placement
+    const plantsByRole = {};
+    bundle.plants.forEach(bp => {
+      const role = bp.role || 'middle';
+      if (!plantsByRole[role]) plantsByRole[role] = [];
+      plantsByRole[role].push(bp);
     });
-    
+
+    // Get focal points using rule of thirds
+    const focalPoints = DISNEY_PATTERNS.getFocalPoints(baseWidth, baseHeight);
+    let focalIndex = 0;
+
+    // Process plants in order: focal → back → topiary → middle → front → edge/groundcover
+    const roleOrder = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
+
+    roleOrder.forEach(role => {
+      const plantsInRole = plantsByRole[role] || [];
+
+      plantsInRole.forEach((bundlePlant, plantTypeIndex) => {
+        const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
+        if (!plantData) return;
+
+        const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
+        const zone = DISNEY_PATTERNS.getLayerZone(role, baseHeight);
+        let positions = [];
+
+        // Generate creative positions based on role
+        switch (role) {
+          case 'focal': {
+            // Place focals at rule-of-thirds points with asymmetric offset
+            for (let i = 0; i < scaledQuantity; i++) {
+              const fp = focalPoints[focalIndex % focalPoints.length];
+              focalIndex++;
+              // Offset each focal slightly for asymmetry
+              const offsetX = (Math.random() - 0.5) * baseWidth * 0.1;
+              const offsetY = (Math.random() - 0.3) * baseHeight * 0.1;
+              positions.push({ x: fp.x + offsetX, y: fp.y + offsetY });
+            }
+            break;
+          }
+
+          case 'back':
+          case 'topiary': {
+            // Use curved drift pattern for back row plants
+            if (scaledQuantity >= 3) {
+              positions = DISNEY_PATTERNS.generateDriftCurve(
+                baseWidth * 0.15,
+                zone.yMin + (zone.yMax - zone.yMin) * 0.5,
+                baseWidth * 0.85,
+                zone.yMax - (zone.yMax - zone.yMin) * 0.3,
+                scaledQuantity,
+                0.25
+              );
+            } else {
+              // Small cluster for 1-2 plants
+              const centerX = baseWidth * (0.3 + plantTypeIndex * 0.4);
+              const centerY = (zone.yMin + zone.yMax) / 2;
+              positions = DISNEY_PATTERNS.generateCluster(centerX, centerY, scaledQuantity, 25);
+            }
+            break;
+          }
+
+          case 'middle': {
+            // Wave pattern with natural flow
+            if (scaledQuantity >= 5) {
+              const yPos = zone.yMin + (zone.yMax - zone.yMin) * (0.3 + plantTypeIndex * 0.25);
+              positions = DISNEY_PATTERNS.generateWavePattern(baseWidth, baseHeight, yPos, scaledQuantity);
+            } else {
+              // Asymmetric clusters for smaller quantities
+              const centerX = baseWidth * (0.25 + plantTypeIndex * 0.25);
+              const centerY = (zone.yMin + zone.yMax) / 2;
+              positions = DISNEY_PATTERNS.generateCluster(centerX, centerY, scaledQuantity, 20);
+            }
+            break;
+          }
+
+          case 'front': {
+            // Sweeping curve along the front
+            if (scaledQuantity >= 4) {
+              positions = DISNEY_PATTERNS.generateDriftCurve(
+                baseWidth * 0.1,
+                zone.yMax,
+                baseWidth * 0.9,
+                zone.yMin,
+                scaledQuantity,
+                0.35
+              );
+            } else {
+              // Scattered clusters
+              for (let i = 0; i < scaledQuantity; i++) {
+                const t = (i + 0.5) / scaledQuantity;
+                positions.push({
+                  x: baseWidth * (0.15 + t * 0.7) + (Math.random() - 0.5) * 15,
+                  y: zone.yMin + (zone.yMax - zone.yMin) * (0.3 + Math.random() * 0.4)
+                });
+              }
+            }
+            break;
+          }
+
+          case 'edge':
+          case 'groundcover': {
+            // Dense wave patterns for ground-level plants
+            if (scaledQuantity >= 6) {
+              const row1 = DISNEY_PATTERNS.generateWavePattern(baseWidth, baseHeight, zone.yMin + 8, Math.ceil(scaledQuantity / 2));
+              const row2 = DISNEY_PATTERNS.generateWavePattern(baseWidth, baseHeight, zone.yMax - 5, Math.floor(scaledQuantity / 2));
+              positions = [...row1, ...row2];
+            } else {
+              // Spread evenly with variance
+              for (let i = 0; i < scaledQuantity; i++) {
+                const t = (i + 0.5) / scaledQuantity;
+                positions.push({
+                  x: baseWidth * (0.08 + t * 0.84) + (Math.random() - 0.5) * 12,
+                  y: zone.yMin + (zone.yMax - zone.yMin) * Math.random()
+                });
+              }
+            }
+            break;
+          }
+
+          default: {
+            // Fallback: golden spiral distribution
+            const centerX = baseWidth / 2;
+            const centerY = (zone.yMin + zone.yMax) / 2;
+            positions = DISNEY_PATTERNS.generateCluster(centerX, centerY, scaledQuantity, baseWidth * 0.3);
+          }
+        }
+
+        // Place plants at generated positions with collision avoidance
+        positions.forEach((pos, i) => {
+          const validPos = DISNEY_PATTERNS.findValidPosition(
+            pos.x,
+            pos.y,
+            bundlePlant.plantId,
+            newPlants,
+            ALL_PLANTS,
+            baseWidth,
+            baseHeight
+          );
+
+          if (validPos) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-${role}-${plantTypeIndex}-${i}`,
+              plantId: bundlePlant.plantId,
+              x: validPos.x,
+              y: validPos.y,
+              rotation: (Math.random() - 0.5) * 15, // Slight natural rotation
+              scale: 0.9 + Math.random() * 0.2      // Slight size variance
+            });
+          }
+        });
+      });
+    });
+
     setPlacedPlants([...placedPlants, ...newPlants]);
     setSelectedBundle(bundle);
   };
