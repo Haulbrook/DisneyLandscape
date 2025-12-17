@@ -202,6 +202,7 @@ export default function DisneyLandscapeStudio() {
   const [designName, setDesignName] = useState('Untitled Disney Garden');
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [draggingPlantId, setDraggingPlantId] = useState(null);
   
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -258,7 +259,58 @@ export default function DisneyLandscapeStudio() {
   // Handle plant selection on canvas
   const handlePlantClick = (e, plant) => {
     e.stopPropagation();
-    setSelectedPlacedPlant(plant.id === selectedPlacedPlant ? null : plant.id);
+    if (!isDragging) {
+      setSelectedPlacedPlant(plant.id === selectedPlacedPlant ? null : plant.id);
+    }
+  };
+
+  // Handle drag start on a placed plant
+  const handleDragStart = (e, plant) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom / 4;
+    const mouseY = (e.clientY - rect.top) / zoom / 4;
+    
+    setDraggingPlantId(plant.id);
+    setSelectedPlacedPlant(plant.id);
+    setDragOffset({
+      x: mouseX - plant.x,
+      y: mouseY - plant.y
+    });
+    setIsDragging(true);
+  };
+
+  // Handle drag move
+  const handleDragMove = (e) => {
+    if (!isDragging || !draggingPlantId) return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom / 4;
+    const mouseY = (e.clientY - rect.top) / zoom / 4;
+    
+    const newX = mouseX - dragOffset.x;
+    const newY = mouseY - dragOffset.y;
+    
+    // Clamp to bed bounds
+    const clampedX = Math.max(5, Math.min(bedDimensions.width - 5, newX));
+    const clampedY = Math.max(5, Math.min(bedDimensions.height - 5, newY));
+    
+    setPlacedPlants(prev => prev.map(p => 
+      p.id === draggingPlantId 
+        ? { ...p, x: clampedX, y: clampedY }
+        : p
+    ));
+  };
+
+  // Handle drag end
+  const handleDragEnd = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      setDraggingPlantId(null);
+      setDragOffset({ x: 0, y: 0 });
+    }
   };
 
   // Delete selected plant
@@ -734,10 +786,13 @@ export default function DisneyLandscapeStudio() {
               style={{
                 width: bedDimensions.width * zoom * 4,
                 height: bedDimensions.height * zoom * 4,
-                cursor: selectedPlant ? 'crosshair' : 'default'
+                cursor: isDragging ? 'grabbing' : selectedPlant ? 'crosshair' : 'default'
               }}
               ref={canvasRef}
               onClick={handleCanvasClick}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
             >
               {/* Grid Overlay */}
               {showGrid && (
@@ -790,20 +845,23 @@ export default function DisneyLandscapeStudio() {
                 const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
                 const size = getPlantSize(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
+                const isBeingDragged = draggingPlantId === plant.id;
                 
                 return (
                   <div
                     key={plant.id}
-                    className={`absolute cursor-pointer transition-all ${
+                    className={`absolute transition-shadow ${
                       isSelected ? 'ring-4 ring-emerald-400 ring-opacity-50 z-10' : 'hover:brightness-110'
-                    }`}
+                    } ${isBeingDragged ? 'z-20 scale-105' : ''}`}
                     style={{
                       left: plant.x * zoom * 4 - (size * zoom) / 2,
                       top: plant.y * zoom * 4 - (size * zoom) / 2,
                       width: size * zoom,
                       height: size * zoom,
                       transform: `rotate(${plant.rotation}deg) scale(${plant.scale})`,
+                      cursor: isBeingDragged ? 'grabbing' : 'grab',
                     }}
+                    onMouseDown={(e) => handleDragStart(e, plant)}
                     onClick={(e) => handlePlantClick(e, plant)}
                   >
                     <div 
@@ -830,7 +888,7 @@ export default function DisneyLandscapeStudio() {
                   <div className="text-center">
                     <Flower2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
                     <p className="text-lg">Select a plant or bundle to begin</p>
-                    <p className="text-sm mt-2">Click on the canvas to place plants</p>
+                    <p className="text-sm mt-2">Click to place • Drag to move • Click to select</p>
                   </div>
                 </div>
               )}
