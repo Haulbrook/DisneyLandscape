@@ -203,6 +203,9 @@ export default function DisneyLandscapeStudio() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [draggingPlantId, setDraggingPlantId] = useState(null);
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
   
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -318,6 +321,65 @@ export default function DisneyLandscapeStudio() {
     if (selectedPlacedPlant) {
       setPlacedPlants(placedPlants.filter(p => p.id !== selectedPlacedPlant));
       setSelectedPlacedPlant(null);
+    }
+  };
+
+  // Generate AI Vision image
+  const generateVisionImage = async (season) => {
+    if (placedPlants.length === 0) {
+      setGenerateError('Add some plants to your design first');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerateError(null);
+    setGeneratedImage(null);
+
+    // Build a description of the current design
+    const plantDescriptions = placedPlants.map(placed => {
+      const plantData = ALL_PLANTS.find(p => p.id === placed.plantId);
+      return plantData?.name || 'plant';
+    });
+
+    // Count unique plants
+    const plantCounts = plantDescriptions.reduce((acc, name) => {
+      acc[name] = (acc[name] || 0) + 1;
+      return acc;
+    }, {});
+
+    const plantList = Object.entries(plantCounts)
+      .map(([name, count]) => `${count} ${name}${count > 1 ? 's' : ''}`)
+      .join(', ');
+
+    const prompt = `A ${bedDimensions.width / 12}ft x ${bedDimensions.height / 12}ft garden bed featuring ${plantList}.
+    Theme: ${selectedBundle?.theme || designName}.
+    The bed has ${coveragePercent.toFixed(0)}% plant coverage with professional Disney theme park landscaping standards.`;
+
+    try {
+      const response = await fetch('/.netlify/functions/generate-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt, season }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate image');
+      }
+
+      setGeneratedImage({
+        url: data.imageUrl,
+        revisedPrompt: data.revisedPrompt,
+        season: season
+      });
+    } catch (error) {
+      console.error('Generation error:', error);
+      setGenerateError(error.message || 'Failed to generate image. Please try again.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -1089,31 +1151,104 @@ export default function DisneyLandscapeStudio() {
                 Disney Vision Preview
               </h2>
               <button
-                onClick={() => setShowVisionPreview(false)}
+                onClick={() => {
+                  setShowVisionPreview(false);
+                  setGeneratedImage(null);
+                  setGenerateError(null);
+                }}
                 className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6">
-              <div className="aspect-video bg-gradient-to-br from-emerald-900/30 via-teal-900/30 to-cyan-900/30 rounded-xl flex items-center justify-center border border-emerald-800/30">
-                <div className="text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4 text-emerald-400/50" />
-                  <h3 className="text-xl font-bold text-emerald-300 mb-2">AI Vision Rendering</h3>
-                  <p className="text-slate-400 max-w-md">
-                    Your design with {placedPlants.length} plants would generate a photorealistic 
-                    rendering showing the completed Disney-quality garden at peak bloom.
-                  </p>
-                  <div className="mt-6 flex justify-center gap-4">
-                    <button className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg font-medium hover:from-emerald-500 hover:to-teal-500 transition-all">
-                      Generate Spring View
-                    </button>
-                    <button className="px-6 py-3 bg-slate-800 rounded-lg font-medium hover:bg-slate-700 transition-all">
-                      Generate Summer View
-                    </button>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="aspect-video bg-gradient-to-br from-emerald-900/30 via-teal-900/30 to-cyan-900/30 rounded-xl flex items-center justify-center border border-emerald-800/30 overflow-hidden">
+                {isGenerating ? (
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 border-4 border-emerald-400/30 border-t-emerald-400 rounded-full animate-spin" />
+                    <h3 className="text-xl font-bold text-emerald-300 mb-2">Generating Vision...</h3>
+                    <p className="text-slate-400">Creating your Disney-quality garden rendering</p>
+                    <p className="text-slate-500 text-sm mt-2">This may take 15-30 seconds</p>
                   </div>
-                </div>
+                ) : generatedImage ? (
+                  <img
+                    src={generatedImage.url}
+                    alt={`${generatedImage.season} garden preview`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-6">
+                    <Sparkles className="w-16 h-16 mx-auto mb-4 text-emerald-400/50" />
+                    <h3 className="text-xl font-bold text-emerald-300 mb-2">AI Vision Rendering</h3>
+                    <p className="text-slate-400 max-w-md">
+                      {placedPlants.length === 0
+                        ? 'Add plants to your design to generate a preview'
+                        : `Your design with ${placedPlants.length} plants will generate a photorealistic rendering showing the completed Disney-quality garden.`
+                      }
+                    </p>
+                    {generateError && (
+                      <p className="text-red-400 mt-4 text-sm">{generateError}</p>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {/* Generate Buttons */}
+              <div className="mt-4 flex justify-center gap-4">
+                <button
+                  onClick={() => generateVisionImage('spring')}
+                  disabled={isGenerating || placedPlants.length === 0}
+                  className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    isGenerating || placedPlants.length === 0
+                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500'
+                  }`}
+                >
+                  <Flower2 className="w-4 h-4" />
+                  Generate Spring View
+                </button>
+                <button
+                  onClick={() => generateVisionImage('summer')}
+                  disabled={isGenerating || placedPlants.length === 0}
+                  className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    isGenerating || placedPlants.length === 0
+                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                      : 'bg-slate-800 hover:bg-slate-700'
+                  }`}
+                >
+                  <Sun className="w-4 h-4" />
+                  Generate Summer View
+                </button>
+                <button
+                  onClick={() => generateVisionImage('fall')}
+                  disabled={isGenerating || placedPlants.length === 0}
+                  className={`px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                    isGenerating || placedPlants.length === 0
+                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                      : 'bg-slate-800 hover:bg-slate-700'
+                  }`}
+                >
+                  <Leaf className="w-4 h-4" />
+                  Generate Fall View
+                </button>
+              </div>
+
+              {/* Download button when image is generated */}
+              {generatedImage && (
+                <div className="mt-4 flex justify-center">
+                  <a
+                    href={generatedImage.url}
+                    download={`disney-garden-${generatedImage.season}-${Date.now()}.png`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 rounded-lg font-medium transition-all flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Image
+                  </a>
+                </div>
+              )}
+
               <div className="mt-4 p-4 bg-slate-800/30 rounded-xl">
                 <h4 className="font-medium text-emerald-300 mb-2">Rendering Details</h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
@@ -1130,6 +1265,12 @@ export default function DisneyLandscapeStudio() {
                     <span className="text-white ml-2">{selectedBundle?.theme || 'Custom'}</span>
                   </div>
                 </div>
+                {generatedImage?.revisedPrompt && (
+                  <div className="mt-3 pt-3 border-t border-slate-700">
+                    <span className="text-slate-500 text-xs">AI Interpretation:</span>
+                    <p className="text-slate-400 text-xs mt-1">{generatedImage.revisedPrompt}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
