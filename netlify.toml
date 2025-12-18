@@ -12,7 +12,10 @@
 
 [functions]
   directory = "netlify/functions"
+  # Set default timeout for all functions (Netlify Pro max is 26 seconds)
+  timeout = 26
 
-# Extended timeout for DALL-E 3 image generation (requires Netlify Pro or higher)
+# Function-specific configuration
 [functions."generate-image"]
-  timeout = 60
+  # Maximum timeout for Pro plan (DALL-E 3 needs ~15-25 seconds)
+  timeout = 26

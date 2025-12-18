@@ -615,8 +615,10 @@ export default function StudioPage() {
     return getPlantSizes(plantId).iconSize;
   };
 
-  // Generate AI vision image using DALL-E 3
-  const generateVisionImage = async (season) => {
+  // Generate AI vision image using DALL-E 3 with retry logic
+  const generateVisionImage = async (season, retryCount = 0) => {
+    const MAX_RETRIES = 2;
+
     if (placedPlants.length === 0) {
       setGenerateError('Please add some plants to your design first.');
       return;
@@ -694,16 +696,30 @@ export default function StudioPage() {
 
       const prompt = promptParts.join('\n');
 
-      console.log('Sending prompt to DALL-E 3:', prompt);
+      console.log(`Sending prompt to DALL-E 3 (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, prompt);
 
-      // Call the Netlify function
+      // Call the Netlify function with 30 second timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch('/.netlify/functions/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt, season }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
+
+      // Check if response is JSON or HTML error page
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error('Gateway timeout - server is still processing. Retrying...');
+      }
 
       const data = await response.json();
 
@@ -725,9 +741,30 @@ export default function StudioPage() {
       });
     } catch (error) {
       console.error('Vision generation error:', error);
+
+      // Check if we should retry (for timeout/gateway errors)
+      const isRetryable = error.name === 'AbortError' ||
+                          error.message.includes('timeout') ||
+                          error.message.includes('Gateway') ||
+                          error.message.includes('504') ||
+                          error.message.includes('Retrying');
+
+      if (isRetryable && retryCount < MAX_RETRIES) {
+        console.log(`Retrying in ${(retryCount + 1) * 2} seconds...`);
+        setGenerateError(`Image generation taking longer than expected. Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+
+        // Wait before retrying with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 2000));
+
+        // Retry the request
+        return generateVisionImage(season, retryCount + 1);
+      }
+
       setGenerateError(error.message || 'Failed to generate vision. Please try again.');
     } finally {
-      setIsGenerating(false);
+      if (retryCount === 0 || !generateError) {
+        setIsGenerating(false);
+      }
     }
   };
 
