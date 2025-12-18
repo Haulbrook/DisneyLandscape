@@ -39,17 +39,26 @@ exports.handler = async (event) => {
 
 Season: ${seasonDescriptions[season] || seasonDescriptions.spring}.
 
+SETTING - CRITICAL:
+- OUTDOOR setting only - a simple garden bed in a yard, park, or landscape
+- Background: grass lawn, trees in distance, open sky, natural outdoor environment
+- NO pathways, NO walkways, NO stepping stones through the bed
+- NO buildings, NO structures, NO fences, NO walls in frame
+- NO fountains, NO statues, NO garden ornaments
+- NO indoor elements, NO greenhouse, NO conservatory
+- Just a natural planted bed surrounded by lawn/landscape
+
 STYLE REQUIREMENTS:
-- Photorealistic professional landscape photography
+- Photorealistic outdoor landscape photography
 - Eye-level perspective from front of bed looking toward back
 - Show EXACTLY the plants specified - no more, no less
 - Maintain proper scale relationships between plant types
-- Dark brown mulch visible between plants
-- Clean defined bed edges
-- Soft natural lighting, no harsh shadows
-- No people, no garden tools, no decorations
+- Dark brown shredded hardwood mulch visible between plants
+- Clean curved or natural bed edges against grass
+- Soft natural outdoor daylight
+- No people, no garden tools
 - Plants should look healthy and well-maintained
-- If coverage is low, show more mulch - do not fill with extra plants`;
+- Simple, clean, professional landscaping - not elaborate formal gardens`;
 
     const response = await callOpenAI(apiKey, fullPrompt);
 
