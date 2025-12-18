@@ -12,10 +12,5 @@
 
 [functions]
   directory = "netlify/functions"
-  # Set default timeout for all functions (Netlify Pro max is 26 seconds)
-  timeout = 26
-
-# Function-specific configuration
-[functions."generate-image"]
-  # Maximum timeout for Pro plan (DALL-E 3 needs ~15-25 seconds)
-  timeout = 26
+  # Background functions have 15 minute timeout by default
+  # No special timeout config needed

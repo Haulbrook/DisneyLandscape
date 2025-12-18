@@ -1,40 +1,44 @@
 const https = require('https');
+const { getStore } = require('@netlify/blobs');
 
-exports.handler = async (event) => {
+// Configure as a background function (15 minute timeout)
+exports.config = {
+  type: 'background'
+};
+
+exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return { statusCode: 405, body: 'Method not allowed' };
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    console.error('OPENAI_API_KEY environment variable is not set');
+    console.error('OPENAI_API_KEY not set');
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: 'OpenAI API key not configured',
-        details: 'Please add OPENAI_API_KEY to your Netlify environment variables'
-      }),
+      body: JSON.stringify({ error: 'OpenAI API key not configured' })
     };
   }
 
   try {
-    const { prompt, season = 'spring' } = JSON.parse(event.body);
+    const { prompt, season = 'spring', jobId } = JSON.parse(event.body);
 
-    if (!prompt) {
+    if (!prompt || !jobId) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Prompt is required' }),
+        body: JSON.stringify({ error: 'prompt and jobId are required' })
       };
     }
 
-    console.log('Generating image for season:', season);
+    console.log('Background job started:', jobId);
+    console.log('Season:', season);
+
+    // Get blob store for results
+    const store = getStore('image-results');
+
+    // Mark job as processing
+    await store.setJSON(jobId, { status: 'processing', startedAt: Date.now() });
 
     // Season-specific details
     const seasonDetails = {
@@ -62,7 +66,6 @@ exports.handler = async (event) => {
 
     const seasonInfo = seasonDetails[season] || seasonDetails.spring;
 
-    // Simplified, more focused prompt for faster generation
     const fullPrompt = `Professional landscape photograph of a residential garden bed in ${season}:
 
 ${prompt}
@@ -76,30 +79,38 @@ Requirements:
 - NO text, labels, people, or decorations
 - Sharp focus, rich colors, professional quality`;
 
-    console.log('Prompt length:', fullPrompt.length);
+    console.log('Calling OpenAI DALL-E 3...');
 
-    // Call OpenAI and wait for result (using smaller image for speed)
-    const response = await callOpenAI(apiKey, fullPrompt);
+    try {
+      const response = await callOpenAI(apiKey, fullPrompt);
 
-    console.log('Image generated successfully');
+      console.log('Image generated successfully for job:', jobId);
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      // Store successful result
+      await store.setJSON(jobId, {
+        status: 'complete',
         imageUrl: response.data[0].url,
-        revisedPrompt: response.data[0].revised_prompt
-      }),
-    };
+        revisedPrompt: response.data[0].revised_prompt,
+        completedAt: Date.now()
+      });
+    } catch (error) {
+      console.error('OpenAI error:', error.message);
+
+      // Store error result
+      await store.setJSON(jobId, {
+        status: 'error',
+        error: error.message,
+        completedAt: Date.now()
+      });
+    }
+
+    // Background functions return 202 Accepted
+    return { statusCode: 202, body: JSON.stringify({ jobId, status: 'processing' }) };
   } catch (error) {
-    console.error('Error generating image:', error.message);
+    console.error('Function error:', error.message);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: 'Failed to generate image',
-        details: error.message
-      }),
+      body: JSON.stringify({ error: error.message })
     };
   }
 };
@@ -110,15 +121,12 @@ function callOpenAI(apiKey, prompt) {
       model: 'dall-e-3',
       prompt: prompt,
       n: 1,
-      size: '1024x1024',       // Square is faster than landscape
+      size: '1024x1024',
       quality: 'standard',
       style: 'natural'
     };
 
     const data = JSON.stringify(requestBody);
-
-    console.log('Calling DALL-E 3...');
-    console.log('Size:', requestBody.size);
 
     const options = {
       hostname: 'api.openai.com',
@@ -135,15 +143,13 @@ function callOpenAI(apiKey, prompt) {
     const req = https.request(options, (res) => {
       let body = '';
 
-      res.on('data', (chunk) => {
-        body += chunk;
-      });
+      res.on('data', (chunk) => { body += chunk; });
 
       res.on('end', () => {
-        console.log('OpenAI Status:', res.statusCode);
+        console.log('OpenAI response status:', res.statusCode);
 
         if (body.trim().startsWith('<')) {
-          reject(new Error('Gateway timeout. Please try again.'));
+          reject(new Error('Gateway error from OpenAI'));
           return;
         }
 
@@ -162,18 +168,17 @@ function callOpenAI(apiKey, prompt) {
 
           resolve(response);
         } catch (e) {
-          reject(new Error('Failed to parse response'));
+          reject(new Error('Failed to parse OpenAI response'));
         }
       });
     });
 
-    req.on('error', (e) => {
-      reject(new Error(`Network error: ${e.message}`));
-    });
+    req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
 
-    req.setTimeout(25000, () => {
+    // 2 minute timeout for background function
+    req.setTimeout(120000, () => {
       req.destroy();
-      reject(new Error('Request timed out. Please try again.'));
+      reject(new Error('OpenAI request timed out'));
     });
 
     req.write(data);

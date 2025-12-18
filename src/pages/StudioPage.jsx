@@ -615,10 +615,8 @@ export default function StudioPage() {
     return getPlantSizes(plantId).iconSize;
   };
 
-  // Generate AI vision image using DALL-E 3 with retry logic
-  const generateVisionImage = async (season, retryCount = 0) => {
-    const MAX_RETRIES = 2;
-
+  // Generate AI vision image using DALL-E 3 with background function + polling
+  const generateVisionImage = async (season) => {
     if (placedPlants.length === 0) {
       setGenerateError('Please add some plants to your design first.');
       return;
@@ -696,75 +694,74 @@ export default function StudioPage() {
 
       const prompt = promptParts.join('\n');
 
-      console.log(`Sending prompt to DALL-E 3 (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, prompt);
+      // Generate unique job ID
+      const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // Call the Netlify function with 30 second timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      console.log('Starting background image generation, jobId:', jobId);
+      console.log('Prompt:', prompt);
 
-      const response = await fetch('/.netlify/functions/generate-image', {
+      // Start the background job
+      const startResponse = await fetch('/.netlify/functions/generate-image', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt, season }),
-        signal: controller.signal
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, season, jobId }),
       });
 
-      clearTimeout(timeoutId);
-
-      // Check if response is JSON or HTML error page
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text.substring(0, 200));
-        throw new Error('Gateway timeout - server is still processing. Retrying...');
+      if (!startResponse.ok && startResponse.status !== 202) {
+        const errorData = await startResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to start image generation');
       }
 
-      const data = await response.json();
+      console.log('Background job started, polling for result...');
 
-      if (!response.ok) {
-        throw new Error(data.error || data.details || 'Failed to generate image');
-      }
-
+      // Poll for result
       const plantList = Object.entries(plantDetails)
         .map(([name, info]) => `${info.count} ${name}`)
         .join(', ');
 
-      setGeneratedImage({
-        url: data.imageUrl,
-        season: season,
-        description: `${season.charAt(0).toUpperCase() + season.slice(1)} garden with ${plantList}`,
-        plantCount: placedPlants.length,
-        coverage: coveragePercent.toFixed(1),
-        revisedPrompt: data.revisedPrompt
-      });
+      const maxPolls = 60; // 2 minutes max (60 * 2 seconds)
+      let pollCount = 0;
+
+      while (pollCount < maxPolls) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+        pollCount++;
+
+        try {
+          const statusResponse = await fetch(`/.netlify/functions/check-image-status?jobId=${jobId}`);
+          const statusData = await statusResponse.json();
+
+          console.log(`Poll ${pollCount}: status =`, statusData.status);
+
+          if (statusData.status === 'complete') {
+            setGeneratedImage({
+              url: statusData.imageUrl,
+              season: season,
+              description: `${season.charAt(0).toUpperCase() + season.slice(1)} garden with ${plantList}`,
+              plantCount: placedPlants.length,
+              coverage: coveragePercent.toFixed(1),
+              revisedPrompt: statusData.revisedPrompt
+            });
+            setIsGenerating(false);
+            return;
+          } else if (statusData.status === 'error') {
+            throw new Error(statusData.error || 'Image generation failed');
+          }
+          // else status is 'processing' or 'pending', continue polling
+        } catch (pollError) {
+          console.error('Poll error:', pollError);
+          // Continue polling unless it's a real error from the job
+          if (pollError.message && !pollError.message.includes('fetch')) {
+            throw pollError;
+          }
+        }
+      }
+
+      throw new Error('Image generation timed out after 2 minutes. Please try again.');
     } catch (error) {
       console.error('Vision generation error:', error);
-
-      // Check if we should retry (for timeout/gateway errors)
-      const isRetryable = error.name === 'AbortError' ||
-                          error.message.includes('timeout') ||
-                          error.message.includes('Gateway') ||
-                          error.message.includes('504') ||
-                          error.message.includes('Retrying');
-
-      if (isRetryable && retryCount < MAX_RETRIES) {
-        console.log(`Retrying in ${(retryCount + 1) * 2} seconds...`);
-        setGenerateError(`Image generation taking longer than expected. Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
-
-        // Wait before retrying with exponential backoff
-        await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 2000));
-
-        // Retry the request
-        return generateVisionImage(season, retryCount + 1);
-      }
-
       setGenerateError(error.message || 'Failed to generate vision. Please try again.');
     } finally {
-      if (retryCount === 0 || !generateError) {
-        setIsGenerating(false);
-      }
+      setIsGenerating(false);
     }
   };
 
