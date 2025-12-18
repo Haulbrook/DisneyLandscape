@@ -2,23 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar styling */
+/* CSS Variables for Theme */
+:root {
+  --color-bg-primary: #fefdfb;
+  --color-bg-secondary: #faf4e8;
+  --color-accent-primary: #677c56;
+  --color-accent-secondary: #557852;
+  --color-wood: #b59972;
+  --color-text-primary: #2d3528;
+  --color-text-secondary: #506242;
+  --color-border: #c8d0bb;
+}
+
+/* Custom scrollbar styling - Natural theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #faf4e8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.3);
+  background: #a5b393;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.5);
+  background: #677c56;
 }
 
 /* Smooth transitions */
@@ -32,6 +44,12 @@
 }
 
 *:focus-visible {
-  outline: 2px solid rgba(16, 185, 129, 0.5);
+  outline: 2px solid #677c56;
   outline-offset: 2px;
+}
+
+/* Base body styling */
+body {
+  background-color: #fefdfb;
+  color: #2d3528;
 }
