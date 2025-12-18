@@ -484,56 +484,105 @@ export default function StudioPage() {
     }
   };
 
-  // Apply bed bundle (positions in inches)
+  // Check if a position collides with existing plants
+  const checkCollision = (x, y, plantId, existingPlants) => {
+    const newPlantSize = getPlantSizes(plantId).matureSpread / 2;
+
+    for (const existing of existingPlants) {
+      const existingSize = getPlantSizes(existing.plantId).matureSpread / 2;
+      const minDistance = newPlantSize + existingSize + 6; // 6 inch buffer
+      const distance = Math.sqrt(Math.pow(x - existing.x, 2) + Math.pow(y - existing.y, 2));
+      if (distance < minDistance) return true;
+    }
+    return false;
+  };
+
+  // Find valid position using spiral search
+  const findValidPosition = (targetX, targetY, plantId, existingPlants, bedWidth, bedHeight) => {
+    const plantSize = getPlantSizes(plantId).matureSpread / 2;
+    const padding = plantSize + 6;
+
+    // Try original position first
+    if (!checkCollision(targetX, targetY, plantId, existingPlants) &&
+        targetX >= padding && targetX <= bedWidth - padding &&
+        targetY >= padding && targetY <= bedHeight - padding) {
+      return { x: targetX, y: targetY };
+    }
+
+    // Spiral outward to find valid position
+    for (let attempt = 0; attempt < 100; attempt++) {
+      const angle = attempt * 2.399963; // Golden angle
+      const distance = Math.sqrt(attempt) * 12;
+
+      const newX = targetX + Math.cos(angle) * distance;
+      const newY = targetY + Math.sin(angle) * distance;
+
+      // Clamp to bed bounds
+      const clampedX = Math.max(padding, Math.min(bedWidth - padding, newX));
+      const clampedY = Math.max(padding, Math.min(bedHeight - padding, newY));
+
+      if (!checkCollision(clampedX, clampedY, plantId, existingPlants)) {
+        return { x: clampedX, y: clampedY };
+      }
+    }
+    return null; // Could not find valid position
+  };
+
+  // Apply bed bundle with smart placement that fits within bed
   const applyBundle = (bundle) => {
     const newPlants = [];
-    const baseWidth = bedDimensions.width * 12; // Convert feet to inches
-    const baseHeight = bedDimensions.height * 12;
+    const bedWidth = bedDimensions.width * 12; // Convert feet to inches
+    const bedHeight = bedDimensions.height * 12;
 
-    bundle.plants.forEach((bundlePlant, index) => {
+    // Define zones as percentages of bed dimensions
+    const zones = {
+      focal: { yMin: 0.70, yMax: 0.90, xMin: 0.25, xMax: 0.75 },
+      back: { yMin: 0.65, yMax: 0.85, xMin: 0.10, xMax: 0.90 },
+      topiary: { yMin: 0.50, yMax: 0.80, xMin: 0.10, xMax: 0.90 },
+      middle: { yMin: 0.35, yMax: 0.60, xMin: 0.10, xMax: 0.90 },
+      front: { yMin: 0.15, yMax: 0.40, xMin: 0.08, xMax: 0.92 },
+      edge: { yMin: 0.05, yMax: 0.25, xMin: 0.05, xMax: 0.95 },
+      groundcover: { yMin: 0.05, yMax: 0.30, xMin: 0.05, xMax: 0.95 }
+    };
+
+    // Sort bundle plants by category priority (back to front)
+    const sortedPlants = [...bundle.plants].sort((a, b) => {
+      const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
+      return order.indexOf(a.role) - order.indexOf(b.role);
+    });
+
+    sortedPlants.forEach((bundlePlant, index) => {
       const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
       if (!plantData) return;
 
       const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
+      const zone = zones[bundlePlant.role] || zones.middle;
+
+      // Calculate zone bounds in inches
+      const zoneXMin = bedWidth * zone.xMin;
+      const zoneXMax = bedWidth * zone.xMax;
+      const zoneYMin = bedHeight * zone.yMin;
+      const zoneYMax = bedHeight * zone.yMax;
+      const zoneWidth = zoneXMax - zoneXMin;
 
       for (let i = 0; i < scaledQuantity; i++) {
-        let x, y;
+        // Distribute plants across the zone width with some randomness
+        const spacing = zoneWidth / (scaledQuantity + 1);
+        const targetX = zoneXMin + spacing * (i + 1) + (Math.random() - 0.5) * spacing * 0.5;
+        const targetY = zoneYMin + (zoneYMax - zoneYMin) * (0.3 + Math.random() * 0.4);
 
-        // Position based on role
-        switch (bundlePlant.role) {
-          case 'focal':
-            x = baseWidth * 0.5 + (i * 20);
-            y = baseHeight * 0.85;
-            break;
-          case 'back':
-            x = baseWidth * (0.2 + (i * 0.2));
-            y = baseHeight * 0.8;
-            break;
-          case 'middle':
-            x = baseWidth * (0.15 + (i * 0.12));
-            y = baseHeight * 0.5;
-            break;
-          case 'front':
-            x = baseWidth * (0.1 + (i * 0.06));
-            y = baseHeight * 0.2;
-            break;
-          case 'edge':
-            x = baseWidth * (0.05 + (i * 0.06));
-            y = baseHeight * 0.1;
-            break;
-          default:
-            x = Math.random() * baseWidth;
-            y = Math.random() * baseHeight;
+        const validPos = findValidPosition(targetX, targetY, bundlePlant.plantId, newPlants, bedWidth, bedHeight);
+
+        if (validPos) {
+          newPlants.push({
+            id: `bundle-${Date.now()}-${index}-${i}`,
+            plantId: bundlePlant.plantId,
+            x: validPos.x,
+            y: validPos.y,
+            rotation: (Math.random() - 0.5) * 10, // Slight rotation for natural look
+            scale: 0.95 + Math.random() * 0.1 // Slight scale variance
+          });
         }
-
-        newPlants.push({
-          id: `bundle-${Date.now()}-${index}-${i}`,
-          plantId: bundlePlant.plantId,
-          x: Math.max(10, Math.min(baseWidth - 10, x)),
-          y: Math.max(10, Math.min(baseHeight - 10, y)),
-          rotation: 0,
-          scale: 1
-        });
       }
     });
 

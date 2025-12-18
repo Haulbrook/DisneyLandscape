@@ -5,12 +5,12 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.REPLICATE_API_TOKEN;
 
   if (!apiKey) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'OpenAI API key not configured' })
+      body: JSON.stringify({ error: 'Replicate API token not configured. Add REPLICATE_API_TOKEN to Netlify environment variables.' })
     };
   }
 
@@ -64,15 +64,26 @@ Requirements:
 - Sharp focus, rich colors, professional quality
 - Simple suburban home landscaping style`;
 
-    console.log('Calling OpenAI DALL-E 3...');
-    const response = await callOpenAI(apiKey, fullPrompt);
+    console.log('Calling Replicate FLUX...');
+
+    // Create prediction
+    const prediction = await createPrediction(apiKey, fullPrompt);
+
+    // Poll for result (FLUX is fast, usually 5-10 seconds)
+    const result = await pollForResult(apiKey, prediction.id);
+
+    if (result.status === 'failed') {
+      throw new Error(result.error || 'Image generation failed');
+    }
+
+    const imageUrl = Array.isArray(result.output) ? result.output[0] : result.output;
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        imageUrl: response.data[0].url,
-        revisedPrompt: response.data[0].revised_prompt
+        imageUrl: imageUrl,
+        revisedPrompt: fullPrompt.substring(0, 200) + '...'
       })
     };
   } catch (error) {
@@ -84,21 +95,23 @@ Requirements:
   }
 };
 
-function callOpenAI(apiKey, prompt) {
+function createPrediction(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'dall-e-3',
-      prompt: prompt,
-      n: 1,
-      size: '1024x1024',
-      quality: 'standard',
-      style: 'natural'
+      version: "black-forest-labs/flux-schnell",
+      input: {
+        prompt: prompt,
+        num_outputs: 1,
+        aspect_ratio: "16:9",
+        output_format: "webp",
+        output_quality: 90
+      }
     });
 
     const options = {
-      hostname: 'api.openai.com',
+      hostname: 'api.replicate.com',
       port: 443,
-      path: '/v1/images/generations',
+      path: '/v1/predictions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,40 +122,76 @@ function callOpenAI(apiKey, prompt) {
 
     const req = https.request(options, (res) => {
       let body = '';
-
       res.on('data', (chunk) => { body += chunk; });
-
       res.on('end', () => {
-        console.log('OpenAI response status:', res.statusCode);
-
-        if (body.trim().startsWith('<')) {
-          reject(new Error('Gateway error from OpenAI - please retry'));
-          return;
-        }
-
         try {
           const response = JSON.parse(body);
-
-          if (res.statusCode !== 200) {
-            reject(new Error(response.error?.message || 'OpenAI API error'));
+          if (res.statusCode !== 201 && res.statusCode !== 200) {
+            reject(new Error(response.detail || response.error || 'Failed to create prediction'));
             return;
           }
-
           resolve(response);
         } catch (e) {
-          reject(new Error('Failed to parse OpenAI response'));
+          reject(new Error('Failed to parse Replicate response'));
         }
       });
     });
 
     req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
-
-    req.setTimeout(25000, () => {
+    req.setTimeout(10000, () => {
       req.destroy();
-      reject(new Error('Request timed out - please retry'));
+      reject(new Error('Request timed out'));
     });
 
     req.write(data);
     req.end();
+  });
+}
+
+function pollForResult(apiKey, predictionId, maxAttempts = 30) {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+
+    const poll = () => {
+      attempts++;
+
+      const options = {
+        hostname: 'api.replicate.com',
+        port: 443,
+        path: `/v1/predictions/${predictionId}`,
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        let body = '';
+        res.on('data', (chunk) => { body += chunk; });
+        res.on('end', () => {
+          try {
+            const response = JSON.parse(body);
+
+            if (response.status === 'succeeded') {
+              resolve(response);
+            } else if (response.status === 'failed' || response.status === 'canceled') {
+              reject(new Error(response.error || 'Prediction failed'));
+            } else if (attempts >= maxAttempts) {
+              reject(new Error('Prediction timed out'));
+            } else {
+              // Still processing, poll again in 500ms
+              setTimeout(poll, 500);
+            }
+          } catch (e) {
+            reject(new Error('Failed to parse status response'));
+          }
+        });
+      });
+
+      req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
+      req.end();
+    };
+
+    poll();
   });
 }
