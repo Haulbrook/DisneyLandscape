@@ -5,6 +5,7 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
@@ -12,9 +13,14 @@ exports.handler = async (event) => {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
+    console.error('OPENAI_API_KEY environment variable is not set');
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'OpenAI API key not configured' }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'OpenAI API key not configured',
+        details: 'Please add OPENAI_API_KEY to your Netlify environment variables'
+      }),
     };
   }
 
@@ -24,59 +30,96 @@ exports.handler = async (event) => {
     if (!prompt) {
       return {
         statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'Prompt is required' }),
       };
     }
 
-    // Build the full prompt for DALL-E 3 (4000 char limit)
-    const seasonDescriptions = {
-      spring: 'early spring with fresh growth, some plants just leafing out, cool morning light',
-      summer: 'peak summer with full lush foliage, warm golden hour sunlight, plants at full size',
-      fall: 'autumn with warm fall colors where applicable, soft afternoon light, mature plants'
+    console.log('Received prompt:', prompt);
+    console.log('Season:', season);
+
+    // Season-specific lighting and plant appearance
+    const seasonDetails = {
+      spring: {
+        lighting: 'soft morning light with slight haze, fresh dewy atmosphere',
+        plants: 'fresh bright green foliage, flowering plants in early bloom, some plants just leafing out',
+        colors: 'light greens, pinks, whites, soft yellows, lavenders'
+      },
+      summer: {
+        lighting: 'warm golden hour sunlight, clear blue sky, slight lens flare',
+        plants: 'full lush foliage at peak growth, flowers in full bloom, dense healthy coverage',
+        colors: 'deep greens, vibrant reds, purples, yellows, oranges'
+      },
+      fall: {
+        lighting: 'warm amber afternoon light, soft shadows, slightly overcast',
+        plants: 'mature plants with fall colors where applicable, ornamental grasses with plumes',
+        colors: 'warm oranges, reds, burgundies, golden yellows, bronze tones'
+      },
+      winter: {
+        lighting: 'cool crisp winter light, soft overcast sky',
+        plants: 'evergreen plants prominent, deciduous plants with interesting bark/structure, ornamental grasses tan colored',
+        colors: 'deep greens of evergreens, browns, tans, subtle winter interest'
+      }
     };
 
-    const fullPrompt = `${prompt}
+    const seasonInfo = seasonDetails[season] || seasonDetails.spring;
 
-Season: ${seasonDescriptions[season] || seasonDescriptions.spring}.
+    // Build the optimized DALL-E 3 prompt
+    const fullPrompt = `PHOTOREALISTIC LANDSCAPE PHOTOGRAPHY of a professionally designed residential garden bed:
 
-SETTING - RESIDENTIAL HOME LANDSCAPE:
-- OUTDOOR residential setting - front yard, backyard, or side yard of a home
-- Background can include: house facade, porch, garage, driveway, fence, patio, deck
-- Grass lawn surrounding the bed, typical suburban neighborhood feel
-- Natural outdoor environment with sky visible
-- NO industrial buildings, NO commercial properties, NO office parks
-- NO public parks, NO botanical gardens, NO formal estate gardens
-- NO elaborate pathways through the bed itself
-- Think: typical American residential landscaping you'd see in a nice neighborhood
+${prompt}
 
-STYLE REQUIREMENTS:
-- Photorealistic outdoor landscape photography
-- Eye-level perspective from front of bed looking toward back
-- Show EXACTLY the plants specified - no more, no less
-- Maintain proper scale relationships between plant types
-- Dark brown shredded hardwood mulch visible between plants
-- Clean curved or natural bed edges against grass
-- Soft natural outdoor daylight
-- No people, no garden tools
-- Plants should look healthy and well-maintained
-- Simple, clean, professional landscaping - not elaborate formal gardens`;
+SEASONAL APPEARANCE (${season.toUpperCase()}):
+- Lighting: ${seasonInfo.lighting}
+- Plant appearance: ${seasonInfo.plants}
+- Color palette: ${seasonInfo.colors}
+
+COMPOSITION & CAMERA:
+- Shot from eye-level, standing at the front edge of the bed looking toward the back
+- Wide angle lens (24-35mm equivalent) to capture the full bed
+- Shallow depth of field with foreground plants sharp, background slightly soft
+- Rule of thirds composition with focal plant positioned off-center
+
+SETTING:
+- Residential backyard or front yard of an upscale suburban home
+- Well-manicured grass lawn bordering the bed
+- Clean curved bed edge with dark brown shredded hardwood mulch visible between plants
+- Background hints: wooden fence, house siding, or mature trees - slightly blurred
+
+REALISM REQUIREMENTS:
+- Professional landscape photography style (like from a garden magazine)
+- Natural plant spacing and layering (tall in back, medium in middle, low in front)
+- Plants at correct mature sizes relative to each other
+- Healthy, well-maintained appearance
+- Absolutely NO artificial elements, NO garden gnomes, NO decorations
+- NO people, NO animals, NO garden tools
+- NO text, NO watermarks, NO labels
+
+QUALITY:
+- Sharp focus on main plants
+- Rich natural colors
+- Professional photography quality
+- Realistic shadows and highlights`;
+
+    console.log('Full prompt length:', fullPrompt.length);
 
     const response = await callOpenAI(apiKey, fullPrompt);
 
+    console.log('Successfully generated image');
+
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         imageUrl: response.data[0].url,
         revisedPrompt: response.data[0].revised_prompt
       }),
     };
   } catch (error) {
-    console.error('Error generating image:', error);
+    console.error('Error generating image:', error.message);
     return {
       statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         error: 'Failed to generate image',
         details: error.message
@@ -87,13 +130,22 @@ STYLE REQUIREMENTS:
 
 function callOpenAI(apiKey, prompt) {
   return new Promise((resolve, reject) => {
-    const data = JSON.stringify({
+    // DALL-E 3 request configuration
+    const requestBody = {
       model: 'dall-e-3',
       prompt: prompt,
       n: 1,
-      size: '1792x1024',
-      quality: 'hd',
-    });
+      size: '1792x1024',      // Landscape orientation for garden beds
+      quality: 'standard',     // 'standard' is faster (15-20s vs 30-60s for 'hd')
+      style: 'natural'         // More photorealistic than 'vivid'
+    };
+
+    const data = JSON.stringify(requestBody);
+
+    console.log('Calling OpenAI DALL-E 3 API...');
+    console.log('Model:', requestBody.model);
+    console.log('Size:', requestBody.size);
+    console.log('Quality:', requestBody.quality);
 
     const options = {
       hostname: 'api.openai.com',
@@ -116,38 +168,52 @@ function callOpenAI(apiKey, prompt) {
 
       res.on('end', () => {
         console.log('OpenAI Response Status:', res.statusCode);
-        console.log('OpenAI Response Body (first 500 chars):', body.substring(0, 500));
 
-        // Check if response looks like HTML (error page)
-        if (body.trim().startsWith('<')) {
-          console.error('Received HTML instead of JSON:', body.substring(0, 200));
-          reject(new Error(`OpenAI returned HTML error page (status ${res.statusCode}). This may indicate an API issue or rate limiting.`));
+        // Check if response is HTML (error page from gateway)
+        if (body.trim().startsWith('<') || body.trim().startsWith('<!')) {
+          console.error('Received HTML instead of JSON. Status:', res.statusCode);
+          console.error('First 500 chars:', body.substring(0, 500));
+          reject(new Error(`Gateway error (${res.statusCode}). The request may have timed out. Please try again.`));
           return;
         }
 
         try {
           const response = JSON.parse(body);
+
           if (res.statusCode !== 200) {
-            console.error('OpenAI API Error:', response.error);
-            reject(new Error(response.error?.message || `OpenAI API error (status ${res.statusCode})`));
-          } else {
-            resolve(response);
+            console.error('OpenAI API Error:', JSON.stringify(response.error, null, 2));
+            const errorMsg = response.error?.message || `OpenAI API error (${res.statusCode})`;
+            reject(new Error(errorMsg));
+            return;
           }
+
+          if (!response.data || !response.data[0] || !response.data[0].url) {
+            console.error('Unexpected response structure:', JSON.stringify(response, null, 2));
+            reject(new Error('Invalid response from OpenAI - no image URL returned'));
+            return;
+          }
+
+          console.log('Image generated successfully');
+          console.log('Revised prompt:', response.data[0].revised_prompt?.substring(0, 200) + '...');
+          resolve(response);
         } catch (e) {
-          console.error('JSON Parse Error:', e.message, 'Body:', body.substring(0, 200));
+          console.error('JSON Parse Error:', e.message);
+          console.error('Response body (first 500 chars):', body.substring(0, 500));
           reject(new Error(`Failed to parse OpenAI response: ${e.message}`));
         }
       });
     });
 
     req.on('error', (e) => {
-      console.error('Request Error:', e);
-      reject(e);
+      console.error('Network Request Error:', e.message);
+      reject(new Error(`Network error: ${e.message}`));
     });
 
+    // 55 second timeout (Netlify function timeout is 60s)
     req.setTimeout(55000, () => {
+      console.error('Request timed out after 55 seconds');
       req.destroy();
-      reject(new Error('Request timed out - DALL-E is taking too long. Please try again.'));
+      reject(new Error('DALL-E 3 is taking too long to respond. Please try again - image generation can sometimes be slow.'));
     });
 
     req.write(data);

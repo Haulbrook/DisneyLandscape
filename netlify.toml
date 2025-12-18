@@ -12,3 +12,7 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Extended timeout for DALL-E 3 image generation (requires Netlify Pro or higher)
+[functions."generate-image"]
+  timeout = 60

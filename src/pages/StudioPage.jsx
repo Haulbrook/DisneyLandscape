@@ -627,7 +627,7 @@ export default function StudioPage() {
     setSelectedSeason(season);
 
     try {
-      // Build detailed plant inventory with positions
+      // Build detailed plant inventory
       const plantDetails = {};
       placedPlants.forEach(p => {
         const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
@@ -635,17 +635,19 @@ export default function StudioPage() {
           if (!plantDetails[plantData.name]) {
             plantDetails[plantData.name] = {
               count: 0,
-              color: plantData.color,
               height: plantData.height,
+              spread: plantData.spread,
               category: plantData.category,
-              bloomTime: plantData.bloomTime
+              bloomTime: plantData.bloomTime,
+              bloomColor: plantData.bloomColor || 'green foliage',
+              disneyUse: plantData.disneyUse
             };
           }
           plantDetails[plantData.name].count++;
         }
       });
 
-      // Group plants by category for better prompt structure
+      // Group plants by category with detailed descriptions
       const byCategory = {
         focal: [],
         topiary: [],
@@ -656,22 +658,43 @@ export default function StudioPage() {
       };
 
       Object.entries(plantDetails).forEach(([name, info]) => {
-        byCategory[info.category]?.push(`${info.count} ${name} (${info.height}, ${info.bloomTime})`);
+        const description = `${info.count}x ${name} (${info.height} tall, ${info.bloomColor}, blooms ${info.bloomTime})`;
+        byCategory[info.category]?.push(description);
       });
 
-      // Build the prompt
-      const bedSizeFt = `${Math.round(bedDimensions.width / 12)}ft x ${Math.round(bedDimensions.height / 12)}ft`;
+      // Build the detailed prompt - bedDimensions is already in feet
+      const bedSizeFt = `${bedDimensions.width}ft x ${bedDimensions.height}ft`;
 
-      let promptParts = [`A professional landscape bed approximately ${bedSizeFt} in size with the following plants:`];
+      let promptParts = [];
+      promptParts.push(`GARDEN BED SPECIFICATIONS:`);
+      promptParts.push(`- Size: ${bedSizeFt} landscape bed`);
+      promptParts.push(`- Total plants: ${placedPlants.length}`);
+      promptParts.push(`- Coverage: ${coveragePercent.toFixed(0)}%`);
+      promptParts.push('');
+      promptParts.push('EXACT PLANT LIST (show these specific plants):');
 
-      if (byCategory.focal.length) promptParts.push(`FOCAL TREES: ${byCategory.focal.join(', ')}`);
-      if (byCategory.topiary.length) promptParts.push(`TOPIARIES: ${byCategory.topiary.join(', ')}`);
-      if (byCategory.back.length) promptParts.push(`BACK ROW (tall shrubs): ${byCategory.back.join(', ')}`);
-      if (byCategory.middle.length) promptParts.push(`MIDDLE ROW (medium plants): ${byCategory.middle.join(', ')}`);
-      if (byCategory.front.length) promptParts.push(`FRONT ROW (low plants): ${byCategory.front.join(', ')}`);
-      if (byCategory.groundcover.length) promptParts.push(`GROUNDCOVER/EDGING: ${byCategory.groundcover.join(', ')}`);
+      if (byCategory.focal.length) {
+        promptParts.push(`FOCAL/SPECIMEN TREES (tallest, back-center): ${byCategory.focal.join('; ')}`);
+      }
+      if (byCategory.topiary.length) {
+        promptParts.push(`TOPIARIES (sculptural, accent positions): ${byCategory.topiary.join('; ')}`);
+      }
+      if (byCategory.back.length) {
+        promptParts.push(`BACK ROW (tall shrubs 4-8ft, along back edge): ${byCategory.back.join('; ')}`);
+      }
+      if (byCategory.middle.length) {
+        promptParts.push(`MIDDLE ROW (medium shrubs 2-4ft): ${byCategory.middle.join('; ')}`);
+      }
+      if (byCategory.front.length) {
+        promptParts.push(`FRONT ROW (low plants 1-2ft, along front edge): ${byCategory.front.join('; ')}`);
+      }
+      if (byCategory.groundcover.length) {
+        promptParts.push(`GROUNDCOVER/EDGING (under 1ft, fills gaps): ${byCategory.groundcover.join('; ')}`);
+      }
 
       const prompt = promptParts.join('\n');
+
+      console.log('Sending prompt to DALL-E 3:', prompt);
 
       // Call the Netlify function
       const response = await fetch('/.netlify/functions/generate-image', {
@@ -695,7 +718,7 @@ export default function StudioPage() {
       setGeneratedImage({
         url: data.imageUrl,
         season: season,
-        description: `Disney-quality ${season} garden with ${plantList}`,
+        description: `${season.charAt(0).toUpperCase() + season.slice(1)} garden with ${plantList}`,
         plantCount: placedPlants.length,
         coverage: coveragePercent.toFixed(1),
         revisedPrompt: data.revisedPrompt
