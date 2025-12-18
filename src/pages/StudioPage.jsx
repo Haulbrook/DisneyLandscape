@@ -194,7 +194,7 @@ export default function StudioPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showGrid, setShowGrid] = useState(true);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(0.15); // Lower default zoom for large beds
   const [bedDimensions, setBedDimensions] = useState({ width: 100, height: 100 }); // In FEET
   const [showRuler, setShowRuler] = useState(false);
   const [showPlantInfo, setShowPlantInfo] = useState(true);
@@ -1016,15 +1016,17 @@ export default function StudioPage() {
               </button>
               <div className="w-px h-6 bg-sage-200 mx-2" />
               <button
-                onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
+                onClick={() => setZoom(Math.max(0.05, zoom - (zoom > 0.25 ? 0.25 : 0.05)))}
                 className="p-2 rounded-lg bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors"
+                title="Zoom Out"
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
               <span className="text-sm text-sage-600 w-16 text-center">{Math.round(zoom * 100)}%</span>
               <button
-                onClick={() => setZoom(Math.min(2, zoom + 0.25))}
+                onClick={() => setZoom(Math.min(2, zoom + (zoom < 0.25 ? 0.05 : 0.25)))}
                 className="p-2 rounded-lg bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors"
+                title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
