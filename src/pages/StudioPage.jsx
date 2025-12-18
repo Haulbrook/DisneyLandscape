@@ -201,8 +201,13 @@ export default function StudioPage() {
   const [colorHarmonyStatus, setColorHarmonyStatus] = useState({ valid: true, scheme: 'ANALOGOUS' });
   const [showVisionPreview, setShowVisionPreview] = useState(false);
   const [designName, setDesignName] = useState('Untitled Disney Garden');
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [draggingPlantId, setDraggingPlantId] = useState(null);
 
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -238,8 +243,8 @@ export default function StudioPage() {
     if (!selectedPlant || isDragging) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
+    const x = (e.clientX - rect.left) / (zoom * 4);
+    const y = (e.clientY - rect.top) / (zoom * 4);
 
     // Validate placement within bed bounds
     if (x < 0 || x > bedDimensions.width || y < 0 || y > bedDimensions.height) return;
@@ -261,6 +266,59 @@ export default function StudioPage() {
     e.stopPropagation();
     setSelectedPlacedPlant(plant.id === selectedPlacedPlant ? null : plant.id);
   };
+
+  // Handle drag start
+  const handleDragStart = (e, plant) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    setDraggingPlantId(plant.id);
+    setSelectedPlacedPlant(plant.id);
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / (zoom * 4);
+    const mouseY = (e.clientY - rect.top) / (zoom * 4);
+
+    setDragOffset({
+      x: mouseX - plant.x,
+      y: mouseY - plant.y
+    });
+  };
+
+  // Handle drag move
+  const handleDragMove = useCallback((e) => {
+    if (!isDragging || !draggingPlantId) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / (zoom * 4);
+    const mouseY = (e.clientY - rect.top) / (zoom * 4);
+
+    const newX = Math.max(5, Math.min(bedDimensions.width - 5, mouseX - dragOffset.x));
+    const newY = Math.max(5, Math.min(bedDimensions.height - 5, mouseY - dragOffset.y));
+
+    setPlacedPlants(prev => prev.map(p =>
+      p.id === draggingPlantId
+        ? { ...p, x: newX, y: newY }
+        : p
+    ));
+  }, [isDragging, draggingPlantId, zoom, bedDimensions, dragOffset]);
+
+  // Handle drag end
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+    setDraggingPlantId(null);
+  }, []);
+
+  // Add mouse event listeners for dragging
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      return () => {
+        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mouseup', handleDragEnd);
+      };
+    }
+  }, [isDragging, handleDragMove, handleDragEnd]);
 
   // Delete selected plant
   const deleteSelectedPlant = () => {
@@ -377,6 +435,62 @@ export default function StudioPage() {
     };
 
     return sizes[plant.category] || 20;
+  };
+
+  // Generate AI vision image
+  const generateVisionImage = async (season) => {
+    if (placedPlants.length === 0) {
+      setGenerateError('Please add some plants to your design first.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setGenerateError(null);
+    setSelectedSeason(season);
+
+    try {
+      // Build a description of the garden based on placed plants
+      const plantCounts = placedPlants.reduce((acc, p) => {
+        const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
+        if (plantData) {
+          acc[plantData.name] = (acc[plantData.name] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      const plantList = Object.entries(plantCounts)
+        .map(([name, count]) => `${count} ${name}${count > 1 ? 's' : ''}`)
+        .join(', ');
+
+      // Simulate AI generation with a delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Use a placeholder landscape image based on season
+      const seasonImages = {
+        spring: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=450&fit=crop',
+        summer: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=450&fit=crop'
+      };
+
+      setGeneratedImage({
+        url: seasonImages[season],
+        season: season,
+        description: `Disney-quality ${season} garden with ${plantList}`,
+        plantCount: placedPlants.length,
+        coverage: coveragePercent.toFixed(1)
+      });
+    } catch (error) {
+      setGenerateError('Failed to generate vision. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Reset vision when modal closes
+  const closeVisionModal = () => {
+    setShowVisionPreview(false);
+    setGeneratedImage(null);
+    setGenerateError(null);
+    setSelectedSeason(null);
   };
 
   return (
@@ -786,11 +900,14 @@ export default function StudioPage() {
                 const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
                 const size = getPlantSize(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
+                const isBeingDragged = draggingPlantId === plant.id;
 
                 return (
                   <div
                     key={plant.id}
-                    className={`absolute cursor-pointer transition-all ${
+                    className={`absolute transition-all ${
+                      isBeingDragged ? 'cursor-grabbing z-20' : 'cursor-grab'
+                    } ${
                       isSelected ? 'ring-4 ring-sage-500 ring-opacity-50 z-10' : 'hover:brightness-110'
                     }`}
                     style={{
@@ -801,6 +918,7 @@ export default function StudioPage() {
                       transform: `rotate(${plant.rotation}deg) scale(${plant.scale})`,
                     }}
                     onClick={(e) => handlePlantClick(e, plant)}
+                    onMouseDown={(e) => handleDragStart(e, plant)}
                   >
                     <div
                       className="w-full h-full rounded-full flex items-center justify-center shadow-lg"
@@ -1027,31 +1145,88 @@ export default function StudioPage() {
                 Disney Vision Preview
               </h2>
               <button
-                onClick={() => setShowVisionPreview(false)}
+                onClick={closeVisionModal}
                 className="p-2 hover:bg-sage-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-sage-600" />
               </button>
             </div>
             <div className="p-6">
-              <div className="aspect-video bg-gradient-to-br from-sage-100 via-forest-50 to-cream-100 rounded-xl flex items-center justify-center border border-sage-200">
-                <div className="text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4 text-sage-300" />
-                  <h3 className="text-xl font-bold text-sage-700 mb-2">AI Vision Rendering</h3>
-                  <p className="text-sage-500 max-w-md">
-                    Your design with {placedPlants.length} plants would generate a photorealistic
-                    rendering showing the completed Disney-quality garden at peak bloom.
-                  </p>
-                  <div className="mt-6 flex justify-center gap-4">
-                    <button className="px-6 py-3 bg-sage-500 hover:bg-sage-600 text-white rounded-lg font-medium transition-colors">
-                      Generate Spring View
-                    </button>
-                    <button className="px-6 py-3 bg-cream-100 border border-sage-200 text-sage-700 rounded-lg font-medium hover:bg-sage-50 transition-colors">
-                      Generate Summer View
-                    </button>
+              <div className="aspect-video bg-gradient-to-br from-sage-100 via-forest-50 to-cream-100 rounded-xl flex items-center justify-center border border-sage-200 overflow-hidden">
+                {/* Loading State */}
+                {isGenerating && (
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 border-4 border-sage-200 border-t-sage-500 rounded-full animate-spin" />
+                    <h3 className="text-xl font-bold text-sage-700 mb-2">Generating {selectedSeason} Vision...</h3>
+                    <p className="text-sage-500">Creating your Disney-quality garden render</p>
                   </div>
-                </div>
+                )}
+
+                {/* Generated Image */}
+                {!isGenerating && generatedImage && (
+                  <div className="w-full h-full relative">
+                    <img
+                      src={generatedImage.url}
+                      alt={`${generatedImage.season} garden vision`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                      <p className="text-white font-medium capitalize">{generatedImage.season} View</p>
+                      <p className="text-white/80 text-sm">{generatedImage.description}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error State */}
+                {!isGenerating && generateError && (
+                  <div className="text-center">
+                    <X className="w-16 h-16 mx-auto mb-4 text-red-400" />
+                    <h3 className="text-xl font-bold text-red-600 mb-2">Generation Failed</h3>
+                    <p className="text-sage-500">{generateError}</p>
+                  </div>
+                )}
+
+                {/* Initial State */}
+                {!isGenerating && !generatedImage && !generateError && (
+                  <div className="text-center">
+                    <Sparkles className="w-16 h-16 mx-auto mb-4 text-sage-300" />
+                    <h3 className="text-xl font-bold text-sage-700 mb-2">AI Vision Rendering</h3>
+                    <p className="text-sage-500 max-w-md">
+                      Your design with {placedPlants.length} plants would generate a photorealistic
+                      rendering showing the completed Disney-quality garden at peak bloom.
+                    </p>
+                  </div>
+                )}
               </div>
+
+              {/* Generate Buttons */}
+              <div className="mt-4 flex justify-center gap-4">
+                <button
+                  onClick={() => generateVisionImage('spring')}
+                  disabled={isGenerating}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    isGenerating
+                      ? 'bg-sage-300 text-white cursor-not-allowed'
+                      : 'bg-sage-500 hover:bg-sage-600 text-white'
+                  }`}
+                >
+                  <Flower2 className="w-4 h-4" />
+                  Generate Spring View
+                </button>
+                <button
+                  onClick={() => generateVisionImage('summer')}
+                  disabled={isGenerating}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    isGenerating
+                      ? 'bg-sage-100 text-sage-400 cursor-not-allowed'
+                      : 'bg-cream-100 border border-sage-200 text-sage-700 hover:bg-sage-50'
+                  }`}
+                >
+                  <Sun className="w-4 h-4" />
+                  Generate Summer View
+                </button>
+              </div>
+
               <div className="mt-4 p-4 bg-cream-50 rounded-xl border border-sage-100">
                 <h4 className="font-medium text-sage-700 mb-2">Rendering Details</h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
