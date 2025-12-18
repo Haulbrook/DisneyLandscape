@@ -512,25 +512,91 @@ export default function DisneyLandscapeStudio() {
     setGenerateError(null);
     setGeneratedImage(null);
 
-    // Build a description of the current design
-    const plantDescriptions = placedPlants.map(placed => {
+    // Build DETAILED spatial description of the layout
+    const bedWidthFt = (bedDimensions.width / 12).toFixed(1);
+    const bedHeightFt = (bedDimensions.height / 12).toFixed(1);
+
+    // Group plants by their zone (back/middle/front based on Y position)
+    const backPlants = [];
+    const middlePlants = [];
+    const frontPlants = [];
+
+    placedPlants.forEach(placed => {
       const plantData = ALL_PLANTS.find(p => p.id === placed.plantId);
-      return plantData?.name || 'plant';
+      if (!plantData) return;
+
+      const yPercent = placed.y / bedDimensions.height;
+      const xPercent = placed.x / bedDimensions.width;
+
+      // Determine position description
+      let xPos = xPercent < 0.33 ? 'left' : xPercent > 0.66 ? 'right' : 'center';
+
+      const plantInfo = {
+        name: plantData.name,
+        color: plantData.color,
+        category: plantData.category,
+        height: plantData.height,
+        xPos,
+        icon: plantData.icon
+      };
+
+      if (yPercent > 0.6) {
+        backPlants.push(plantInfo);
+      } else if (yPercent > 0.3) {
+        middlePlants.push(plantInfo);
+      } else {
+        frontPlants.push(plantInfo);
+      }
     });
 
-    // Count unique plants
-    const plantCounts = plantDescriptions.reduce((acc, name) => {
-      acc[name] = (acc[name] || 0) + 1;
+    // Build zone descriptions
+    const describeZone = (plants, zoneName) => {
+      if (plants.length === 0) return '';
+
+      const grouped = plants.reduce((acc, p) => {
+        const key = p.name;
+        if (!acc[key]) acc[key] = { ...p, count: 0, positions: [] };
+        acc[key].count++;
+        acc[key].positions.push(p.xPos);
+        return acc;
+      }, {});
+
+      const descriptions = Object.values(grouped).map(p => {
+        const posText = [...new Set(p.positions)].join(' and ');
+        return `${p.count} ${p.name}${p.count > 1 ? 's' : ''} (${p.height} tall) on the ${posText}`;
+      });
+
+      return `${zoneName}: ${descriptions.join(', ')}`;
+    };
+
+    const backDesc = describeZone(backPlants, 'BACK ROW');
+    const middleDesc = describeZone(middlePlants, 'MIDDLE ROW');
+    const frontDesc = describeZone(frontPlants, 'FRONT ROW');
+
+    // Count total by category
+    const categoryCounts = placedPlants.reduce((acc, p) => {
+      const plantData = ALL_PLANTS.find(pd => pd.id === p.plantId);
+      if (plantData) {
+        acc[plantData.category] = (acc[plantData.category] || 0) + 1;
+      }
       return acc;
     }, {});
 
-    const plantList = Object.entries(plantCounts)
-      .map(([name, count]) => `${count} ${name}${count > 1 ? 's' : ''}`)
+    const categoryDesc = Object.entries(categoryCounts)
+      .map(([cat, count]) => `${count} ${cat}`)
       .join(', ');
 
-    const prompt = `A ${bedDimensions.width / 12}ft x ${bedDimensions.height / 12}ft garden bed featuring ${plantList}.
-    Theme: ${selectedBundle?.theme || designName}.
-    The bed has ${coveragePercent.toFixed(0)}% plant coverage with professional Disney theme park landscaping standards.`;
+    // Build the precise prompt
+    const layoutDescription = [backDesc, middleDesc, frontDesc].filter(Boolean).join('. ');
+
+    const prompt = `EXACT LAYOUT - A rectangular ${bedWidthFt}ft wide x ${bedHeightFt}ft deep garden bed viewed from the front, looking toward the back.
+
+PLANTS (${placedPlants.length} total - ${categoryDesc}):
+${layoutDescription}
+
+CRITICAL: Show ONLY these specific plants in these exact positions. The bed has ${coveragePercent.toFixed(0)}% coverage with visible mulch between plants.
+Do NOT add extra plants. This is a sparse design with ${placedPlants.length} plants total.
+Perspective: Eye-level view from front of bed looking back, plants arranged front-to-back with proper scale.`;
 
     try {
       const response = await fetch('/.netlify/functions/generate-image', {

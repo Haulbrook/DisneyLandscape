@@ -28,12 +28,28 @@ exports.handler = async (event) => {
       };
     }
 
-    // Build the full prompt for Disney-quality landscape rendering
-    const fullPrompt = `Photorealistic professional landscape photography of a Disney theme park quality garden bed. ${prompt}.
-    Season: ${season}.
-    Style: Immaculate Disney Imagineering standards with perfect plant spacing, lush healthy plants, pristine mulch beds,
-    dramatic lighting, shallow depth of field. The garden should look like it belongs in Magic Kingdom or EPCOT.
-    High-end architectural photography style, golden hour lighting, no people visible.`;
+    // Build the full prompt - prioritize accuracy over embellishment
+    const seasonDescriptions = {
+      spring: 'early spring with fresh growth, some plants just leafing out, cool morning light',
+      summer: 'peak summer with full lush foliage, warm golden hour sunlight, plants at full size',
+      fall: 'autumn with warm fall colors where applicable, soft afternoon light, mature plants'
+    };
+
+    const fullPrompt = `${prompt}
+
+Season: ${seasonDescriptions[season] || seasonDescriptions.spring}.
+
+STYLE REQUIREMENTS:
+- Photorealistic professional landscape photography
+- Eye-level perspective from front of bed looking toward back
+- Show EXACTLY the plants specified - no more, no less
+- Maintain proper scale relationships between plant types
+- Dark brown mulch visible between plants
+- Clean defined bed edges
+- Soft natural lighting, no harsh shadows
+- No people, no garden tools, no decorations
+- Plants should look healthy and well-maintained
+- If coverage is low, show more mulch - do not fill with extra plants`;
 
     const response = await callOpenAI(apiKey, fullPrompt);
 
