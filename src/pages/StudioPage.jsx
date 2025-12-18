@@ -636,44 +636,46 @@ export default function StudioPage() {
 
               {/* Selected Plant Info */}
               {selectedPlant && (
-                <div className="p-4 border-t border-sage-200 bg-sage-50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">{selectedPlant.icon}</span>
-                    <div>
-                      <div className="font-bold text-sage-800">{selectedPlant.name}</div>
-                      <div className="text-xs text-sage-500">{selectedPlant.category}</div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-white rounded p-2 border border-sage-100">
-                      <div className="text-sage-500">Height</div>
-                      <div className="text-sage-800">{selectedPlant.height}</div>
-                    </div>
-                    <div className="bg-white rounded p-2 border border-sage-100">
-                      <div className="text-sage-500">Spread</div>
-                      <div className="text-sage-800">{selectedPlant.spread}</div>
-                    </div>
-                    <div className="bg-white rounded p-2 border border-sage-100">
-                      <div className="text-sage-500">Sun</div>
-                      <div className="text-sage-800 flex items-center gap-1">
-                        <Sun className="w-3 h-3 text-olive-500" />
-                        {selectedPlant.sunReq}
+                <div className="border-t border-sage-200 bg-sage-50 max-h-[40vh] overflow-y-auto">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl">{selectedPlant.icon}</span>
+                      <div>
+                        <div className="font-bold text-sage-800">{selectedPlant.name}</div>
+                        <div className="text-xs text-sage-500">{selectedPlant.category}</div>
                       </div>
                     </div>
-                    <div className="bg-white rounded p-2 border border-sage-100">
-                      <div className="text-sage-500">Water</div>
-                      <div className="text-sage-800 flex items-center gap-1">
-                        <CloudRain className="w-3 h-3 text-forest-500" />
-                        {selectedPlant.waterReq}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-white rounded p-2 border border-sage-100">
+                        <div className="text-sage-500">Height</div>
+                        <div className="text-sage-800">{selectedPlant.height}</div>
+                      </div>
+                      <div className="bg-white rounded p-2 border border-sage-100">
+                        <div className="text-sage-500">Spread</div>
+                        <div className="text-sage-800">{selectedPlant.spread}</div>
+                      </div>
+                      <div className="bg-white rounded p-2 border border-sage-100">
+                        <div className="text-sage-500">Sun</div>
+                        <div className="text-sage-800 flex items-center gap-1">
+                          <Sun className="w-3 h-3 text-olive-500" />
+                          {selectedPlant.sunReq}
+                        </div>
+                      </div>
+                      <div className="bg-white rounded p-2 border border-sage-100">
+                        <div className="text-sage-500">Water</div>
+                        <div className="text-sage-800 flex items-center gap-1">
+                          <CloudRain className="w-3 h-3 text-forest-500" />
+                          {selectedPlant.waterReq}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-2 text-xs text-forest-600 bg-forest-50 rounded p-2 border border-forest-100">
-                    <Star className="w-3 h-3 inline mr-1" />
-                    {selectedPlant.disneyUse}
-                  </div>
-                  <div className="mt-3 text-center text-xs text-sage-500">
-                    Click on the canvas to place
+                    <div className="mt-2 text-xs text-forest-600 bg-forest-50 rounded p-2 border border-forest-100">
+                      <Star className="w-3 h-3 inline mr-1" />
+                      {selectedPlant.disneyUse}
+                    </div>
+                    <div className="mt-3 text-center text-xs text-sage-500">
+                      Click on the canvas to place
+                    </div>
                   </div>
                 </div>
               )}
@@ -1139,9 +1141,9 @@ export default function StudioPage() {
 
       {/* Vision Preview Modal */}
       {showVisionPreview && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-8">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-sage-200 shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-sage-200">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-4xl w-full my-auto border border-sage-200 shadow-2xl">
+            <div className="flex items-center justify-between p-4 border-b border-sage-200 sticky top-0 bg-white rounded-t-2xl z-10">
               <h2 className="text-xl font-bold text-sage-800 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-forest-500" />
                 Disney Vision Preview
