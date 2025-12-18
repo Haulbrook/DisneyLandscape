@@ -88,11 +88,10 @@ STYLE REQUIREMENTS:
 function callOpenAI(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'dall-e-3',
+      model: 'dall-e-2',
       prompt: prompt,
       n: 1,
-      size: '1792x1024',
-      quality: 'hd',
+      size: '1024x1024',
     });
 
     const options = {
