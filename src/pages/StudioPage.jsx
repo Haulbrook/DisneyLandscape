@@ -484,6 +484,19 @@ export default function StudioPage() {
     }
   };
 
+  // Get bounding box of custom bed path
+  const getPathBounds = (path) => {
+    if (!path || path.length === 0) return null;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    path.forEach(p => {
+      minX = Math.min(minX, p.x);
+      maxX = Math.max(maxX, p.x);
+      minY = Math.min(minY, p.y);
+      maxY = Math.max(maxY, p.y);
+    });
+    return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY, centerX: (minX + maxX) / 2, centerY: (minY + maxY) / 2 };
+  };
+
   // Check if a position collides with existing plants
   const checkCollision = (x, y, plantId, existingPlants) => {
     const newPlantSize = getPlantSizes(plantId).matureSpread / 2;
@@ -497,55 +510,74 @@ export default function StudioPage() {
     return false;
   };
 
-  // Find valid position using spiral search
-  const findValidPosition = (targetX, targetY, plantId, existingPlants, bedWidth, bedHeight) => {
+  // Find valid position using spiral search - respects custom bed shape
+  const findValidPositionInBed = (targetX, targetY, plantId, existingPlants, bedBounds, customPath) => {
     const plantSize = getPlantSizes(plantId).matureSpread / 2;
     const padding = plantSize + 6;
 
+    // Check if position is valid (inside bed and no collision)
+    const isValidPosition = (x, y) => {
+      // Check bounds
+      if (x < bedBounds.minX + padding || x > bedBounds.maxX - padding ||
+          y < bedBounds.minY + padding || y > bedBounds.maxY - padding) {
+        return false;
+      }
+      // Check custom path if exists
+      if (customPath && customPath.length > 2 && !isPointInPath(x, y, customPath)) {
+        return false;
+      }
+      // Check collision
+      return !checkCollision(x, y, plantId, existingPlants);
+    };
+
     // Try original position first
-    if (!checkCollision(targetX, targetY, plantId, existingPlants) &&
-        targetX >= padding && targetX <= bedWidth - padding &&
-        targetY >= padding && targetY <= bedHeight - padding) {
+    if (isValidPosition(targetX, targetY)) {
       return { x: targetX, y: targetY };
     }
 
     // Spiral outward to find valid position
-    for (let attempt = 0; attempt < 100; attempt++) {
+    for (let attempt = 0; attempt < 150; attempt++) {
       const angle = attempt * 2.399963; // Golden angle
-      const distance = Math.sqrt(attempt) * 12;
+      const distance = Math.sqrt(attempt) * 8;
 
       const newX = targetX + Math.cos(angle) * distance;
       const newY = targetY + Math.sin(angle) * distance;
 
-      // Clamp to bed bounds
-      const clampedX = Math.max(padding, Math.min(bedWidth - padding, newX));
-      const clampedY = Math.max(padding, Math.min(bedHeight - padding, newY));
-
-      if (!checkCollision(clampedX, clampedY, plantId, existingPlants)) {
-        return { x: clampedX, y: clampedY };
+      if (isValidPosition(newX, newY)) {
+        return { x: newX, y: newY };
       }
     }
     return null; // Could not find valid position
   };
 
-  // Apply bed bundle with smart placement that fits within bed
+  // Apply bed bundle with smart placement that fits within the actual bed shape
   const applyBundle = (bundle) => {
     const newPlants = [];
-    const bedWidth = bedDimensions.width * 12; // Convert feet to inches
-    const bedHeight = bedDimensions.height * 12;
 
-    // Define zones as percentages of bed dimensions
-    const zones = {
-      focal: { yMin: 0.70, yMax: 0.90, xMin: 0.25, xMax: 0.75 },
-      back: { yMin: 0.65, yMax: 0.85, xMin: 0.10, xMax: 0.90 },
-      topiary: { yMin: 0.50, yMax: 0.80, xMin: 0.10, xMax: 0.90 },
-      middle: { yMin: 0.35, yMax: 0.60, xMin: 0.10, xMax: 0.90 },
-      front: { yMin: 0.15, yMax: 0.40, xMin: 0.08, xMax: 0.92 },
-      edge: { yMin: 0.05, yMax: 0.25, xMin: 0.05, xMax: 0.95 },
-      groundcover: { yMin: 0.05, yMax: 0.30, xMin: 0.05, xMax: 0.95 }
-    };
+    // Determine bed bounds - use custom path if available, otherwise rectangle
+    let bedBounds;
+    let useCustomPath = bedType === 'custom' && customBedPath.length > 2;
 
-    // Sort bundle plants by category priority (back to front)
+    if (useCustomPath) {
+      bedBounds = getPathBounds(customBedPath);
+    } else {
+      const bedWidth = bedDimensions.width * 12;
+      const bedHeight = bedDimensions.height * 12;
+      bedBounds = {
+        minX: 0, maxX: bedWidth,
+        minY: 0, maxY: bedHeight,
+        width: bedWidth, height: bedHeight,
+        centerX: bedWidth / 2, centerY: bedHeight / 2
+      };
+    }
+
+    if (!bedBounds) return;
+
+    // For custom/island beds, use radial placement from center
+    // For rectangle beds, use layered zones (back to front)
+    const isIslandBed = useCustomPath;
+
+    // Sort bundle plants by category priority
     const sortedPlants = [...bundle.plants].sort((a, b) => {
       const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
       return order.indexOf(a.role) - order.indexOf(b.role);
@@ -556,22 +588,64 @@ export default function StudioPage() {
       if (!plantData) return;
 
       const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
-      const zone = zones[bundlePlant.role] || zones.middle;
-
-      // Calculate zone bounds in inches
-      const zoneXMin = bedWidth * zone.xMin;
-      const zoneXMax = bedWidth * zone.xMax;
-      const zoneYMin = bedHeight * zone.yMin;
-      const zoneYMax = bedHeight * zone.yMax;
-      const zoneWidth = zoneXMax - zoneXMin;
 
       for (let i = 0; i < scaledQuantity; i++) {
-        // Distribute plants across the zone width with some randomness
-        const spacing = zoneWidth / (scaledQuantity + 1);
-        const targetX = zoneXMin + spacing * (i + 1) + (Math.random() - 0.5) * spacing * 0.5;
-        const targetY = zoneYMin + (zoneYMax - zoneYMin) * (0.3 + Math.random() * 0.4);
+        let targetX, targetY;
 
-        const validPos = findValidPosition(targetX, targetY, bundlePlant.plantId, newPlants, bedWidth, bedHeight);
+        if (isIslandBed) {
+          // ISLAND/CUSTOM BED: Radial placement from center
+          // Focal/back = near center, front/edge = near edges
+          const distanceRatios = {
+            focal: 0.1,      // Very close to center
+            back: 0.25,      // Near center
+            topiary: 0.35,   // Mid-inner
+            middle: 0.5,     // Middle ring
+            front: 0.7,      // Outer ring
+            edge: 0.85,      // Near edge
+            groundcover: 0.75 // Outer areas
+          };
+
+          const distanceRatio = distanceRatios[bundlePlant.role] || 0.5;
+          const maxRadius = Math.min(bedBounds.width, bedBounds.height) / 2 * 0.9;
+          const targetRadius = maxRadius * distanceRatio;
+
+          // Distribute around the center with golden angle
+          const angleOffset = (index * 137.5 + i * 137.5) * (Math.PI / 180);
+          const variance = (Math.random() - 0.5) * targetRadius * 0.3;
+
+          targetX = bedBounds.centerX + Math.cos(angleOffset) * (targetRadius + variance);
+          targetY = bedBounds.centerY + Math.sin(angleOffset) * (targetRadius + variance);
+        } else {
+          // RECTANGLE BED: Layered zones (traditional back-to-front)
+          const zones = {
+            focal: { yMin: 0.70, yMax: 0.90, xMin: 0.25, xMax: 0.75 },
+            back: { yMin: 0.65, yMax: 0.85, xMin: 0.10, xMax: 0.90 },
+            topiary: { yMin: 0.50, yMax: 0.80, xMin: 0.10, xMax: 0.90 },
+            middle: { yMin: 0.35, yMax: 0.60, xMin: 0.10, xMax: 0.90 },
+            front: { yMin: 0.15, yMax: 0.40, xMin: 0.08, xMax: 0.92 },
+            edge: { yMin: 0.05, yMax: 0.25, xMin: 0.05, xMax: 0.95 },
+            groundcover: { yMin: 0.05, yMax: 0.30, xMin: 0.05, xMax: 0.95 }
+          };
+
+          const zone = zones[bundlePlant.role] || zones.middle;
+          const zoneXMin = bedBounds.minX + bedBounds.width * zone.xMin;
+          const zoneXMax = bedBounds.minX + bedBounds.width * zone.xMax;
+          const zoneYMin = bedBounds.minY + bedBounds.height * zone.yMin;
+          const zoneYMax = bedBounds.minY + bedBounds.height * zone.yMax;
+          const zoneWidth = zoneXMax - zoneXMin;
+
+          const spacing = zoneWidth / (scaledQuantity + 1);
+          targetX = zoneXMin + spacing * (i + 1) + (Math.random() - 0.5) * spacing * 0.4;
+          targetY = zoneYMin + (zoneYMax - zoneYMin) * (0.3 + Math.random() * 0.4);
+        }
+
+        const validPos = findValidPositionInBed(
+          targetX, targetY,
+          bundlePlant.plantId,
+          newPlants,
+          bedBounds,
+          useCustomPath ? customBedPath : null
+        );
 
         if (validPos) {
           newPlants.push({
@@ -579,8 +653,8 @@ export default function StudioPage() {
             plantId: bundlePlant.plantId,
             x: validPos.x,
             y: validPos.y,
-            rotation: (Math.random() - 0.5) * 10, // Slight rotation for natural look
-            scale: 0.95 + Math.random() * 0.1 // Slight scale variance
+            rotation: (Math.random() - 0.5) * 10,
+            scale: 0.95 + Math.random() * 0.1
           });
         }
       }
