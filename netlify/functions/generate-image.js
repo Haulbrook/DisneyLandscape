@@ -89,21 +89,39 @@ function callOpenAI(apiKey, prompt) {
       });
 
       res.on('end', () => {
+        console.log('OpenAI Response Status:', res.statusCode);
+        console.log('OpenAI Response Body (first 500 chars):', body.substring(0, 500));
+
+        // Check if response looks like HTML (error page)
+        if (body.trim().startsWith('<')) {
+          console.error('Received HTML instead of JSON:', body.substring(0, 200));
+          reject(new Error(`OpenAI returned HTML error page (status ${res.statusCode}). This may indicate an API issue or rate limiting.`));
+          return;
+        }
+
         try {
           const response = JSON.parse(body);
           if (res.statusCode !== 200) {
-            reject(new Error(response.error?.message || 'OpenAI API error'));
+            console.error('OpenAI API Error:', response.error);
+            reject(new Error(response.error?.message || `OpenAI API error (status ${res.statusCode})`));
           } else {
             resolve(response);
           }
         } catch (e) {
-          reject(new Error('Failed to parse OpenAI response'));
+          console.error('JSON Parse Error:', e.message, 'Body:', body.substring(0, 200));
+          reject(new Error(`Failed to parse OpenAI response: ${e.message}`));
         }
       });
     });
 
     req.on('error', (e) => {
+      console.error('Request Error:', e);
       reject(e);
+    });
+
+    req.setTimeout(60000, () => {
+      req.destroy();
+      reject(new Error('Request timed out after 60 seconds'));
     });
 
     req.write(data);
