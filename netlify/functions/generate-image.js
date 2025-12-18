@@ -45,24 +45,27 @@ exports.handler = async (event) => {
 
     const seasonInfo = seasonDetails[season] || seasonDetails.spring;
 
-    const fullPrompt = `Professional landscape photograph of a residential garden bed in ${season}:
+    const fullPrompt = `Professional landscape photograph of an established residential garden bed at 60-70% maturity (2-3 years after planting) in ${season}:
 
 ${prompt}
 
-SETTING: Residential home - front yard, backyard, or side yard. Background shows house, fence, or patio. Grass lawn surrounds the mulch bed.
+PLANT MATURITY: All plants at 60-70% of their mature size. Not newly planted, not fully mature. Plants have filled in nicely but still have some growing room. Natural, established look with plants touching neighbors slightly.
+
+SETTING: Residential suburban home - front yard foundation bed, backyard border, or side yard. Background shows brick/siding house wall, wooden fence, or stone patio. Well-maintained lawn grass borders the mulch bed edges.
 
 Scene: ${seasonInfo.lighting}. Plants showing ${seasonInfo.plants}. Color palette: ${seasonInfo.colors}.
 
-Requirements:
-- Photorealistic residential landscaping photo
-- Eye-level shot from front of bed looking back
-- Show ONLY the plants specified - no extras
-- Dark brown mulch visible between plants
-- Lawn grass bordering the bed edges
-- Natural layering: tall plants back, medium middle, low front
-- NO text, labels, signs, people, or garden tools
-- Sharp focus, rich colors, professional quality
-- Simple suburban home landscaping style`;
+CRITICAL Requirements:
+- Show EXACTLY the plants listed above in their EXACT positions described
+- Photorealistic professional landscaping photography
+- Eye-level perspective from front of bed looking toward back
+- Plants at 60-70% mature size, well-established but not overgrown
+- Dark brown hardwood mulch visible between plants (2-3 inch layer)
+- Clean defined bed edge with green lawn grass border
+- Natural layering: tallest at back, medium in middle, lowest at front edge
+- NO extra plants, NO text, NO labels, NO people, NO garden tools
+- Sharp focus, vibrant natural colors, golden hour lighting
+- Authentic suburban residential landscaping style`;
 
     console.log('Calling Replicate FLUX...');
 
