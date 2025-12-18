@@ -11,4 +11,4 @@
   NODE_VERSION = "18"
 
 [functions]
-  timeout = 60
+  directory = "netlify/functions"
