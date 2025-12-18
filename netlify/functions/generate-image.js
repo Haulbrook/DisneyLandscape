@@ -145,9 +145,9 @@ function callOpenAI(apiKey, prompt) {
       reject(e);
     });
 
-    req.setTimeout(60000, () => {
+    req.setTimeout(55000, () => {
       req.destroy();
-      reject(new Error('Request timed out after 60 seconds'));
+      reject(new Error('Request timed out - DALL-E is taking too long. Please try again.'));
     });
 
     req.write(data);
