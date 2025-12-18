@@ -468,7 +468,9 @@ export default function StudioPage() {
       // Use a placeholder landscape image based on season
       const seasonImages = {
         spring: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=450&fit=crop',
-        summer: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=450&fit=crop'
+        summer: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=450&fit=crop',
+        fall: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop',
+        winter: 'https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=800&h=450&fit=crop'
       };
 
       setGeneratedImage({
@@ -1200,30 +1202,54 @@ export default function StudioPage() {
               </div>
 
               {/* Generate Buttons */}
-              <div className="mt-4 flex justify-center gap-4">
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <button
                   onClick={() => generateVisionImage('spring')}
                   disabled={isGenerating}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${
                     isGenerating
                       ? 'bg-sage-300 text-white cursor-not-allowed'
                       : 'bg-sage-500 hover:bg-sage-600 text-white'
                   }`}
                 >
                   <Flower2 className="w-4 h-4" />
-                  Generate Spring View
+                  Spring
                 </button>
                 <button
                   onClick={() => generateVisionImage('summer')}
                   disabled={isGenerating}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    isGenerating
+                      ? 'bg-olive-200 text-olive-400 cursor-not-allowed'
+                      : 'bg-olive-500 hover:bg-olive-600 text-white'
+                  }`}
+                >
+                  <Sun className="w-4 h-4" />
+                  Summer
+                </button>
+                <button
+                  onClick={() => generateVisionImage('fall')}
+                  disabled={isGenerating}
+                  className={`px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                    isGenerating
+                      ? 'bg-wood-200 text-wood-400 cursor-not-allowed'
+                      : 'bg-wood-500 hover:bg-wood-600 text-white'
+                  }`}
+                >
+                  <Leaf className="w-4 h-4" />
+                  Fall
+                </button>
+                <button
+                  onClick={() => generateVisionImage('winter')}
+                  disabled={isGenerating}
+                  className={`px-5 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 ${
                     isGenerating
                       ? 'bg-sage-100 text-sage-400 cursor-not-allowed'
                       : 'bg-cream-100 border border-sage-200 text-sage-700 hover:bg-sage-50'
                   }`}
                 >
-                  <Sun className="w-4 h-4" />
-                  Generate Summer View
+                  <CloudRain className="w-4 h-4" />
+                  Winter
                 </button>
               </div>
 
