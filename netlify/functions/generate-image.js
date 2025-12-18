@@ -28,38 +28,16 @@ exports.handler = async (event) => {
       };
     }
 
-    // Build the full prompt - prioritize accuracy over embellishment
-    const seasonDescriptions = {
-      spring: 'early spring with fresh growth, some plants just leafing out, cool morning light',
-      summer: 'peak summer with full lush foliage, warm golden hour sunlight, plants at full size',
-      fall: 'autumn with warm fall colors where applicable, soft afternoon light, mature plants'
-    };
+    // Build condensed prompt for DALL-E 2 (1000 char limit)
+    const seasonWord = { spring: 'spring', summer: 'summer', fall: 'autumn' };
 
-    const fullPrompt = `${prompt}
+    // Truncate user prompt if needed, keeping most important parts
+    const maxUserPrompt = 500;
+    const truncatedPrompt = prompt.length > maxUserPrompt
+      ? prompt.substring(0, maxUserPrompt) + '...'
+      : prompt;
 
-Season: ${seasonDescriptions[season] || seasonDescriptions.spring}.
-
-SETTING - RESIDENTIAL HOME LANDSCAPE:
-- OUTDOOR residential setting - front yard, backyard, or side yard of a home
-- Background can include: house facade, porch, garage, driveway, fence, patio, deck
-- Grass lawn surrounding the bed, typical suburban neighborhood feel
-- Natural outdoor environment with sky visible
-- NO industrial buildings, NO commercial properties, NO office parks
-- NO public parks, NO botanical gardens, NO formal estate gardens
-- NO elaborate pathways through the bed itself
-- Think: typical American residential landscaping you'd see in a nice neighborhood
-
-STYLE REQUIREMENTS:
-- Photorealistic outdoor landscape photography
-- Eye-level perspective from front of bed looking toward back
-- Show EXACTLY the plants specified - no more, no less
-- Maintain proper scale relationships between plant types
-- Dark brown shredded hardwood mulch visible between plants
-- Clean curved or natural bed edges against grass
-- Soft natural outdoor daylight
-- No people, no garden tools
-- Plants should look healthy and well-maintained
-- Simple, clean, professional landscaping - not elaborate formal gardens`;
+    const fullPrompt = `Residential front yard garden bed, ${seasonWord[season] || 'spring'}. ${truncatedPrompt}. Photorealistic, suburban home background with lawn, mulch bed, natural daylight. Eye-level view.`.substring(0, 1000);
 
     const response = await callOpenAI(apiKey, fullPrompt);
 
