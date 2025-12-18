@@ -39,14 +39,15 @@ exports.handler = async (event) => {
 
 Season: ${seasonDescriptions[season] || seasonDescriptions.spring}.
 
-SETTING - CRITICAL:
-- OUTDOOR setting only - a simple garden bed in a yard, park, or landscape
-- Background: grass lawn, trees in distance, open sky, natural outdoor environment
-- NO pathways, NO walkways, NO stepping stones through the bed
-- NO buildings, NO structures, NO fences, NO walls in frame
-- NO fountains, NO statues, NO garden ornaments
-- NO indoor elements, NO greenhouse, NO conservatory
-- Just a natural planted bed surrounded by lawn/landscape
+SETTING - RESIDENTIAL HOME LANDSCAPE:
+- OUTDOOR residential setting - front yard, backyard, or side yard of a home
+- Background can include: house facade, porch, garage, driveway, fence, patio, deck
+- Grass lawn surrounding the bed, typical suburban neighborhood feel
+- Natural outdoor environment with sky visible
+- NO industrial buildings, NO commercial properties, NO office parks
+- NO public parks, NO botanical gardens, NO formal estate gardens
+- NO elaborate pathways through the bed itself
+- Think: typical American residential landscaping you'd see in a nice neighborhood
 
 STYLE REQUIREMENTS:
 - Photorealistic outdoor landscape photography
