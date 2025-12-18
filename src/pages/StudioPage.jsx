@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Flower2, Trees, Shrub, Leaf, LayoutGrid, ZoomIn, ZoomOut,
   RotateCcw, Download, Upload, Eye, Palette, Ruler, Check,
-  X, ChevronRight, ChevronDown, Search, Package, Sparkles,
+  X, ChevronRight, ChevronDown, ChevronUp, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
   Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home,
   PenTool, Square
@@ -195,8 +195,9 @@ export default function StudioPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showGrid, setShowGrid] = useState(true);
   const [zoom, setZoom] = useState(1);
-  const [bedDimensions, setBedDimensions] = useState({ width: 120, height: 80 });
+  const [bedDimensions, setBedDimensions] = useState({ width: 10, height: 7 }); // Now in FEET
   const [showRuler, setShowRuler] = useState(false);
+  const [showPlantInfo, setShowPlantInfo] = useState(true);
   const [selectedPlacedPlant, setSelectedPlacedPlant] = useState(null);
   const [coveragePercent, setCoveragePercent] = useState(0);
   const [colorHarmonyStatus, setColorHarmonyStatus] = useState({ valid: true, scheme: 'ANALOGOUS' });
@@ -221,8 +222,9 @@ export default function StudioPage() {
   const fileInputRef = useRef(null);
 
   // Calculate coverage whenever plants change
+  // Calculate coverage whenever plants change (bed is in feet, convert to sq inches)
   useEffect(() => {
-    const totalBedArea = bedDimensions.width * bedDimensions.height;
+    const totalBedArea = (bedDimensions.width * 12) * (bedDimensions.height * 12); // Convert feet to inches
     let coveredArea = 0;
 
     placedPlants.forEach(plant => {
@@ -246,19 +248,22 @@ export default function StudioPage() {
     return matchesSearch && matchesCategory;
   });
 
-  // Handle plant placement on canvas
+  // Handle plant placement on canvas (coordinates in inches internally)
   const handleCanvasClick = (e) => {
     // Don't place plants if in drawing mode
     if (isDrawingMode) return;
     if (!selectedPlant || isDragging) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / (zoom * 4);
-    const y = (e.clientY - rect.top) / (zoom * 4);
+    const x = (e.clientX - rect.left) / (zoom * 4); // x in inches
+    const y = (e.clientY - rect.top) / (zoom * 4); // y in inches
 
-    // Validate placement within bed bounds
+    // Validate placement within bed bounds (bedDimensions in feet, convert to inches)
+    const widthInches = bedDimensions.width * 12;
+    const heightInches = bedDimensions.height * 12;
+
     if (bedType === 'rectangle') {
-      if (x < 0 || x > bedDimensions.width || y < 0 || y > bedDimensions.height) return;
+      if (x < 0 || x > widthInches || y < 0 || y > heightInches) return;
     } else if (bedType === 'custom' && customBedPath.length > 0) {
       // Check if point is inside custom bed path
       if (!isPointInPath(x, y, customBedPath)) return;
@@ -299,7 +304,7 @@ export default function StudioPage() {
     });
   };
 
-  // Handle drag move
+  // Handle drag move (coordinates in inches)
   const handleDragMove = useCallback((e) => {
     if (!isDragging || !draggingPlantId) return;
 
@@ -307,8 +312,11 @@ export default function StudioPage() {
     const mouseX = (e.clientX - rect.left) / (zoom * 4);
     const mouseY = (e.clientY - rect.top) / (zoom * 4);
 
-    const newX = Math.max(5, Math.min(bedDimensions.width - 5, mouseX - dragOffset.x));
-    const newY = Math.max(5, Math.min(bedDimensions.height - 5, mouseY - dragOffset.y));
+    const widthInches = bedDimensions.width * 12;
+    const heightInches = bedDimensions.height * 12;
+
+    const newX = Math.max(5, Math.min(widthInches - 5, mouseX - dragOffset.x));
+    const newY = Math.max(5, Math.min(heightInches - 5, mouseY - dragOffset.y));
 
     setPlacedPlants(prev => prev.map(p =>
       p.id === draggingPlantId
@@ -476,11 +484,11 @@ export default function StudioPage() {
     }
   };
 
-  // Apply bed bundle
+  // Apply bed bundle (positions in inches)
   const applyBundle = (bundle) => {
     const newPlants = [];
-    const baseWidth = bedDimensions.width;
-    const baseHeight = bedDimensions.height;
+    const baseWidth = bedDimensions.width * 12; // Convert feet to inches
+    const baseHeight = bedDimensions.height * 12;
 
     bundle.plants.forEach((bundlePlant, index) => {
       const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
@@ -847,49 +855,64 @@ export default function StudioPage() {
                 ))}
               </div>
 
-              {/* Selected Plant Info */}
+              {/* Selected Plant Info - Collapsible */}
               {selectedPlant && (
-                <div className="border-t border-sage-200 bg-sage-50 max-h-[40vh] overflow-y-auto">
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl">{selectedPlant.icon}</span>
-                      <div>
-                        <div className="font-bold text-sage-800">{selectedPlant.name}</div>
+                <div className="border-t border-sage-200 bg-sage-50">
+                  {/* Header - Always visible, clickable to toggle */}
+                  <button
+                    onClick={() => setShowPlantInfo(!showPlantInfo)}
+                    className="w-full flex items-center justify-between p-3 hover:bg-sage-100 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{selectedPlant.icon}</span>
+                      <div className="text-left">
+                        <div className="font-bold text-sage-800 text-sm">{selectedPlant.name}</div>
                         <div className="text-xs text-sage-500">{selectedPlant.category}</div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-white rounded p-2 border border-sage-100">
-                        <div className="text-sage-500">Height</div>
-                        <div className="text-sage-800">{selectedPlant.height}</div>
-                      </div>
-                      <div className="bg-white rounded p-2 border border-sage-100">
-                        <div className="text-sage-500">Spread</div>
-                        <div className="text-sage-800">{selectedPlant.spread}</div>
-                      </div>
-                      <div className="bg-white rounded p-2 border border-sage-100">
-                        <div className="text-sage-500">Sun</div>
-                        <div className="text-sage-800 flex items-center gap-1">
-                          <Sun className="w-3 h-3 text-olive-500" />
-                          {selectedPlant.sunReq}
+                    {showPlantInfo ? (
+                      <ChevronDown className="w-4 h-4 text-sage-400" />
+                    ) : (
+                      <ChevronUp className="w-4 h-4 text-sage-400" />
+                    )}
+                  </button>
+
+                  {/* Collapsible Content */}
+                  {showPlantInfo && (
+                    <div className="px-4 pb-4 max-h-[35vh] overflow-y-auto">
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-white rounded p-2 border border-sage-100">
+                          <div className="text-sage-500">Height</div>
+                          <div className="text-sage-800">{selectedPlant.height}</div>
+                        </div>
+                        <div className="bg-white rounded p-2 border border-sage-100">
+                          <div className="text-sage-500">Spread</div>
+                          <div className="text-sage-800">{selectedPlant.spread}</div>
+                        </div>
+                        <div className="bg-white rounded p-2 border border-sage-100">
+                          <div className="text-sage-500">Sun</div>
+                          <div className="text-sage-800 flex items-center gap-1">
+                            <Sun className="w-3 h-3 text-olive-500" />
+                            {selectedPlant.sunReq}
+                          </div>
+                        </div>
+                        <div className="bg-white rounded p-2 border border-sage-100">
+                          <div className="text-sage-500">Water</div>
+                          <div className="text-sage-800 flex items-center gap-1">
+                            <CloudRain className="w-3 h-3 text-forest-500" />
+                            {selectedPlant.waterReq}
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-white rounded p-2 border border-sage-100">
-                        <div className="text-sage-500">Water</div>
-                        <div className="text-sage-800 flex items-center gap-1">
-                          <CloudRain className="w-3 h-3 text-forest-500" />
-                          {selectedPlant.waterReq}
-                        </div>
+                      <div className="mt-2 text-xs text-forest-600 bg-forest-50 rounded p-2 border border-forest-100">
+                        <Star className="w-3 h-3 inline mr-1" />
+                        {selectedPlant.disneyUse}
+                      </div>
+                      <div className="mt-3 text-center text-xs text-sage-500">
+                        Click on the canvas to place
                       </div>
                     </div>
-                    <div className="mt-2 text-xs text-forest-600 bg-forest-50 rounded p-2 border border-forest-100">
-                      <Star className="w-3 h-3 inline mr-1" />
-                      {selectedPlant.disneyUse}
-                    </div>
-                    <div className="mt-3 text-center text-xs text-sage-500">
-                      Click on the canvas to place
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1075,7 +1098,7 @@ export default function StudioPage() {
                   onChange={(e) => setBedDimensions({...bedDimensions, height: parseInt(e.target.value) || 0})}
                   className="w-16 bg-cream-50 border border-sage-200 rounded px-2 py-1 text-center text-sage-900 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
                 />
-                <span className="text-sage-500">in</span>
+                <span className="text-sage-500">ft</span>
               </div>
 
               <button
@@ -1093,50 +1116,50 @@ export default function StudioPage() {
             <div
               className="relative mx-auto bg-gradient-to-b from-wood-200 to-wood-300 rounded-lg overflow-hidden shadow-xl border border-wood-400"
               style={{
-                width: bedDimensions.width * zoom * 4,
-                height: bedDimensions.height * zoom * 4,
+                width: bedDimensions.width * 12 * zoom * 4, // feet * 12 = inches * zoom * 4 pixels
+                height: bedDimensions.height * 12 * zoom * 4,
                 cursor: isDrawingMode ? 'crosshair' : selectedPlant ? 'crosshair' : 'default'
               }}
               ref={canvasRef}
               onClick={handleCanvasClick}
               onMouseDown={handleBedDrawStart}
             >
-              {/* Grid Overlay */}
+              {/* Grid Overlay - 1 foot squares */}
               {showGrid && (
                 <div
                   className="absolute inset-0 pointer-events-none opacity-30"
                   style={{
-                    backgroundSize: `${12 * zoom * 4}px ${12 * zoom * 4}px`,
+                    backgroundSize: `${12 * zoom * 4}px ${12 * zoom * 4}px`, // 1 foot = 12 inches
                     backgroundImage: 'linear-gradient(to right, rgba(103, 124, 86, 0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(103, 124, 86, 0.5) 1px, transparent 1px)'
                   }}
                 />
               )}
 
-              {/* Ruler Marks */}
+              {/* Ruler Marks - in feet */}
               {showRuler && (
                 <>
                   {/* Top Ruler */}
                   <div className="absolute top-0 left-0 right-0 h-6 bg-sage-800/90 flex">
-                    {Array.from({ length: Math.floor(bedDimensions.width / 12) + 1 }).map((_, i) => (
+                    {Array.from({ length: bedDimensions.width + 1 }).map((_, i) => (
                       <div
                         key={i}
                         className="absolute text-xs text-white transform -translate-x-1/2"
                         style={{ left: i * 12 * zoom * 4 }}
                       >
                         <div className="h-2 w-px bg-sage-300 mx-auto" />
-                        {i * 12}"
+                        {i}ft
                       </div>
                     ))}
                   </div>
                   {/* Left Ruler */}
                   <div className="absolute top-6 left-0 bottom-0 w-6 bg-sage-800/90">
-                    {Array.from({ length: Math.floor(bedDimensions.height / 12) + 1 }).map((_, i) => (
+                    {Array.from({ length: bedDimensions.height + 1 }).map((_, i) => (
                       <div
                         key={i}
                         className="absolute text-xs text-white transform -translate-y-1/2 flex items-center"
                         style={{ top: i * 12 * zoom * 4 }}
                       >
-                        <span className="w-4 text-right pr-1">{i * 12}"</span>
+                        <span className="w-4 text-right pr-1">{i}ft</span>
                         <div className="w-2 h-px bg-sage-300" />
                       </div>
                     ))}
@@ -1150,8 +1173,8 @@ export default function StudioPage() {
               ) : customBedPath.length > 0 && (
                 <svg
                   className="absolute inset-0 pointer-events-none"
-                  width={bedDimensions.width * zoom * 4}
-                  height={bedDimensions.height * zoom * 4}
+                  width={bedDimensions.width * 12 * zoom * 4}
+                  height={bedDimensions.height * 12 * zoom * 4}
                 >
                   {/* Custom bed fill */}
                   <path
@@ -1168,8 +1191,8 @@ export default function StudioPage() {
               {isDrawingBed && drawingPoints.length > 1 && (
                 <svg
                   className="absolute inset-0 pointer-events-none z-30"
-                  width={bedDimensions.width * zoom * 4}
-                  height={bedDimensions.height * zoom * 4}
+                  width={bedDimensions.width * 12 * zoom * 4}
+                  height={bedDimensions.height * 12 * zoom * 4}
                 >
                   <path
                     d={pathToSvgString(drawingPoints)}
@@ -1309,7 +1332,7 @@ export default function StudioPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sage-600">Bed Area</span>
-                  <span className="text-sage-900 font-medium">{bedDimensions.width * bedDimensions.height} sq in</span>
+                  <span className="text-sage-900 font-medium">{bedDimensions.width * bedDimensions.height} sq ft</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sage-600">Applied Bundle</span>
