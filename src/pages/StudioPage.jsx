@@ -195,7 +195,7 @@ export default function StudioPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showGrid, setShowGrid] = useState(true);
   const [zoom, setZoom] = useState(1);
-  const [bedDimensions, setBedDimensions] = useState({ width: 10, height: 7 }); // Now in FEET
+  const [bedDimensions, setBedDimensions] = useState({ width: 100, height: 100 }); // In FEET
   const [showRuler, setShowRuler] = useState(false);
   const [showPlantInfo, setShowPlantInfo] = useState(true);
   const [selectedPlacedPlant, setSelectedPlacedPlant] = useState(null);
@@ -1220,10 +1220,8 @@ export default function StudioPage() {
                 return (
                   <div
                     key={plant.id}
-                    className={`absolute transition-all ${
-                      isBeingDragged ? 'cursor-grabbing z-20' : 'cursor-grab'
-                    } ${
-                      isSelected ? 'z-10' : 'hover:brightness-110'
+                    className={`absolute transition-all pointer-events-none ${
+                      isSelected ? 'z-10' : ''
                     }`}
                     style={{
                       left: plant.x * scaleFactor - maturePixels / 2,
@@ -1232,20 +1230,20 @@ export default function StudioPage() {
                       height: maturePixels,
                       transform: `rotate(${plant.rotation}deg) scale(${plant.scale})`,
                     }}
-                    onClick={(e) => handlePlantClick(e, plant)}
-                    onMouseDown={(e) => handleDragStart(e, plant)}
                   >
                     {/* Mature spread dotted circle */}
                     <div
-                      className="absolute inset-0 rounded-full pointer-events-none"
+                      className="absolute inset-0 rounded-full"
                       style={{
                         border: `2px dashed ${plantData?.color || '#4CAF50'}60`,
                       }}
                     />
 
-                    {/* Plant icon (centered, smaller than mature spread) */}
+                    {/* Plant icon (centered, smaller than mature spread) - ONLY this is draggable */}
                     <div
-                      className="absolute rounded-full flex items-center justify-center shadow-lg"
+                      className={`absolute rounded-full flex items-center justify-center shadow-lg pointer-events-auto ${
+                        isBeingDragged ? 'cursor-grabbing' : 'cursor-grab'
+                      } hover:brightness-110 transition-all`}
                       style={{
                         left: '50%',
                         top: '50%',
@@ -1255,6 +1253,8 @@ export default function StudioPage() {
                         backgroundColor: plantData?.color || '#4CAF50',
                         boxShadow: `0 4px 12px ${plantData?.color}40`
                       }}
+                      onClick={(e) => handlePlantClick(e, plant)}
+                      onMouseDown={(e) => handleDragStart(e, plant)}
                     >
                       <span style={{ fontSize: iconPixels * 0.5 }}>{plantData?.icon}</span>
                     </div>
