@@ -5,7 +5,8 @@ import {
   RotateCcw, Download, Upload, Eye, Palette, Ruler, Check,
   X, ChevronRight, ChevronDown, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
-  Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home
+  Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home,
+  PenTool, Square
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -209,6 +210,13 @@ export default function StudioPage() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [draggingPlantId, setDraggingPlantId] = useState(null);
 
+  // Freehand bed drawing state
+  const [bedType, setBedType] = useState('rectangle'); // 'rectangle' | 'custom'
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [isDrawingBed, setIsDrawingBed] = useState(false);
+  const [drawingPoints, setDrawingPoints] = useState([]);
+  const [customBedPath, setCustomBedPath] = useState([]);
+
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -240,6 +248,8 @@ export default function StudioPage() {
 
   // Handle plant placement on canvas
   const handleCanvasClick = (e) => {
+    // Don't place plants if in drawing mode
+    if (isDrawingMode) return;
     if (!selectedPlant || isDragging) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
@@ -247,7 +257,12 @@ export default function StudioPage() {
     const y = (e.clientY - rect.top) / (zoom * 4);
 
     // Validate placement within bed bounds
-    if (x < 0 || x > bedDimensions.width || y < 0 || y > bedDimensions.height) return;
+    if (bedType === 'rectangle') {
+      if (x < 0 || x > bedDimensions.width || y < 0 || y > bedDimensions.height) return;
+    } else if (bedType === 'custom' && customBedPath.length > 0) {
+      // Check if point is inside custom bed path
+      if (!isPointInPath(x, y, customBedPath)) return;
+    }
 
     const newPlant = {
       id: `placed-${Date.now()}`,
@@ -319,6 +334,139 @@ export default function StudioPage() {
       };
     }
   }, [isDragging, handleDragMove, handleDragEnd]);
+
+  // Chaikin's smoothing algorithm - makes drawn paths smoother
+  const smoothPath = (points, iterations = 3) => {
+    if (points.length < 3) return points;
+
+    let smoothed = [...points];
+    for (let iter = 0; iter < iterations; iter++) {
+      const newPoints = [];
+      for (let i = 0; i < smoothed.length - 1; i++) {
+        const p0 = smoothed[i];
+        const p1 = smoothed[i + 1];
+        newPoints.push({
+          x: 0.75 * p0.x + 0.25 * p1.x,
+          y: 0.75 * p0.y + 0.25 * p1.y
+        });
+        newPoints.push({
+          x: 0.25 * p0.x + 0.75 * p1.x,
+          y: 0.25 * p0.y + 0.75 * p1.y
+        });
+      }
+      // Close the path
+      if (smoothed.length > 2) {
+        const p0 = smoothed[smoothed.length - 1];
+        const p1 = smoothed[0];
+        newPoints.push({
+          x: 0.75 * p0.x + 0.25 * p1.x,
+          y: 0.75 * p0.y + 0.25 * p1.y
+        });
+        newPoints.push({
+          x: 0.25 * p0.x + 0.75 * p1.x,
+          y: 0.25 * p0.y + 0.75 * p1.y
+        });
+      }
+      smoothed = newPoints;
+    }
+    return smoothed;
+  };
+
+  // Simplify path by removing points that are too close together
+  const simplifyPath = (points, minDistance = 5) => {
+    if (points.length < 2) return points;
+    const simplified = [points[0]];
+    for (let i = 1; i < points.length; i++) {
+      const last = simplified[simplified.length - 1];
+      const dx = points[i].x - last.x;
+      const dy = points[i].y - last.y;
+      if (Math.sqrt(dx * dx + dy * dy) >= minDistance) {
+        simplified.push(points[i]);
+      }
+    }
+    return simplified;
+  };
+
+  // Handle bed drawing start
+  const handleBedDrawStart = (e) => {
+    if (!isDrawingMode) return;
+    e.preventDefault();
+    setIsDrawingBed(true);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / (zoom * 4);
+    const y = (e.clientY - rect.top) / (zoom * 4);
+    setDrawingPoints([{ x, y }]);
+  };
+
+  // Handle bed drawing move
+  const handleBedDrawMove = useCallback((e) => {
+    if (!isDrawingBed) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / (zoom * 4);
+    const y = (e.clientY - rect.top) / (zoom * 4);
+    setDrawingPoints(prev => [...prev, { x, y }]);
+  }, [isDrawingBed, zoom]);
+
+  // Handle bed drawing end
+  const handleBedDrawEnd = useCallback(() => {
+    if (!isDrawingBed) return;
+    setIsDrawingBed(false);
+
+    if (drawingPoints.length > 10) {
+      // Simplify then smooth the path
+      const simplified = simplifyPath(drawingPoints, 3);
+      const smoothed = smoothPath(simplified, 3);
+      setCustomBedPath(smoothed);
+      setBedType('custom');
+      setIsDrawingMode(false);
+    }
+    setDrawingPoints([]);
+  }, [isDrawingBed, drawingPoints]);
+
+  // Add mouse event listeners for bed drawing
+  useEffect(() => {
+    if (isDrawingBed) {
+      window.addEventListener('mousemove', handleBedDrawMove);
+      window.addEventListener('mouseup', handleBedDrawEnd);
+      return () => {
+        window.removeEventListener('mousemove', handleBedDrawMove);
+        window.removeEventListener('mouseup', handleBedDrawEnd);
+      };
+    }
+  }, [isDrawingBed, handleBedDrawMove, handleBedDrawEnd]);
+
+  // Convert path points to SVG path string
+  const pathToSvgString = (points) => {
+    if (points.length < 2) return '';
+    const scaleFactor = zoom * 4;
+    let d = `M ${points[0].x * scaleFactor} ${points[0].y * scaleFactor}`;
+    for (let i = 1; i < points.length; i++) {
+      d += ` L ${points[i].x * scaleFactor} ${points[i].y * scaleFactor}`;
+    }
+    d += ' Z'; // Close the path
+    return d;
+  };
+
+  // Check if a point is inside the custom bed path (ray casting algorithm)
+  const isPointInPath = (x, y, path) => {
+    if (path.length < 3) return true; // If no valid path, allow placement
+    let inside = false;
+    for (let i = 0, j = path.length - 1; i < path.length; j = i++) {
+      const xi = path[i].x, yi = path[i].y;
+      const xj = path[j].x, yj = path[j].y;
+      if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+        inside = !inside;
+      }
+    }
+    return inside;
+  };
+
+  // Reset to rectangle bed
+  const resetToRectangleBed = () => {
+    setBedType('rectangle');
+    setCustomBedPath([]);
+    setIsDrawingMode(false);
+  };
 
   // Delete selected plant
   const deleteSelectedPlant = () => {
@@ -420,24 +568,46 @@ export default function StudioPage() {
     URL.revokeObjectURL(url);
   };
 
-  // Get plant size for rendering
-  const getPlantSize = (plantId) => {
-    const plant = ALL_PLANTS.find(p => p.id === plantId);
-    if (!plant) return 20;
+  // Parse spread value to inches (e.g., "6-8in" -> 7, "3-4ft" -> 42, "15-20ft" -> 210)
+  const parseSpreadToInches = (spread) => {
+    if (!spread) return 12;
 
-    const sizes = {
-      focal: 40,
-      topiary: 30,
-      back: 28,
-      middle: 22,
-      front: 16,
-      groundcover: 14
-    };
+    // Handle "spreading" or other non-numeric values
+    if (spread.toLowerCase() === 'spreading') return 18;
 
-    return sizes[plant.category] || 20;
+    // Extract numbers and unit
+    const match = spread.match(/(\d+)[-–]?(\d+)?\s*(in|ft)?/i);
+    if (!match) return 12;
+
+    const min = parseInt(match[1]);
+    const max = match[2] ? parseInt(match[2]) : min;
+    const avg = (min + max) / 2;
+    const unit = (match[3] || 'in').toLowerCase();
+
+    // Convert to inches
+    return unit === 'ft' ? avg * 12 : avg;
   };
 
-  // Generate AI vision image
+  // Get plant sizes for rendering - returns icon size and mature spread in inches
+  const getPlantSizes = (plantId) => {
+    const plant = ALL_PLANTS.find(p => p.id === plantId);
+    if (!plant) return { iconSize: 20, matureSpread: 12 };
+
+    const matureSpread = parseSpreadToInches(plant.spread);
+
+    // Icon size is a fraction of mature spread for visual clarity
+    // but with min/max bounds for usability
+    const iconSize = Math.max(12, Math.min(50, matureSpread * 0.4));
+
+    return { iconSize, matureSpread };
+  };
+
+  // Legacy function for backward compatibility
+  const getPlantSize = (plantId) => {
+    return getPlantSizes(plantId).iconSize;
+  };
+
+  // Generate AI vision image using DALL-E 3
   const generateVisionImage = async (season) => {
     if (placedPlants.length === 0) {
       setGenerateError('Please add some plants to your design first.');
@@ -449,39 +619,82 @@ export default function StudioPage() {
     setSelectedSeason(season);
 
     try {
-      // Build a description of the garden based on placed plants
-      const plantCounts = placedPlants.reduce((acc, p) => {
+      // Build detailed plant inventory with positions
+      const plantDetails = {};
+      placedPlants.forEach(p => {
         const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
         if (plantData) {
-          acc[plantData.name] = (acc[plantData.name] || 0) + 1;
+          if (!plantDetails[plantData.name]) {
+            plantDetails[plantData.name] = {
+              count: 0,
+              color: plantData.color,
+              height: plantData.height,
+              category: plantData.category,
+              bloomTime: plantData.bloomTime
+            };
+          }
+          plantDetails[plantData.name].count++;
         }
-        return acc;
-      }, {});
+      });
 
-      const plantList = Object.entries(plantCounts)
-        .map(([name, count]) => `${count} ${name}${count > 1 ? 's' : ''}`)
-        .join(', ');
-
-      // Simulate AI generation with a delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Use a placeholder landscape image based on season
-      const seasonImages = {
-        spring: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=450&fit=crop',
-        summer: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=450&fit=crop',
-        fall: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop',
-        winter: 'https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=800&h=450&fit=crop'
+      // Group plants by category for better prompt structure
+      const byCategory = {
+        focal: [],
+        topiary: [],
+        back: [],
+        middle: [],
+        front: [],
+        groundcover: []
       };
 
+      Object.entries(plantDetails).forEach(([name, info]) => {
+        byCategory[info.category]?.push(`${info.count} ${name} (${info.height}, ${info.bloomTime})`);
+      });
+
+      // Build the prompt
+      const bedSizeFt = `${Math.round(bedDimensions.width / 12)}ft x ${Math.round(bedDimensions.height / 12)}ft`;
+
+      let promptParts = [`A professional landscape bed approximately ${bedSizeFt} in size with the following plants:`];
+
+      if (byCategory.focal.length) promptParts.push(`FOCAL TREES: ${byCategory.focal.join(', ')}`);
+      if (byCategory.topiary.length) promptParts.push(`TOPIARIES: ${byCategory.topiary.join(', ')}`);
+      if (byCategory.back.length) promptParts.push(`BACK ROW (tall shrubs): ${byCategory.back.join(', ')}`);
+      if (byCategory.middle.length) promptParts.push(`MIDDLE ROW (medium plants): ${byCategory.middle.join(', ')}`);
+      if (byCategory.front.length) promptParts.push(`FRONT ROW (low plants): ${byCategory.front.join(', ')}`);
+      if (byCategory.groundcover.length) promptParts.push(`GROUNDCOVER/EDGING: ${byCategory.groundcover.join(', ')}`);
+
+      const prompt = promptParts.join('\n');
+
+      // Call the Netlify function
+      const response = await fetch('/.netlify/functions/generate-image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt, season }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to generate image');
+      }
+
+      const plantList = Object.entries(plantDetails)
+        .map(([name, info]) => `${info.count} ${name}`)
+        .join(', ');
+
       setGeneratedImage({
-        url: seasonImages[season],
+        url: data.imageUrl,
         season: season,
         description: `Disney-quality ${season} garden with ${plantList}`,
         plantCount: placedPlants.length,
-        coverage: coveragePercent.toFixed(1)
+        coverage: coveragePercent.toFixed(1),
+        revisedPrompt: data.revisedPrompt
       });
     } catch (error) {
-      setGenerateError('Failed to generate vision. Please try again.');
+      console.error('Vision generation error:', error);
+      setGenerateError(error.message || 'Failed to generate vision. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -793,6 +1006,29 @@ export default function StudioPage() {
                 <ZoomIn className="w-4 h-4" />
               </button>
               <div className="w-px h-6 bg-sage-200 mx-2" />
+              {/* Bed Shape Tools */}
+              <button
+                onClick={() => {
+                  setIsDrawingMode(!isDrawingMode);
+                  setSelectedPlant(null);
+                }}
+                className={`p-2 rounded-lg transition-colors ${
+                  isDrawingMode ? 'bg-forest-500 text-white' : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                }`}
+                title="Draw Custom Bed Shape"
+              >
+                <PenTool className="w-4 h-4" />
+              </button>
+              {bedType === 'custom' && (
+                <button
+                  onClick={resetToRectangleBed}
+                  className="p-2 rounded-lg bg-sage-100 text-sage-600 hover:bg-sage-200 transition-colors"
+                  title="Reset to Rectangle Bed"
+                >
+                  <Square className="w-4 h-4" />
+                </button>
+              )}
+              <div className="w-px h-6 bg-sage-200 mx-2" />
               <button
                 onClick={clearCanvas}
                 className="p-2 rounded-lg bg-sage-100 text-red-500 hover:bg-red-50 transition-colors"
@@ -812,6 +1048,17 @@ export default function StudioPage() {
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Bed Shape Indicator */}
+              {bedType === 'custom' && (
+                <span className="text-xs text-forest-600 bg-forest-50 px-2 py-1 rounded-full">
+                  Custom Bed
+                </span>
+              )}
+              {isDrawingMode && (
+                <span className="text-xs text-white bg-forest-500 px-2 py-1 rounded-full animate-pulse">
+                  Drawing Mode - Click & Drag
+                </span>
+              )}
               {/* Bed Dimensions */}
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-sage-500">Bed Size:</span>
@@ -848,10 +1095,11 @@ export default function StudioPage() {
               style={{
                 width: bedDimensions.width * zoom * 4,
                 height: bedDimensions.height * zoom * 4,
-                cursor: selectedPlant ? 'crosshair' : 'default'
+                cursor: isDrawingMode ? 'crosshair' : selectedPlant ? 'crosshair' : 'default'
               }}
               ref={canvasRef}
               onClick={handleCanvasClick}
+              onMouseDown={handleBedDrawStart}
             >
               {/* Grid Overlay */}
               {showGrid && (
@@ -896,15 +1144,55 @@ export default function StudioPage() {
                 </>
               )}
 
-              {/* Bed Edge Indicator */}
-              <div className="absolute inset-2 border-2 border-dashed border-sage-500/30 rounded pointer-events-none" />
+              {/* Bed Edge Indicator - Rectangle or Custom */}
+              {bedType === 'rectangle' ? (
+                <div className="absolute inset-2 border-2 border-dashed border-sage-500/30 rounded pointer-events-none" />
+              ) : customBedPath.length > 0 && (
+                <svg
+                  className="absolute inset-0 pointer-events-none"
+                  width={bedDimensions.width * zoom * 4}
+                  height={bedDimensions.height * zoom * 4}
+                >
+                  {/* Custom bed fill */}
+                  <path
+                    d={pathToSvgString(customBedPath)}
+                    fill="rgba(103, 124, 86, 0.15)"
+                    stroke="rgba(103, 124, 86, 0.6)"
+                    strokeWidth="3"
+                    strokeDasharray="8 4"
+                  />
+                </svg>
+              )}
+
+              {/* Drawing Preview */}
+              {isDrawingBed && drawingPoints.length > 1 && (
+                <svg
+                  className="absolute inset-0 pointer-events-none z-30"
+                  width={bedDimensions.width * zoom * 4}
+                  height={bedDimensions.height * zoom * 4}
+                >
+                  <path
+                    d={pathToSvgString(drawingPoints)}
+                    fill="rgba(85, 120, 82, 0.2)"
+                    stroke="rgba(85, 120, 82, 0.8)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
 
               {/* Placed Plants */}
               {placedPlants.map(plant => {
                 const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
-                const size = getPlantSize(plant.plantId);
+                const { iconSize, matureSpread } = getPlantSizes(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
                 const isBeingDragged = draggingPlantId === plant.id;
+
+                // Scale factor: 1 inch = 4 pixels at zoom 1
+                const scaleFactor = zoom * 4;
+                const iconPixels = iconSize * scaleFactor * 0.5; // Icon is smaller than spread
+                const maturePixels = matureSpread * scaleFactor;
 
                 return (
                   <div
@@ -912,31 +1200,50 @@ export default function StudioPage() {
                     className={`absolute transition-all ${
                       isBeingDragged ? 'cursor-grabbing z-20' : 'cursor-grab'
                     } ${
-                      isSelected ? 'ring-4 ring-sage-500 ring-opacity-50 z-10' : 'hover:brightness-110'
+                      isSelected ? 'z-10' : 'hover:brightness-110'
                     }`}
                     style={{
-                      left: plant.x * zoom * 4 - (size * zoom) / 2,
-                      top: plant.y * zoom * 4 - (size * zoom) / 2,
-                      width: size * zoom,
-                      height: size * zoom,
+                      left: plant.x * scaleFactor - maturePixels / 2,
+                      top: plant.y * scaleFactor - maturePixels / 2,
+                      width: maturePixels,
+                      height: maturePixels,
                       transform: `rotate(${plant.rotation}deg) scale(${plant.scale})`,
                     }}
                     onClick={(e) => handlePlantClick(e, plant)}
                     onMouseDown={(e) => handleDragStart(e, plant)}
                   >
+                    {/* Mature spread dotted circle */}
                     <div
-                      className="w-full h-full rounded-full flex items-center justify-center shadow-lg"
+                      className="absolute inset-0 rounded-full pointer-events-none"
                       style={{
+                        border: `2px dashed ${plantData?.color || '#4CAF50'}60`,
+                      }}
+                    />
+
+                    {/* Plant icon (centered, smaller than mature spread) */}
+                    <div
+                      className="absolute rounded-full flex items-center justify-center shadow-lg"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: iconPixels,
+                        height: iconPixels,
                         backgroundColor: plantData?.color || '#4CAF50',
                         boxShadow: `0 4px 12px ${plantData?.color}40`
                       }}
                     >
-                      <span style={{ fontSize: size * zoom * 0.5 }}>{plantData?.icon}</span>
+                      <span style={{ fontSize: iconPixels * 0.5 }}>{plantData?.icon}</span>
                     </div>
+
+                    {/* Selection ring */}
                     {isSelected && (
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-sage-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                        {plantData?.name}
-                      </div>
+                      <>
+                        <div className="absolute inset-0 rounded-full ring-4 ring-sage-500 ring-opacity-50" />
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-sage-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-20">
+                          {plantData?.name} ({matureSpread}"spread)
+                        </div>
+                      </>
                     )}
                   </div>
                 );
