@@ -4,8 +4,91 @@ import {
   RotateCcw, Download, Upload, Eye, Palette, Ruler, Check, 
   X, ChevronRight, ChevronDown, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
-  Sun, CloudRain, Thermometer, Star, Crown, CircleDot
+  Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Moon
 } from 'lucide-react';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// CASTLE MAGIC THEMES - Day & Night
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const THEMES = {
+  night: {
+    name: 'Castle Night',
+    icon: '🌙',
+    // Backgrounds
+    pageBg: 'from-indigo-950 via-purple-950 to-slate-950',
+    headerBg: 'bg-indigo-950/80',
+    sidebarBg: 'bg-purple-950/50',
+    canvasBg: 'bg-indigo-950/50',
+    cardBg: 'bg-purple-900/30',
+    inputBg: 'bg-indigo-900/50',
+    // Borders
+    borderColor: 'border-purple-800/50',
+    borderAccent: 'border-purple-600',
+    borderHover: 'hover:border-purple-500/50',
+    // Text
+    textPrimary: 'text-white',
+    textSecondary: 'text-purple-200',
+    textMuted: 'text-purple-400',
+    textAccent: 'text-amber-400',
+    textHighlight: 'text-purple-300',
+    // Gradients
+    gradientPrimary: 'from-purple-600 to-indigo-600',
+    gradientHover: 'hover:from-purple-500 hover:to-indigo-500',
+    gradientAccent: 'from-amber-500 via-yellow-400 to-amber-500',
+    gradientTitle: 'from-purple-300 via-pink-200 to-amber-300',
+    // Accents
+    accentPrimary: 'bg-purple-600',
+    accentHover: 'hover:bg-purple-500',
+    accentMuted: 'bg-purple-900/20',
+    accentSuccess: 'bg-purple-500',
+    accentRing: 'ring-purple-500/20',
+    focusRing: 'focus:ring-purple-500/50',
+    // Special
+    glowColor: 'from-purple-500 via-pink-500 to-amber-500',
+    scoreGradient: 'from-purple-500 to-pink-400',
+    gridColor: 'rgba(168, 85, 247, 0.5)',
+    canvasGradient: 'from-purple-900/30 to-indigo-950/50',
+  },
+  day: {
+    name: 'Castle Day',
+    icon: '☀️',
+    // Backgrounds
+    pageBg: 'from-sky-100 via-purple-100 to-pink-100',
+    headerBg: 'bg-white/80',
+    sidebarBg: 'bg-white/50',
+    canvasBg: 'bg-purple-50/50',
+    cardBg: 'bg-white/60',
+    inputBg: 'bg-white/70',
+    // Borders
+    borderColor: 'border-purple-200',
+    borderAccent: 'border-purple-400',
+    borderHover: 'hover:border-purple-300',
+    // Text
+    textPrimary: 'text-purple-900',
+    textSecondary: 'text-purple-700',
+    textMuted: 'text-purple-500',
+    textAccent: 'text-amber-600',
+    textHighlight: 'text-purple-600',
+    // Gradients
+    gradientPrimary: 'from-purple-500 to-pink-500',
+    gradientHover: 'hover:from-purple-400 hover:to-pink-400',
+    gradientAccent: 'from-amber-400 via-yellow-300 to-amber-400',
+    gradientTitle: 'from-purple-600 via-pink-500 to-amber-500',
+    // Accents
+    accentPrimary: 'bg-purple-500',
+    accentHover: 'hover:bg-purple-400',
+    accentMuted: 'bg-purple-100',
+    accentSuccess: 'bg-purple-400',
+    accentRing: 'ring-purple-300/50',
+    focusRing: 'focus:ring-purple-300/50',
+    // Special
+    glowColor: 'from-purple-400 via-pink-400 to-amber-400',
+    scoreGradient: 'from-purple-400 to-pink-300',
+    gridColor: 'rgba(168, 85, 247, 0.3)',
+    canvasGradient: 'from-amber-100/50 to-purple-100/50',
+  }
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DISNEY LANDSCAPE RULES - The Non-Negotiable Standards
@@ -37,31 +120,24 @@ const DISNEY_RULES = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const PLANT_DATABASE = {
-  // FOCAL POINTS - The "Weenies"
   focal: [
     { id: 'crape-myrtle', name: 'Crape Myrtle', height: '15-25ft', spread: '15-20ft', color: '#E91E63', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Main Street USA focal trees' },
     { id: 'japanese-maple', name: 'Japanese Maple', height: '15-25ft', spread: '15-20ft', color: '#C62828', bloomTime: 'Spring foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍁', category: 'focal', disneyUse: 'Japan Pavilion, Fantasyland' },
     { id: 'magnolia-south', name: 'Southern Magnolia', height: '60-80ft', spread: '30-40ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'focal', disneyUse: 'Grand entrances, Southern theming' },
     { id: 'live-oak', name: 'Live Oak', height: '40-80ft', spread: '60-100ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌳', category: 'focal', disneyUse: 'Liberty Square, shade canopy' },
   ],
-  
-  // TOPIARIES - Disney Signature Shapes
   topiary: [
     { id: 'spiral-juniper', name: 'Spiral Juniper', height: '6-8ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌀', category: 'topiary', shape: 'spiral', disneyUse: 'Formal garden accents' },
     { id: 'ball-boxwood', name: 'Ball Boxwood', height: '2-4ft', spread: '2-4ft', color: '#33691E', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '⚫', category: 'topiary', shape: 'ball', disneyUse: 'EPCOT topiaries, formal beds' },
     { id: 'cone-arborvitae', name: 'Cone Arborvitae', height: '10-15ft', spread: '3-4ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🔺', category: 'topiary', shape: 'cone', disneyUse: 'Formal entrances, vertical accent' },
     { id: 'pom-pom-juniper', name: 'Pom Pom Juniper', height: '4-6ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🎄', category: 'topiary', shape: 'pom-pom', disneyUse: 'Whimsical gardens, Fantasyland' },
   ],
-  
-  // BACK ROW - Tall Structure
   back: [
     { id: 'holly-nellie', name: "Holly 'Nellie Stevens'", height: '15-25ft', spread: '8-12ft', color: '#1B5E20', bloomTime: 'Evergreen + berries', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'back', disneyUse: 'Privacy screening, winter interest' },
     { id: 'camellia', name: 'Camellia japonica', height: '6-12ft', spread: '6-10ft', color: '#E91E63', bloomTime: 'Winter-Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌷', category: 'back', disneyUse: 'Japan Pavilion, elegant blooms' },
     { id: 'azalea-encore', name: "Azalea 'Encore'", height: '4-5ft', spread: '4-5ft', color: '#EC407A', bloomTime: 'Spring + Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Mass color, reblooming' },
     { id: 'loropetalum', name: 'Loropetalum', height: '6-10ft', spread: '6-10ft', color: '#880E4F', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Purple foliage contrast' },
   ],
-  
-  // MIDDLE ROW - Color Workhorses
   middle: [
     { id: 'knockout-rose', name: 'Knockout Rose', height: '3-4ft', spread: '3-4ft', color: '#D32F2F', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌹', category: 'middle', disneyUse: 'Continuous color, low maintenance' },
     { id: 'blue-salvia', name: 'Blue Salvia', height: '2-3ft', spread: '2ft', color: '#1565C0', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Vertical blue spikes' },
@@ -70,8 +146,6 @@ const PLANT_DATABASE = {
     { id: 'rudbeckia', name: 'Black-Eyed Susan', height: '2-3ft', spread: '1-2ft', color: '#FFC107', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌻', category: 'middle', disneyUse: 'Native charm, golden blooms' },
     { id: 'daylily', name: 'Daylily', height: '1-3ft', spread: '1-2ft', color: '#FF5722', bloomTime: 'Summer', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'middle', disneyUse: 'Reliable perennial, many colors' },
   ],
-  
-  // FRONT ROW - Edging & Mass Color
   front: [
     { id: 'petunia', name: 'Petunia', height: '6-12in', spread: '12-18in', color: '#9C27B0', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'front', disneyUse: 'Mass annual color' },
     { id: 'begonia', name: 'Begonia', height: '8-12in', spread: '8-12in', color: '#F44336', bloomTime: 'Spring-Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Shade tolerant color' },
@@ -80,8 +154,6 @@ const PLANT_DATABASE = {
     { id: 'vinca', name: 'Vinca', height: '6-12in', spread: '12-18in', color: '#E91E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Heat/drought tolerant' },
     { id: 'coleus', name: 'Coleus', height: '12-24in', spread: '12-18in', color: '#880E4F', bloomTime: 'Foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍂', category: 'front', disneyUse: 'Dramatic foliage patterns' },
   ],
-  
-  // GROUND COVER - Full Coverage Heroes
   groundcover: [
     { id: 'liriope', name: 'Liriope', height: '10-12in', spread: '12-18in', color: '#4CAF50', bloomTime: 'Summer spikes', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Clean edging, tough' },
     { id: 'mondo-grass', name: 'Mondo Grass', height: '6-8in', spread: '8-12in', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '🌱', category: 'groundcover', disneyUse: 'Dense carpet, shade' },
@@ -90,7 +162,6 @@ const PLANT_DATABASE = {
   ]
 };
 
-// Flatten for easy access
 const ALL_PLANTS = [
   ...PLANT_DATABASE.focal,
   ...PLANT_DATABASE.topiary,
@@ -101,255 +172,241 @@ const ALL_PLANTS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BED BUNDLE TEMPLATES - Pre-Designed Disney-Quality Packages
+// BED BUNDLES - Pre-designed Themed Collections
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const BED_BUNDLES = [
   {
-    id: 'main-street-classic',
-    name: 'Main Street USA Classic',
-    description: 'Traditional American elegance with red, white & blue patriotic palette',
+    id: 'main-street-usa',
+    name: 'Main Street USA',
     theme: 'Classic Americana',
-    colorScheme: ['#D32F2F', '#FFFFFF', '#1565C0'],
-    baseSize: '100 sq ft',
+    preview: '🏛️',
+    description: 'Red, white & pink roses with formal boxwood borders - quintessential Disney',
+    colorScheme: ['#D32F2F', '#FFFFFF', '#E91E63', '#33691E'],
     plants: [
-      { plantId: 'crape-myrtle', quantity: 1, role: 'focal', position: 'center-back' },
-      { plantId: 'holly-nellie', quantity: 3, role: 'back', position: 'back-row' },
-      { plantId: 'knockout-rose', quantity: 5, role: 'middle', position: 'middle-row' },
-      { plantId: 'blue-salvia', quantity: 7, role: 'middle', position: 'middle-front' },
-      { plantId: 'petunia', quantity: 12, role: 'front', position: 'front-row' },
-      { plantId: 'liriope', quantity: 15, role: 'edge', position: 'border' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏛️'
+      { plantId: 'ball-boxwood', quantity: 4, row: 'edge' },
+      { plantId: 'knockout-rose', quantity: 6, row: 'middle' },
+      { plantId: 'petunia', quantity: 8, row: 'front' },
+      { plantId: 'liriope', quantity: 6, row: 'groundcover' },
+      { plantId: 'crape-myrtle', quantity: 1, row: 'focal' }
+    ]
   },
   {
-    id: 'tropical-paradise',
-    name: 'Tropical Paradise',
-    description: 'Adventureland vibes with bold oranges, yellows, and lush greens',
-    theme: 'Tropical Adventure',
-    colorScheme: ['#FF9800', '#FFC107', '#4CAF50'],
-    baseSize: '100 sq ft',
+    id: 'fantasyland-garden',
+    name: 'Fantasyland Magic',
+    theme: 'Whimsical Enchantment',
+    preview: '🏰',
+    description: 'Pastel blooms with spiral topiaries - storybook charm',
+    colorScheme: ['#E91E63', '#9C27B0', '#EC407A', '#1B5E20'],
     plants: [
-      { plantId: 'japanese-maple', quantity: 1, role: 'focal', position: 'off-center' },
-      { plantId: 'loropetalum', quantity: 2, role: 'back', position: 'back-corners' },
-      { plantId: 'lantana', quantity: 6, role: 'middle', position: 'middle-row' },
-      { plantId: 'rudbeckia', quantity: 5, role: 'middle', position: 'middle-accent' },
-      { plantId: 'marigold', quantity: 15, role: 'front', position: 'front-mass' },
-      { plantId: 'asiatic-jasmine', quantity: 20, role: 'edge', position: 'spilling-edge' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏝️'
+      { plantId: 'spiral-juniper', quantity: 2, row: 'focal' },
+      { plantId: 'azalea-encore', quantity: 4, row: 'back' },
+      { plantId: 'impatiens', quantity: 10, row: 'front' },
+      { plantId: 'mondo-grass', quantity: 8, row: 'groundcover' }
+    ]
   },
   {
-    id: 'fantasy-garden',
-    name: 'Fantasy Garden',
-    description: 'Whimsical Fantasyland charm with pinks, purples, and magical shapes',
-    theme: 'Enchanted Fantasy',
-    colorScheme: ['#E91E63', '#9C27B0', '#F8BBD9'],
-    baseSize: '100 sq ft',
+    id: 'tomorrowland-modern',
+    name: 'Tomorrowland Future',
+    theme: 'Sleek & Contemporary',
+    preview: '🚀',
+    description: 'Clean lines with architectural plants and bold accents',
+    colorScheme: ['#1565C0', '#FFC107', '#2E7D32', '#9C27B0'],
     plants: [
-      { plantId: 'pom-pom-juniper', quantity: 2, role: 'focal', position: 'flanking' },
-      { plantId: 'azalea-encore', quantity: 4, role: 'back', position: 'back-row' },
-      { plantId: 'pentas', quantity: 6, role: 'middle', position: 'middle-row' },
-      { plantId: 'coleus', quantity: 8, role: 'front', position: 'front-accent' },
-      { plantId: 'begonia', quantity: 15, role: 'front', position: 'front-mass' },
-      { plantId: 'mondo-grass', quantity: 18, role: 'edge', position: 'clean-border' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏰'
+      { plantId: 'cone-arborvitae', quantity: 2, row: 'focal' },
+      { plantId: 'blue-salvia', quantity: 6, row: 'middle' },
+      { plantId: 'rudbeckia', quantity: 4, row: 'middle' },
+      { plantId: 'asiatic-jasmine', quantity: 10, row: 'groundcover' }
+    ]
   },
   {
-    id: 'future-modern',
-    name: 'Future Modern',
-    description: 'Tomorrowland sleekness with silver-greens, whites, and architectural forms',
-    theme: 'Futuristic Minimal',
-    colorScheme: ['#607D8B', '#FFFFFF', '#00BCD4'],
-    baseSize: '100 sq ft',
+    id: 'adventureland-tropical',
+    name: 'Adventureland Exotic',
+    theme: 'Tropical Paradise',
+    preview: '🌴',
+    description: 'Bold tropical colors with lush layering',
+    colorScheme: ['#FF9800', '#E91E63', '#FF5722', '#4CAF50'],
     plants: [
-      { plantId: 'spiral-juniper', quantity: 3, role: 'focal', position: 'geometric' },
-      { plantId: 'ball-boxwood', quantity: 5, role: 'accent', position: 'rhythmic' },
-      { plantId: 'cone-arborvitae', quantity: 2, role: 'vertical', position: 'punctuation' },
-      { plantId: 'liriope', quantity: 25, role: 'mass', position: 'uniform-grid' },
-      { plantId: 'mondo-grass', quantity: 30, role: 'base', position: 'carpet' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🚀'
+      { plantId: 'japanese-maple', quantity: 1, row: 'focal' },
+      { plantId: 'loropetalum', quantity: 3, row: 'back' },
+      { plantId: 'lantana', quantity: 6, row: 'middle' },
+      { plantId: 'marigold', quantity: 8, row: 'front' },
+      { plantId: 'liriope', quantity: 6, row: 'groundcover' }
+    ]
   }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MAIN APPLICATION COMPONENT
+// MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function DisneyLandscapeStudio() {
-  // State Management
+  // Theme State
+  const [theme, setTheme] = useState('night');
+  const t = THEMES[theme];
+  
+  // UI State
   const [activeTab, setActiveTab] = useState('plants');
   const [selectedPlant, setSelectedPlant] = useState(null);
-  const [placedPlants, setPlacedPlants] = useState([]);
-  const [selectedBundle, setSelectedBundle] = useState(null);
-  const [bundleScale, setBundleScale] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showGrid, setShowGrid] = useState(true);
-  const [zoom, setZoom] = useState(1);
-  const [bedDimensions, setBedDimensions] = useState({ width: 120, height: 80 });
   const [showRuler, setShowRuler] = useState(false);
-  const [selectedPlacedPlant, setSelectedPlacedPlant] = useState(null);
-  const [coveragePercent, setCoveragePercent] = useState(0);
-  const [colorHarmonyStatus, setColorHarmonyStatus] = useState({ valid: true, scheme: 'ANALOGOUS' });
+  const [zoom, setZoom] = useState(1);
   const [showVisionPreview, setShowVisionPreview] = useState(false);
+  
+  // Design State
+  const [placedPlants, setPlacedPlants] = useState([]);
+  const [selectedPlacedPlant, setSelectedPlacedPlant] = useState(null);
+  const [bedDimensions, setBedDimensions] = useState({ width: 120, height: 72 });
   const [designName, setDesignName] = useState('Untitled Disney Garden');
+  const [selectedBundle, setSelectedBundle] = useState(null);
+  const [bundleScale, setBundleScale] = useState(1);
+  
+  // Drag State
   const [isDragging, setIsDragging] = useState(false);
+  const [draggingPlantId, setDraggingPlantId] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   
   const canvasRef = useRef(null);
-  const fileInputRef = useRef(null);
-
-  // Calculate coverage whenever plants change
-  useEffect(() => {
-    const totalBedArea = bedDimensions.width * bedDimensions.height;
-    let coveredArea = 0;
-    
-    placedPlants.forEach(plant => {
-      const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
-      if (plantData) {
-        const spreadMatch = plantData.spread.match(/(\d+)/);
-        const spread = spreadMatch ? parseInt(spreadMatch[1]) : 12;
-        coveredArea += Math.PI * Math.pow(spread / 2, 2);
-      }
-    });
-    
-    const coverage = Math.min(100, (coveredArea / totalBedArea) * 100);
-    setCoveragePercent(coverage);
-  }, [placedPlants, bedDimensions]);
-
-  // Filter plants based on search and category
+  
+  // Filter plants
   const filteredPlants = ALL_PLANTS.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          plant.disneyUse.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || plant.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
-
-  // Handle plant placement on canvas
+  
+  // Calculate coverage
+  const coveragePercent = useCallback(() => {
+    if (placedPlants.length === 0) return 0;
+    const bedArea = bedDimensions.width * bedDimensions.height;
+    let plantArea = 0;
+    placedPlants.forEach(p => {
+      const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
+      if (plantData) {
+        const spread = parseInt(plantData.spread) || 12;
+        plantArea += Math.PI * Math.pow(spread / 2, 2);
+      }
+    });
+    return Math.min(100, (plantArea / bedArea) * 100 * (1 - DISNEY_RULES.coverage.OVERLAP_TOLERANCE));
+  }, [placedPlants, bedDimensions]);
+  
+  // Color harmony check
+  const colorHarmonyStatus = useCallback(() => {
+    const colors = new Set();
+    placedPlants.forEach(p => {
+      const plant = ALL_PLANTS.find(pl => pl.id === p.plantId);
+      if (plant) colors.add(plant.color);
+    });
+    const uniqueHues = colors.size;
+    if (uniqueHues <= 1) return { valid: true, scheme: 'Monochromatic' };
+    if (uniqueHues <= 2) return { valid: true, scheme: 'Complementary' };
+    if (uniqueHues <= 3) return { valid: true, scheme: 'Analogous' };
+    return { valid: false, scheme: `${uniqueHues} Hues (Too Many)` };
+  }, [placedPlants]);
+  
+  // Canvas click handler
   const handleCanvasClick = (e) => {
-    if (!selectedPlant || isDragging) return;
+    if (isDragging) return;
+    if (!selectedPlant) return;
     
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
+    const x = (e.clientX - rect.left) / (zoom * 4);
+    const y = (e.clientY - rect.top) / (zoom * 4);
     
-    // Validate placement within bed bounds
     if (x < 0 || x > bedDimensions.width || y < 0 || y > bedDimensions.height) return;
     
     const newPlant = {
-      id: `placed-${Date.now()}`,
+      id: `plant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       plantId: selectedPlant.id,
       x,
-      y,
-      rotation: 0,
-      scale: 1
+      y
     };
     
-    setPlacedPlants([...placedPlants, newPlant]);
+    setPlacedPlants(prev => [...prev, newPlant]);
   };
-
-  // Handle plant selection on canvas
-  const handlePlantClick = (e, plant) => {
+  
+  // Drag handlers
+  const handleDragStart = (e, plantId) => {
     e.stopPropagation();
-    setSelectedPlacedPlant(plant.id === selectedPlacedPlant ? null : plant.id);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const plant = placedPlants.find(p => p.id === plantId);
+    if (!plant) return;
+    
+    setDraggingPlantId(plantId);
+    setIsDragging(true);
+    setSelectedPlacedPlant(plantId);
+    setDragOffset({
+      x: (e.clientX - rect.left) / (zoom * 4) - plant.x,
+      y: (e.clientY - rect.top) / (zoom * 4) - plant.y
+    });
   };
-
-  // Delete selected plant
-  const deleteSelectedPlant = () => {
-    if (selectedPlacedPlant) {
-      setPlacedPlants(placedPlants.filter(p => p.id !== selectedPlacedPlant));
-      setSelectedPlacedPlant(null);
-    }
+  
+  const handleDragMove = (e) => {
+    if (!isDragging || !draggingPlantId) return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const newX = Math.max(0, Math.min(bedDimensions.width, (e.clientX - rect.left) / (zoom * 4) - dragOffset.x));
+    const newY = Math.max(0, Math.min(bedDimensions.height, (e.clientY - rect.top) / (zoom * 4) - dragOffset.y));
+    
+    setPlacedPlants(prev => prev.map(p =>
+      p.id === draggingPlantId ? { ...p, x: newX, y: newY } : p
+    ));
   };
-
-  // Apply bed bundle
+  
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    setDraggingPlantId(null);
+  };
+  
+  // Apply bundle
   const applyBundle = (bundle) => {
     const newPlants = [];
-    const baseWidth = bedDimensions.width;
-    const baseHeight = bedDimensions.height;
-    
-    bundle.plants.forEach((bundlePlant, index) => {
-      const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
-      if (!plantData) return;
-      
-      const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
-      
-      for (let i = 0; i < scaledQuantity; i++) {
-        let x, y;
-        
-        // Position based on role
-        switch (bundlePlant.role) {
-          case 'focal':
-            x = baseWidth * 0.5 + (i * 20);
-            y = baseHeight * 0.85;
-            break;
-          case 'back':
-            x = baseWidth * (0.2 + (i * 0.2));
-            y = baseHeight * 0.8;
-            break;
-          case 'middle':
-            x = baseWidth * (0.15 + (i * 0.12));
-            y = baseHeight * 0.5;
-            break;
-          case 'front':
-            x = baseWidth * (0.1 + (i * 0.06));
-            y = baseHeight * 0.2;
-            break;
-          case 'edge':
-            x = baseWidth * (0.05 + (i * 0.06));
-            y = baseHeight * 0.1;
-            break;
-          default:
-            x = Math.random() * baseWidth;
-            y = Math.random() * baseHeight;
-        }
-        
+    bundle.plants.forEach(({ plantId, quantity, row }) => {
+      const scaledQty = Math.round(quantity * bundleScale);
+      for (let i = 0; i < scaledQty; i++) {
+        const rowY = row === 'focal' ? 10 : row === 'back' ? 20 : row === 'middle' ? 40 : row === 'front' ? 55 : 65;
         newPlants.push({
-          id: `bundle-${Date.now()}-${index}-${i}`,
-          plantId: bundlePlant.plantId,
-          x: Math.max(10, Math.min(baseWidth - 10, x)),
-          y: Math.max(10, Math.min(baseHeight - 10, y)),
-          rotation: 0,
-          scale: 1
+          id: `bundle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          plantId,
+          x: 10 + (i * (bedDimensions.width - 20) / Math.max(1, scaledQty - 1)),
+          y: rowY + (Math.random() - 0.5) * 8
         });
       }
     });
-    
-    setPlacedPlants([...placedPlants, ...newPlants]);
+    setPlacedPlants(newPlants);
     setSelectedBundle(bundle);
   };
-
-  // Clear all plants
+  
+  // Clear canvas
   const clearCanvas = () => {
     setPlacedPlants([]);
-    setSelectedPlacedPlant(null);
     setSelectedBundle(null);
+    setSelectedPlacedPlant(null);
   };
-
+  
+  // Delete selected plant
+  const deleteSelectedPlant = () => {
+    if (!selectedPlacedPlant) return;
+    setPlacedPlants(prev => prev.filter(p => p.id !== selectedPlacedPlant));
+    setSelectedPlacedPlant(null);
+  };
+  
   // Export blueprint
   const exportBlueprint = () => {
     const blueprint = {
       name: designName,
-      created: new Date().toISOString(),
       dimensions: bedDimensions,
-      plants: placedPlants.map(p => {
-        const plantData = ALL_PLANTS.find(pd => pd.id === p.plantId);
-        return {
-          ...p,
-          species: plantData?.name,
-          category: plantData?.category
-        };
-      }),
-      coverage: coveragePercent,
-      colorHarmony: colorHarmonyStatus,
-      bundle: selectedBundle?.name || null
+      plants: placedPlants.map(p => ({
+        ...p,
+        plantData: ALL_PLANTS.find(pl => pl.id === p.plantId)
+      })),
+      coverage: coveragePercent(),
+      colorHarmony: colorHarmonyStatus(),
+      bundle: selectedBundle?.name,
+      exportedAt: new Date().toISOString()
     };
     
     const blob = new Blob([JSON.stringify(blueprint, null, 2)], { type: 'application/json' });
@@ -360,65 +417,71 @@ export default function DisneyLandscapeStudio() {
     a.click();
     URL.revokeObjectURL(url);
   };
-
-  // Get plant size for rendering
+  
+  // Get plant visual size
   const getPlantSize = (plantId) => {
     const plant = ALL_PLANTS.find(p => p.id === plantId);
-    if (!plant) return 20;
-    
-    const sizes = {
-      focal: 40,
-      topiary: 30,
-      back: 28,
-      middle: 22,
-      front: 16,
-      groundcover: 14
-    };
-    
-    return sizes[plant.category] || 20;
+    const sizes = { focal: 24, topiary: 18, back: 16, middle: 12, front: 8, groundcover: 6 };
+    return sizes[plant?.category] || 10;
   };
 
+  const coverage = coveragePercent();
+  const harmony = colorHarmonyStatus();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white">
+    <div className={`min-h-screen bg-gradient-to-br ${t.pageBg} ${theme === 'night' ? 'text-white' : t.textPrimary}`}>
       {/* Decorative Background Pattern */}
       <div className="fixed inset-0 opacity-5 pointer-events-none">
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23${theme === 'night' ? 'ffffff' : '7c3aed'}' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }} />
       </div>
 
       {/* Header */}
-      <header className="relative z-10 border-b border-emerald-800/50 bg-slate-900/80 backdrop-blur-xl">
+      <header className={`relative z-10 border-b ${t.borderColor} ${t.headerBg} backdrop-blur-xl`}>
         <div className="max-w-[1800px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-xl blur-sm opacity-75" />
-                <div className="relative bg-slate-900 p-3 rounded-xl">
-                  <Flower2 className="w-8 h-8 text-emerald-400" />
+                <div className={`absolute -inset-1 bg-gradient-to-r ${t.glowColor} rounded-xl blur-sm opacity-75`} />
+                <div className={`relative ${theme === 'night' ? 'bg-indigo-950' : 'bg-white'} p-3 rounded-xl`}>
+                  <Flower2 className={`w-8 h-8 ${t.textAccent}`} />
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-300 via-teal-200 to-cyan-300 bg-clip-text text-transparent tracking-tight">
+                <h1 className={`text-2xl font-bold bg-gradient-to-r ${t.gradientTitle} bg-clip-text text-transparent tracking-tight`}>
                   Disney Imagineering
                 </h1>
-                <p className="text-emerald-500 text-sm font-medium tracking-widest uppercase">
+                <p className={`${t.textMuted} text-sm font-medium tracking-widest uppercase`}>
                   Landscape Studio
                 </p>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
+              {/* Theme Toggle */}
+              <button
+                onClick={() => setTheme(theme === 'night' ? 'day' : 'night')}
+                className={`p-3 rounded-xl ${theme === 'night' ? 'bg-indigo-800/50 hover:bg-indigo-700/50' : 'bg-purple-200/50 hover:bg-purple-300/50'} transition-all`}
+                title={`Switch to ${theme === 'night' ? 'Day' : 'Night'} Mode`}
+              >
+                {theme === 'night' ? (
+                  <Sun className="w-5 h-5 text-amber-400" />
+                ) : (
+                  <Moon className="w-5 h-5 text-purple-600" />
+                )}
+              </button>
+              
               <input
                 type="text"
                 value={designName}
                 onChange={(e) => setDesignName(e.target.value)}
-                className="bg-slate-800/50 border border-emerald-900/50 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 w-64"
+                className={`${t.inputBg} border ${t.borderColor} rounded-lg px-4 py-2 ${theme === 'night' ? 'text-white placeholder-purple-400' : 'text-purple-900 placeholder-purple-400'} focus:outline-none focus:ring-2 ${t.focusRing} w-64`}
                 placeholder="Design Name"
               />
               <button
                 onClick={exportBlueprint}
-                className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 px-4 py-2 rounded-lg font-medium transition-all"
+                className={`flex items-center gap-2 bg-gradient-to-r ${t.gradientPrimary} ${t.gradientHover} px-4 py-2 rounded-lg font-medium transition-all text-white`}
               >
                 <Download className="w-4 h-4" />
                 Export
@@ -430,15 +493,15 @@ export default function DisneyLandscapeStudio() {
 
       <div className="relative z-10 flex max-w-[1800px] mx-auto">
         {/* Left Sidebar - Plant Library & Bundles */}
-        <aside className="w-80 border-r border-emerald-900/50 bg-slate-900/50 backdrop-blur-sm h-[calc(100vh-73px)] overflow-hidden flex flex-col">
+        <aside className={`w-80 border-r ${t.borderColor} ${t.sidebarBg} backdrop-blur-sm h-[calc(100vh-73px)] overflow-hidden flex flex-col`}>
           {/* Tab Navigation */}
-          <div className="flex border-b border-emerald-900/50">
+          <div className={`flex border-b ${t.borderColor}`}>
             <button
               onClick={() => setActiveTab('plants')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'plants'
-                  ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-900/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? `${t.textAccent} border-b-2 ${t.borderAccent} ${t.accentMuted}`
+                  : `${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'}`
               }`}
             >
               <Leaf className="w-4 h-4 inline mr-2" />
@@ -448,8 +511,8 @@ export default function DisneyLandscapeStudio() {
               onClick={() => setActiveTab('bundles')}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'bundles'
-                  ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-900/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? `${t.textAccent} border-b-2 ${t.borderAccent} ${t.accentMuted}`
+                  : `${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'}`
               }`}
             >
               <Package className="w-4 h-4 inline mr-2" />
@@ -460,29 +523,29 @@ export default function DisneyLandscapeStudio() {
           {activeTab === 'plants' && (
             <div className="flex-1 overflow-hidden flex flex-col">
               {/* Search */}
-              <div className="p-4 border-b border-emerald-900/30">
+              <div className={`p-4 border-b ${t.borderColor}`}>
                 <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${t.textMuted}`} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search plants..."
-                    className="w-full bg-slate-800/50 border border-emerald-900/50 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    className={`w-full ${t.inputBg} border ${t.borderColor} rounded-lg pl-10 pr-4 py-2 text-sm ${theme === 'night' ? 'text-white placeholder-purple-400' : 'text-purple-900 placeholder-purple-400'} focus:outline-none focus:ring-2 ${t.focusRing}`}
                   />
                 </div>
               </div>
 
               {/* Category Filter */}
-              <div className="px-4 py-3 border-b border-emerald-900/30 flex flex-wrap gap-2">
+              <div className={`px-4 py-3 border-b ${t.borderColor} flex flex-wrap gap-2`}>
                 {['all', 'focal', 'topiary', 'back', 'middle', 'front', 'groundcover'].map(cat => (
                   <button
                     key={cat}
                     onClick={() => setCategoryFilter(cat)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                       categoryFilter === cat
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700'
+                        ? `${t.accentPrimary} text-white`
+                        : `${t.cardBg} ${t.textMuted} ${t.accentHover}`
                     }`}
                   >
                     {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -498,8 +561,8 @@ export default function DisneyLandscapeStudio() {
                     onClick={() => setSelectedPlant(plant)}
                     className={`w-full text-left p-3 rounded-xl transition-all ${
                       selectedPlant?.id === plant.id
-                        ? 'bg-emerald-600/30 border-2 border-emerald-500 ring-2 ring-emerald-500/20'
-                        : 'bg-slate-800/30 border border-emerald-900/30 hover:bg-slate-800/50 hover:border-emerald-800/50'
+                        ? `${theme === 'night' ? 'bg-purple-600/30' : 'bg-purple-200/60'} border-2 ${t.borderAccent} ring-2 ${t.accentRing}`
+                        : `${t.cardBg} border ${t.borderColor} ${t.borderHover}`
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -510,8 +573,8 @@ export default function DisneyLandscapeStudio() {
                         {plant.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-white truncate">{plant.name}</div>
-                        <div className="text-xs text-slate-400 truncate">{plant.height}</div>
+                        <div className={`font-medium ${theme === 'night' ? 'text-white' : 'text-purple-900'} truncate`}>{plant.name}</div>
+                        <div className={`text-xs ${t.textMuted} truncate`}>{plant.height}</div>
                       </div>
                       <div 
                         className="w-3 h-3 rounded-full ring-2 ring-white/20"
@@ -524,43 +587,43 @@ export default function DisneyLandscapeStudio() {
 
               {/* Selected Plant Info */}
               {selectedPlant && (
-                <div className="p-4 border-t border-emerald-900/50 bg-emerald-950/30">
+                <div className={`p-4 border-t ${t.borderColor} ${theme === 'night' ? 'bg-purple-950/30' : 'bg-purple-100/50'}`}>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{selectedPlant.icon}</span>
                     <div>
-                      <div className="font-bold text-emerald-300">{selectedPlant.name}</div>
-                      <div className="text-xs text-slate-400">{selectedPlant.category}</div>
+                      <div className={`font-bold ${t.textHighlight}`}>{selectedPlant.name}</div>
+                      <div className={`text-xs ${t.textMuted}`}>{selectedPlant.category}</div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-slate-800/50 rounded p-2">
-                      <div className="text-slate-500">Height</div>
-                      <div className="text-white">{selectedPlant.height}</div>
+                    <div className={`${t.cardBg} rounded p-2`}>
+                      <div className={t.textMuted}>Height</div>
+                      <div className={theme === 'night' ? 'text-white' : 'text-purple-900'}>{selectedPlant.height}</div>
                     </div>
-                    <div className="bg-slate-800/50 rounded p-2">
-                      <div className="text-slate-500">Spread</div>
-                      <div className="text-white">{selectedPlant.spread}</div>
+                    <div className={`${t.cardBg} rounded p-2`}>
+                      <div className={t.textMuted}>Spread</div>
+                      <div className={theme === 'night' ? 'text-white' : 'text-purple-900'}>{selectedPlant.spread}</div>
                     </div>
-                    <div className="bg-slate-800/50 rounded p-2">
-                      <div className="text-slate-500">Sun</div>
-                      <div className="text-white flex items-center gap-1">
-                        <Sun className="w-3 h-3 text-yellow-400" />
+                    <div className={`${t.cardBg} rounded p-2`}>
+                      <div className={t.textMuted}>Sun</div>
+                      <div className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} flex items-center gap-1`}>
+                        <Sun className="w-3 h-3 text-amber-400" />
                         {selectedPlant.sunReq}
                       </div>
                     </div>
-                    <div className="bg-slate-800/50 rounded p-2">
-                      <div className="text-slate-500">Water</div>
-                      <div className="text-white flex items-center gap-1">
-                        <CloudRain className="w-3 h-3 text-blue-400" />
+                    <div className={`${t.cardBg} rounded p-2`}>
+                      <div className={t.textMuted}>Water</div>
+                      <div className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} flex items-center gap-1`}>
+                        <CloudRain className="w-3 h-3 text-sky-400" />
                         {selectedPlant.waterReq}
                       </div>
                     </div>
                   </div>
-                  <div className="mt-2 text-xs text-emerald-400/80 bg-emerald-900/20 rounded p-2">
+                  <div className={`mt-2 text-xs ${t.textAccent} ${t.accentMuted} rounded p-2`}>
                     <Star className="w-3 h-3 inline mr-1" />
                     {selectedPlant.disneyUse}
                   </div>
-                  <div className="mt-3 text-center text-xs text-slate-500">
+                  <div className={`mt-3 text-center text-xs ${t.textMuted}`}>
                     Click on the canvas to place
                   </div>
                 </div>
@@ -571,8 +634,8 @@ export default function DisneyLandscapeStudio() {
           {activeTab === 'bundles' && (
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Scale Selector */}
-              <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-                <label className="block text-sm font-medium text-emerald-300 mb-2">
+              <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+                <label className={`block text-sm font-medium ${t.textHighlight} mb-2`}>
                   Bundle Scale Multiplier
                 </label>
                 <div className="flex gap-2">
@@ -582,8 +645,8 @@ export default function DisneyLandscapeStudio() {
                       onClick={() => setBundleScale(scale)}
                       className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                         bundleScale === scale
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600'
+                          ? `${t.accentPrimary} text-white`
+                          : `${t.cardBg} ${t.textMuted} ${t.accentHover}`
                       }`}
                     >
                       {scale}x
@@ -596,21 +659,21 @@ export default function DisneyLandscapeStudio() {
               {BED_BUNDLES.map(bundle => (
                 <div
                   key={bundle.id}
-                  className="bg-slate-800/30 rounded-xl overflow-hidden border border-emerald-900/30 hover:border-emerald-700/50 transition-all"
+                  className={`${t.cardBg} rounded-xl overflow-hidden border ${t.borderColor} ${t.borderHover} transition-all`}
                 >
                   <div className="p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-3xl">{bundle.preview}</span>
                       <div>
-                        <h3 className="font-bold text-white">{bundle.name}</h3>
-                        <p className="text-xs text-slate-400">{bundle.theme}</p>
+                        <h3 className={`font-bold ${theme === 'night' ? 'text-white' : 'text-purple-900'}`}>{bundle.name}</h3>
+                        <p className={`text-xs ${t.textMuted}`}>{bundle.theme}</p>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-300 mb-3">{bundle.description}</p>
+                    <p className={`text-sm ${t.textSecondary} mb-3`}>{bundle.description}</p>
                     
                     {/* Color Scheme Preview */}
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs text-slate-500">Colors:</span>
+                      <span className={`text-xs ${t.textMuted}`}>Colors:</span>
                       <div className="flex gap-1">
                         {bundle.colorScheme.map((color, i) => (
                           <div
@@ -623,13 +686,13 @@ export default function DisneyLandscapeStudio() {
                     </div>
 
                     {/* Plant Count */}
-                    <div className="text-xs text-slate-400 mb-3">
+                    <div className={`text-xs ${t.textMuted} mb-3`}>
                       {bundle.plants.reduce((sum, p) => sum + Math.round(p.quantity * bundleScale), 0)} plants at {bundleScale}x scale
                     </div>
 
                     <button
                       onClick={() => applyBundle(bundle)}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                      className={`w-full bg-gradient-to-r ${t.gradientPrimary} ${t.gradientHover} text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2`}
                     >
                       <Package className="w-4 h-4" />
                       Apply Bundle
@@ -644,12 +707,12 @@ export default function DisneyLandscapeStudio() {
         {/* Main Canvas Area */}
         <main className="flex-1 flex flex-col h-[calc(100vh-73px)]">
           {/* Canvas Toolbar */}
-          <div className="flex items-center justify-between px-6 py-3 border-b border-emerald-900/50 bg-slate-900/30">
+          <div className={`flex items-center justify-between px-6 py-3 border-b ${t.borderColor} ${theme === 'night' ? 'bg-indigo-950/30' : 'bg-white/30'}`}>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowGrid(!showGrid)}
                 className={`p-2 rounded-lg transition-colors ${
-                  showGrid ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  showGrid ? `${t.accentPrimary} text-white` : `${t.cardBg} ${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'}`
                 }`}
                 title="Toggle Grid"
               >
@@ -658,30 +721,30 @@ export default function DisneyLandscapeStudio() {
               <button
                 onClick={() => setShowRuler(!showRuler)}
                 className={`p-2 rounded-lg transition-colors ${
-                  showRuler ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  showRuler ? `${t.accentPrimary} text-white` : `${t.cardBg} ${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'}`
                 }`}
                 title="Toggle Ruler"
               >
                 <Ruler className="w-4 h-4" />
               </button>
-              <div className="w-px h-6 bg-emerald-900/50 mx-2" />
+              <div className={`w-px h-6 ${t.borderColor} mx-2`} />
               <button
                 onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-                className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                className={`p-2 rounded-lg ${t.cardBg} ${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'} transition-colors`}
               >
                 <ZoomOut className="w-4 h-4" />
               </button>
-              <span className="text-sm text-slate-400 w-16 text-center">{Math.round(zoom * 100)}%</span>
+              <span className={`text-sm ${t.textMuted} w-16 text-center`}>{Math.round(zoom * 100)}%</span>
               <button
                 onClick={() => setZoom(Math.min(2, zoom + 0.25))}
-                className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                className={`p-2 rounded-lg ${t.cardBg} ${t.textMuted} hover:${theme === 'night' ? 'text-white' : 'text-purple-700'} transition-colors`}
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
-              <div className="w-px h-6 bg-emerald-900/50 mx-2" />
+              <div className={`w-px h-6 ${t.borderColor} mx-2`} />
               <button
                 onClick={clearCanvas}
-                className="p-2 rounded-lg bg-slate-800 text-red-400 hover:bg-red-900/30 transition-colors"
+                className={`p-2 rounded-lg ${t.cardBg} text-red-400 hover:bg-red-900/30 transition-colors`}
                 title="Clear Canvas"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -700,26 +763,26 @@ export default function DisneyLandscapeStudio() {
             <div className="flex items-center gap-4">
               {/* Bed Dimensions */}
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-slate-500">Bed Size:</span>
+                <span className={t.textMuted}>Bed Size:</span>
                 <input
                   type="number"
                   value={bedDimensions.width}
                   onChange={(e) => setBedDimensions({...bedDimensions, width: parseInt(e.target.value) || 0})}
-                  className="w-16 bg-slate-800 border border-emerald-900/50 rounded px-2 py-1 text-center text-white"
+                  className={`w-16 ${t.cardBg} border ${t.borderColor} rounded px-2 py-1 text-center ${theme === 'night' ? 'text-white' : 'text-purple-900'}`}
                 />
-                <span className="text-slate-500">×</span>
+                <span className={t.textMuted}>×</span>
                 <input
                   type="number"
                   value={bedDimensions.height}
                   onChange={(e) => setBedDimensions({...bedDimensions, height: parseInt(e.target.value) || 0})}
-                  className="w-16 bg-slate-800 border border-emerald-900/50 rounded px-2 py-1 text-center text-white"
+                  className={`w-16 ${t.cardBg} border ${t.borderColor} rounded px-2 py-1 text-center ${theme === 'night' ? 'text-white' : 'text-purple-900'}`}
                 />
-                <span className="text-slate-500">in</span>
+                <span className={t.textMuted}>in</span>
               </div>
 
               <button
                 onClick={() => setShowVisionPreview(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-4 py-2 rounded-lg font-medium transition-all"
+                className={`flex items-center gap-2 bg-gradient-to-r ${theme === 'night' ? 'from-pink-600 to-amber-600 hover:from-pink-500 hover:to-amber-500' : 'from-pink-500 to-amber-500 hover:from-pink-400 hover:to-amber-400'} px-4 py-2 rounded-lg font-medium transition-all text-white`}
               >
                 <Sparkles className="w-4 h-4" />
                 Vision Preview
@@ -728,16 +791,19 @@ export default function DisneyLandscapeStudio() {
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 overflow-auto bg-slate-950/50 p-8">
+          <div className={`flex-1 overflow-auto ${t.canvasBg} p-8`}>
             <div 
-              className="relative mx-auto bg-gradient-to-b from-amber-900/30 to-amber-950/50 rounded-lg overflow-hidden shadow-2xl"
+              className={`relative mx-auto bg-gradient-to-b ${t.canvasGradient} rounded-lg overflow-hidden shadow-2xl`}
               style={{
                 width: bedDimensions.width * zoom * 4,
                 height: bedDimensions.height * zoom * 4,
-                cursor: selectedPlant ? 'crosshair' : 'default'
+                cursor: isDragging ? 'grabbing' : selectedPlant ? 'crosshair' : 'default'
               }}
               ref={canvasRef}
               onClick={handleCanvasClick}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
             >
               {/* Grid Overlay */}
               {showGrid && (
@@ -745,7 +811,7 @@ export default function DisneyLandscapeStudio() {
                   className="absolute inset-0 pointer-events-none opacity-20"
                   style={{
                     backgroundSize: `${12 * zoom * 4}px ${12 * zoom * 4}px`,
-                    backgroundImage: 'linear-gradient(to right, rgba(16, 185, 129, 0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(16, 185, 129, 0.5) 1px, transparent 1px)'
+                    backgroundImage: `linear-gradient(to right, ${t.gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${t.gridColor} 1px, transparent 1px)`
                   }}
                 />
               )}
@@ -753,29 +819,27 @@ export default function DisneyLandscapeStudio() {
               {/* Ruler Marks */}
               {showRuler && (
                 <>
-                  {/* Top Ruler */}
-                  <div className="absolute top-0 left-0 right-0 h-6 bg-slate-900/80 flex">
+                  <div className={`absolute top-0 left-0 right-0 h-6 ${theme === 'night' ? 'bg-indigo-950/80' : 'bg-purple-100/80'} flex`}>
                     {Array.from({ length: Math.floor(bedDimensions.width / 12) + 1 }).map((_, i) => (
                       <div
                         key={i}
-                        className="absolute text-xs text-slate-400 transform -translate-x-1/2"
+                        className={`absolute text-xs ${t.textMuted} transform -translate-x-1/2`}
                         style={{ left: i * 12 * zoom * 4 }}
                       >
-                        <div className="h-2 w-px bg-slate-500 mx-auto" />
+                        <div className={`h-2 w-px ${theme === 'night' ? 'bg-purple-400' : 'bg-purple-500'} mx-auto`} />
                         {i * 12}"
                       </div>
                     ))}
                   </div>
-                  {/* Left Ruler */}
-                  <div className="absolute top-6 left-0 bottom-0 w-6 bg-slate-900/80">
+                  <div className={`absolute top-6 left-0 bottom-0 w-6 ${theme === 'night' ? 'bg-indigo-950/80' : 'bg-purple-100/80'}`}>
                     {Array.from({ length: Math.floor(bedDimensions.height / 12) + 1 }).map((_, i) => (
                       <div
                         key={i}
-                        className="absolute text-xs text-slate-400 transform -translate-y-1/2 flex items-center"
+                        className={`absolute text-xs ${t.textMuted} transform -translate-y-1/2 flex items-center`}
                         style={{ top: i * 12 * zoom * 4 }}
                       >
                         <span className="w-4 text-right pr-1">{i * 12}"</span>
-                        <div className="w-2 h-px bg-slate-500" />
+                        <div className={`w-2 h-px ${theme === 'night' ? 'bg-purple-400' : 'bg-purple-500'}`} />
                       </div>
                     ))}
                   </div>
@@ -783,112 +847,100 @@ export default function DisneyLandscapeStudio() {
               )}
 
               {/* Bed Edge Indicator */}
-              <div className="absolute inset-2 border-2 border-dashed border-emerald-600/30 rounded pointer-events-none" />
+              <div className={`absolute inset-2 border-2 border-dashed ${theme === 'night' ? 'border-purple-600/30' : 'border-purple-400/30'} rounded pointer-events-none`} />
 
               {/* Placed Plants */}
               {placedPlants.map(plant => {
                 const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
                 const size = getPlantSize(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
+                const isBeingDragged = draggingPlantId === plant.id;
                 
                 return (
                   <div
                     key={plant.id}
-                    className={`absolute cursor-pointer transition-all ${
-                      isSelected ? 'ring-4 ring-emerald-400 ring-opacity-50 z-10' : 'hover:brightness-110'
+                    className={`absolute rounded-full cursor-grab active:cursor-grabbing transition-all ${
+                      isSelected ? 'ring-4 ring-amber-400 ring-offset-2 ring-offset-transparent z-20' : 
+                      isBeingDragged ? 'scale-110 z-30' : 'hover:scale-105 z-10'
                     }`}
                     style={{
-                      left: plant.x * zoom * 4 - (size * zoom) / 2,
-                      top: plant.y * zoom * 4 - (size * zoom) / 2,
-                      width: size * zoom,
-                      height: size * zoom,
-                      transform: `rotate(${plant.rotation}deg) scale(${plant.scale})`,
+                      left: plant.x * zoom * 4 - (size * zoom * 2),
+                      top: plant.y * zoom * 4 - (size * zoom * 2),
+                      width: size * zoom * 4,
+                      height: size * zoom * 4,
+                      backgroundColor: plantData?.color || '#4CAF50',
+                      boxShadow: isSelected 
+                        ? `0 0 20px ${plantData?.color}80, 0 4px 12px rgba(0,0,0,0.3)`
+                        : '0 4px 8px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.2)'
                     }}
-                    onClick={(e) => handlePlantClick(e, plant)}
+                    onMouseDown={(e) => handleDragStart(e, plant.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedPlacedPlant(plant.id);
+                    }}
+                    title={`${plantData?.name}\nDrag to move • Click to select`}
                   >
-                    <div 
-                      className="w-full h-full rounded-full flex items-center justify-center shadow-lg"
-                      style={{ 
-                        backgroundColor: plantData?.color || '#4CAF50',
-                        boxShadow: `0 4px 12px ${plantData?.color}40`
-                      }}
-                    >
-                      <span style={{ fontSize: size * zoom * 0.5 }}>{plantData?.icon}</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-white font-bold opacity-0 hover:opacity-100 transition-opacity bg-black/30 rounded-full text-xs">
+                      {plantData?.icon}
                     </div>
-                    {isSelected && (
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 px-2 py-1 rounded text-xs whitespace-nowrap">
-                        {plantData?.name}
-                      </div>
-                    )}
                   </div>
                 );
               })}
-
-              {/* Empty State */}
-              {placedPlants.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-                  <div className="text-center">
-                    <Flower2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                    <p className="text-lg">Select a plant or bundle to begin</p>
-                    <p className="text-sm mt-2">Click on the canvas to place plants</p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </main>
 
-        {/* Right Sidebar - Disney Rules & Stats */}
-        <aside className="w-72 border-l border-emerald-900/50 bg-slate-900/50 backdrop-blur-sm h-[calc(100vh-73px)] overflow-y-auto">
+        {/* Right Sidebar - Validation & Stats */}
+        <aside className={`w-72 border-l ${t.borderColor} ${t.sidebarBg} backdrop-blur-sm h-[calc(100vh-73px)] overflow-y-auto`}>
           <div className="p-4 space-y-4">
             {/* Disney Quality Score */}
-            <div className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 rounded-xl p-4 border border-emerald-700/30">
+            <div className={`bg-gradient-to-br ${theme === 'night' ? 'from-purple-900/40 to-pink-900/40' : 'from-purple-200/60 to-pink-200/60'} rounded-xl p-4 border ${theme === 'night' ? 'border-purple-700/30' : 'border-purple-300/50'}`}>
               <div className="flex items-center gap-2 mb-3">
-                <Crown className="w-5 h-5 text-yellow-400" />
-                <h3 className="font-bold text-emerald-300">Disney Quality Score</h3>
+                <Crown className="w-5 h-5 text-amber-400" />
+                <h3 className={`font-bold ${t.textHighlight}`}>Disney Quality Score</h3>
               </div>
-              <div className="relative h-4 bg-slate-800 rounded-full overflow-hidden mb-2">
+              <div className={`relative h-4 ${theme === 'night' ? 'bg-indigo-900' : 'bg-purple-200'} rounded-full overflow-hidden mb-2`}>
                 <div 
                   className={`absolute inset-y-0 left-0 transition-all duration-500 ${
-                    coveragePercent >= 95 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' :
-                    coveragePercent >= 80 ? 'bg-gradient-to-r from-yellow-500 to-amber-400' :
+                    coverage >= 95 ? `bg-gradient-to-r ${t.scoreGradient}` :
+                    coverage >= 80 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' :
                     'bg-gradient-to-r from-red-500 to-orange-400'
                   }`}
-                  style={{ width: `${Math.min(100, coveragePercent)}%` }}
+                  style={{ width: `${Math.min(100, coverage)}%` }}
                 />
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Coverage</span>
+                <span className={t.textMuted}>Coverage</span>
                 <span className={`font-bold ${
-                  coveragePercent >= 95 ? 'text-emerald-400' :
-                  coveragePercent >= 80 ? 'text-yellow-400' : 'text-red-400'
+                  coverage >= 95 ? t.textAccent :
+                  coverage >= 80 ? 'text-amber-400' : 'text-red-400'
                 }`}>
-                  {coveragePercent.toFixed(1)}%
+                  {coverage.toFixed(1)}%
                 </span>
               </div>
-              <div className="text-xs text-slate-500 mt-1">
+              <div className={`text-xs ${t.textMuted} mt-1`}>
                 Disney Standard: 95%+ living coverage
               </div>
             </div>
 
             {/* Design Stats */}
-            <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-              <h3 className="font-bold text-emerald-300 mb-3 flex items-center gap-2">
+            <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+              <h3 className={`font-bold ${t.textHighlight} mb-3 flex items-center gap-2`}>
                 <Layers className="w-4 h-4" />
                 Design Statistics
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Total Plants</span>
-                  <span className="text-white font-medium">{placedPlants.length}</span>
+                  <span className={t.textMuted}>Total Plants</span>
+                  <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} font-medium`}>{placedPlants.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Bed Area</span>
-                  <span className="text-white font-medium">{bedDimensions.width * bedDimensions.height} sq in</span>
+                  <span className={t.textMuted}>Bed Area</span>
+                  <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} font-medium`}>{bedDimensions.width * bedDimensions.height} sq in</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Applied Bundle</span>
-                  <span className="text-emerald-400 font-medium truncate ml-2">
+                  <span className={t.textMuted}>Applied Bundle</span>
+                  <span className={`${t.textAccent} font-medium truncate ml-2`}>
                     {selectedBundle?.name || 'None'}
                   </span>
                 </div>
@@ -896,8 +948,8 @@ export default function DisneyLandscapeStudio() {
             </div>
 
             {/* Plant Breakdown */}
-            <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-              <h3 className="font-bold text-emerald-300 mb-3 flex items-center gap-2">
+            <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+              <h3 className={`font-bold ${t.textHighlight} mb-3 flex items-center gap-2`}>
                 <Flower2 className="w-4 h-4" />
                 Plant Breakdown
               </h3>
@@ -910,15 +962,15 @@ export default function DisneyLandscapeStudio() {
                   
                   return (
                     <div key={category} className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400 capitalize">{category}</span>
+                      <span className={`${t.textMuted} capitalize`}>{category}</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+                        <div className={`w-24 h-2 ${theme === 'night' ? 'bg-indigo-900' : 'bg-purple-200'} rounded-full overflow-hidden`}>
                           <div 
-                            className="h-full bg-emerald-500 transition-all"
+                            className={`h-full ${t.accentSuccess} transition-all`}
                             style={{ width: `${Math.min(100, (count / Math.max(1, placedPlants.length)) * 100)}%` }}
                           />
                         </div>
-                        <span className="text-white w-6 text-right">{count}</span>
+                        <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} w-6 text-right`}>{count}</span>
                       </div>
                     </div>
                   );
@@ -927,21 +979,23 @@ export default function DisneyLandscapeStudio() {
             </div>
 
             {/* Color Harmony */}
-            <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-              <h3 className="font-bold text-emerald-300 mb-3 flex items-center gap-2">
+            <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+              <h3 className={`font-bold ${t.textHighlight} mb-3 flex items-center gap-2`}>
                 <Palette className="w-4 h-4" />
                 Color Harmony
               </h3>
               <div className={`flex items-center gap-2 p-2 rounded-lg ${
-                colorHarmonyStatus.valid ? 'bg-emerald-900/30' : 'bg-red-900/30'
+                harmony.valid 
+                  ? (theme === 'night' ? 'bg-purple-900/30' : 'bg-purple-200/50') 
+                  : 'bg-red-900/30'
               }`}>
-                {colorHarmonyStatus.valid ? (
-                  <Check className="w-4 h-4 text-emerald-400" />
+                {harmony.valid ? (
+                  <Check className={`w-4 h-4 ${t.textAccent}`} />
                 ) : (
                   <X className="w-4 h-4 text-red-400" />
                 )}
-                <span className={colorHarmonyStatus.valid ? 'text-emerald-300' : 'text-red-300'}>
-                  {colorHarmonyStatus.scheme} Scheme
+                <span className={harmony.valid ? t.textHighlight : 'text-red-300'}>
+                  {harmony.scheme} Scheme
                 </span>
               </div>
               
@@ -961,30 +1015,30 @@ export default function DisneyLandscapeStudio() {
             </div>
 
             {/* Disney Rules Checklist */}
-            <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-              <h3 className="font-bold text-emerald-300 mb-3 flex items-center gap-2">
+            <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+              <h3 className={`font-bold ${t.textHighlight} mb-3 flex items-center gap-2`}>
                 <Star className="w-4 h-4" />
                 Disney Rules Check
               </h3>
               <div className="space-y-2 text-sm">
                 {[
-                  { rule: '95%+ Plant Coverage', met: coveragePercent >= 95 },
+                  { rule: '95%+ Plant Coverage', met: coverage >= 95 },
                   { rule: 'Height Graduation', met: placedPlants.length >= 3 },
-                  { rule: 'Color Harmony (≤3 hues)', met: colorHarmonyStatus.valid },
+                  { rule: 'Color Harmony (≤3 hues)', met: harmony.valid },
                   { rule: 'Edge Definition', met: placedPlants.some(p => ALL_PLANTS.find(pl => pl.id === p.plantId)?.category === 'groundcover') },
                   { rule: 'Focal Point Present', met: placedPlants.some(p => ALL_PLANTS.find(pl => pl.id === p.plantId)?.category === 'focal') },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                      item.met ? 'bg-emerald-500' : 'bg-slate-700'
+                      item.met ? t.accentSuccess : (theme === 'night' ? 'bg-indigo-800' : 'bg-purple-200')
                     }`}>
                       {item.met ? (
                         <Check className="w-3 h-3 text-white" />
                       ) : (
-                        <CircleDot className="w-3 h-3 text-slate-500" />
+                        <CircleDot className={`w-3 h-3 ${t.textMuted}`} />
                       )}
                     </div>
-                    <span className={item.met ? 'text-emerald-300' : 'text-slate-500'}>
+                    <span className={item.met ? t.textHighlight : t.textMuted}>
                       {item.rule}
                     </span>
                   </div>
@@ -994,8 +1048,8 @@ export default function DisneyLandscapeStudio() {
 
             {/* Plant Schedule */}
             {placedPlants.length > 0 && (
-              <div className="bg-slate-800/30 rounded-xl p-4 border border-emerald-900/30">
-                <h3 className="font-bold text-emerald-300 mb-3 flex items-center gap-2">
+              <div className={`${t.cardBg} rounded-xl p-4 border ${t.borderColor}`}>
+                <h3 className={`font-bold ${t.textHighlight} mb-3 flex items-center gap-2`}>
                   <Info className="w-4 h-4" />
                   Plant Schedule
                 </h3>
@@ -1009,9 +1063,9 @@ export default function DisneyLandscapeStudio() {
                       return acc;
                     }, {})
                   ).map(([name, qty]) => (
-                    <div key={name} className="flex justify-between py-1 border-b border-emerald-900/20">
-                      <span className="text-slate-300">{name}</span>
-                      <span className="text-emerald-400 font-medium">×{qty}</span>
+                    <div key={name} className={`flex justify-between py-1 border-b ${t.borderColor}`}>
+                      <span className={t.textSecondary}>{name}</span>
+                      <span className={`${t.textAccent} font-medium`}>×{qty}</span>
                     </div>
                   ))}
                 </div>
@@ -1024,52 +1078,52 @@ export default function DisneyLandscapeStudio() {
       {/* Vision Preview Modal */}
       {showVisionPreview && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-8">
-          <div className="bg-slate-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-emerald-700/50">
-            <div className="flex items-center justify-between p-4 border-b border-emerald-900/50">
-              <h2 className="text-xl font-bold text-emerald-300 flex items-center gap-2">
+          <div className={`${theme === 'night' ? 'bg-indigo-950' : 'bg-white'} rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border ${t.borderColor}`}>
+            <div className={`flex items-center justify-between p-4 border-b ${t.borderColor}`}>
+              <h2 className={`text-xl font-bold ${t.textHighlight} flex items-center gap-2`}>
                 <Sparkles className="w-5 h-5" />
                 Disney Vision Preview
               </h2>
               <button
                 onClick={() => setShowVisionPreview(false)}
-                className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                className={`p-2 ${theme === 'night' ? 'hover:bg-indigo-800' : 'hover:bg-purple-100'} rounded-lg transition-colors`}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6">
-              <div className="aspect-video bg-gradient-to-br from-emerald-900/30 via-teal-900/30 to-cyan-900/30 rounded-xl flex items-center justify-center border border-emerald-800/30">
+              <div className={`aspect-video bg-gradient-to-br ${theme === 'night' ? 'from-purple-900/30 via-pink-900/30 to-amber-900/30' : 'from-purple-200/50 via-pink-200/50 to-amber-200/50'} rounded-xl flex items-center justify-center border ${t.borderColor}`}>
                 <div className="text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4 text-emerald-400/50" />
-                  <h3 className="text-xl font-bold text-emerald-300 mb-2">AI Vision Rendering</h3>
-                  <p className="text-slate-400 max-w-md">
+                  <Sparkles className={`w-16 h-16 mx-auto mb-4 ${t.textAccent} opacity-50`} />
+                  <h3 className={`text-xl font-bold ${t.textHighlight} mb-2`}>AI Vision Rendering</h3>
+                  <p className={`${t.textMuted} max-w-md`}>
                     Your design with {placedPlants.length} plants would generate a photorealistic 
                     rendering showing the completed Disney-quality garden at peak bloom.
                   </p>
                   <div className="mt-6 flex justify-center gap-4">
-                    <button className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg font-medium hover:from-emerald-500 hover:to-teal-500 transition-all">
+                    <button className={`px-6 py-3 bg-gradient-to-r ${t.gradientPrimary} rounded-lg font-medium ${t.gradientHover} transition-all text-white`}>
                       Generate Spring View
                     </button>
-                    <button className="px-6 py-3 bg-slate-800 rounded-lg font-medium hover:bg-slate-700 transition-all">
+                    <button className={`px-6 py-3 ${t.cardBg} rounded-lg font-medium ${t.accentHover} transition-all`}>
                       Generate Summer View
                     </button>
                   </div>
                 </div>
               </div>
-              <div className="mt-4 p-4 bg-slate-800/30 rounded-xl">
-                <h4 className="font-medium text-emerald-300 mb-2">Rendering Details</h4>
+              <div className={`mt-4 p-4 ${t.cardBg} rounded-xl`}>
+                <h4 className={`font-medium ${t.textHighlight} mb-2`}>Rendering Details</h4>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className="text-slate-500">Plants:</span>
-                    <span className="text-white ml-2">{placedPlants.length}</span>
+                    <span className={t.textMuted}>Plants:</span>
+                    <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} ml-2`}>{placedPlants.length}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500">Coverage:</span>
-                    <span className="text-white ml-2">{coveragePercent.toFixed(1)}%</span>
+                    <span className={t.textMuted}>Coverage:</span>
+                    <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} ml-2`}>{coverage.toFixed(1)}%</span>
                   </div>
                   <div>
-                    <span className="text-slate-500">Theme:</span>
-                    <span className="text-white ml-2">{selectedBundle?.theme || 'Custom'}</span>
+                    <span className={t.textMuted}>Theme:</span>
+                    <span className={`${theme === 'night' ? 'text-white' : 'text-purple-900'} ml-2`}>{selectedBundle?.theme || 'Custom'}</span>
                   </div>
                 </div>
               </div>
