@@ -115,7 +115,7 @@ STYLE: Professional real estate or landscaping portfolio photo. Sharp focus, who
 function createPrediction(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      version: "black-forest-labs/flux-schnell",
+      version: "black-forest-labs/flux-1.1-pro",
       input: {
         prompt: prompt,
         num_outputs: 1,
