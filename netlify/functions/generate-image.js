@@ -51,7 +51,7 @@ exports.handler = async (event) => {
     const totalPlants = plantCountMatch ? parseInt(plantCountMatch[1]) : 1;
 
     // Build a STRICT prompt that only shows what's in the plan
-    const fullPrompt = `Photorealistic landscape photograph of a residential front yard garden bed.
+    const fullPrompt = `Aerial drone photograph of a residential front yard garden bed, shot from 40-50 feet above at a 45-degree downward angle.
 
 CRITICAL: This image must show ONLY the following plants - NO ADDITIONAL PLANTS:
 ${prompt}
@@ -63,20 +63,27 @@ STRICT REQUIREMENTS:
 - Empty mulch areas are CORRECT if the plan is sparse
 - If only 9 Japanese Maples are listed, show ONLY 9 Japanese Maple trees
 
+CAMERA ANGLE:
+- HIGH ANGLE aerial/drone view looking DOWN at the garden
+- Camera positioned 40-50 feet back and 30-40 feet up
+- 45-degree downward angle showing the entire property
+- Bird's eye perspective showing bed shape and plant layout from above
+- Must see: entire garden bed, surrounding lawn, driveway, part of house roof
+
 SCENE:
 - ${season} season, ${seasonInfo.lighting}, ${seasonInfo.sky}
-- Suburban house in background (brick or siding)
-- Brown mulch garden bed with defined edges
-- Green lawn around the bed
-- Wide shot from 15-20 feet away showing entire bed
+- Suburban house visible (showing roof and facade)
+- Brown mulch garden bed with clearly defined edges
+- Green lawn surrounding the bed
+- Driveway or walkway visible for scale
 
 PLANT RENDERING:
 - Trees at 60-70% mature size (established 2-3 years)
-- Japanese Maple: 12-18ft multi-stem tree with red/burgundy foliage
-- Show full plants from base to crown, not close-ups
-- Appropriate spacing between plants
+- Show tree canopies from above - circular/oval shapes
+- See the full spread and coverage of each plant
+- Appropriate spacing between plants visible from above
 
-STYLE: Professional landscaping portfolio photo, eye-level view, sharp focus, natural lighting.
+STYLE: Professional real estate drone photography, sharp focus, natural lighting, high altitude perspective.
 
 FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not explicitly listed in the plant list above.`;
 
