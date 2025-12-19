@@ -550,7 +550,31 @@ export default function StudioPage() {
     return null; // Could not find valid position
   };
 
-  // Apply bed bundle with smart placement that fits within the actual bed shape
+  // Generate grid of valid points inside custom path for even distribution
+  const generateValidGridPoints = (bedBounds, customPath, gridSpacing = 30) => {
+    const validPoints = [];
+    const padding = 15;
+
+    for (let x = bedBounds.minX + padding; x <= bedBounds.maxX - padding; x += gridSpacing) {
+      for (let y = bedBounds.minY + padding; y <= bedBounds.maxY - padding; y += gridSpacing) {
+        if (!customPath || customPath.length < 3 || isPointInPath(x, y, customPath)) {
+          // Calculate distance from center for zone classification
+          const distFromCenter = Math.sqrt(
+            Math.pow(x - bedBounds.centerX, 2) +
+            Math.pow(y - bedBounds.centerY, 2)
+          );
+          const maxDist = Math.max(bedBounds.width, bedBounds.height) / 2;
+          const normalizedDist = distFromCenter / maxDist;
+
+          validPoints.push({ x, y, distFromCenter: normalizedDist });
+        }
+      }
+    }
+
+    return validPoints;
+  };
+
+  // Apply bed bundle with smart placement that fills the entire bed shape
   const applyBundle = (bundle) => {
     const newPlants = [];
 
@@ -573,86 +597,126 @@ export default function StudioPage() {
 
     if (!bedBounds) return;
 
-    // For custom/island beds, use radial placement from center
-    // For rectangle beds, use layered zones (back to front)
-    const isIslandBed = useCustomPath;
+    // For custom beds, generate a grid of all valid planting points
+    const validPoints = useCustomPath
+      ? generateValidGridPoints(bedBounds, customBedPath, 25)
+      : generateValidGridPoints(bedBounds, null, 25);
 
-    // Sort bundle plants by category priority
+    // Sort points into zones by distance from center
+    const centerPoints = validPoints.filter(p => p.distFromCenter < 0.25);
+    const innerPoints = validPoints.filter(p => p.distFromCenter >= 0.25 && p.distFromCenter < 0.5);
+    const middlePoints = validPoints.filter(p => p.distFromCenter >= 0.5 && p.distFromCenter < 0.75);
+    const outerPoints = validPoints.filter(p => p.distFromCenter >= 0.75);
+
+    // Shuffle each zone for variety
+    const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
+    shuffle(centerPoints);
+    shuffle(innerPoints);
+    shuffle(middlePoints);
+    shuffle(outerPoints);
+
+    // Map roles to point zones (for custom/island beds, center = back)
+    const getZonePoints = (role) => {
+      if (useCustomPath) {
+        // Island bed: focal/back in center, front/edge at perimeter
+        switch (role) {
+          case 'focal': return [...centerPoints];
+          case 'back': return [...centerPoints, ...innerPoints];
+          case 'topiary': return [...innerPoints, ...centerPoints];
+          case 'middle': return [...innerPoints, ...middlePoints];
+          case 'front': return [...middlePoints, ...outerPoints];
+          case 'edge': return [...outerPoints, ...middlePoints];
+          case 'groundcover': return [...outerPoints, ...middlePoints, ...innerPoints];
+          default: return [...middlePoints];
+        }
+      } else {
+        // Rectangle bed: use Y position for back-to-front
+        const sortByY = (points, desc = false) =>
+          [...points].sort((a, b) => desc ? b.y - a.y : a.y - b.y);
+
+        switch (role) {
+          case 'focal': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.2));
+          case 'back': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.3));
+          case 'topiary': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.4));
+          case 'middle': return validPoints.slice(Math.floor(validPoints.length * 0.3), Math.floor(validPoints.length * 0.7));
+          case 'front': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.4));
+          case 'edge': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.3));
+          case 'groundcover': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.4));
+          default: return [...validPoints];
+        }
+      }
+    };
+
+    // Sort bundle plants by category priority (place larger plants first)
     const sortedPlants = [...bundle.plants].sort((a, b) => {
       const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
       return order.indexOf(a.role) - order.indexOf(b.role);
     });
 
-    sortedPlants.forEach((bundlePlant, index) => {
+    // Track used points to distribute evenly
+    const usedPoints = new Set();
+
+    sortedPlants.forEach((bundlePlant, plantIndex) => {
       const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
       if (!plantData) return;
 
       const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
+      const zonePoints = getZonePoints(bundlePlant.role);
 
       for (let i = 0; i < scaledQuantity; i++) {
-        let targetX, targetY;
+        // Find best available point in the zone
+        let bestPoint = null;
 
-        if (isIslandBed) {
-          // ISLAND/CUSTOM BED: Radial placement from center
-          // Focal/back = near center, front/edge = near edges
-          const distanceRatios = {
-            focal: 0.1,      // Very close to center
-            back: 0.25,      // Near center
-            topiary: 0.35,   // Mid-inner
-            middle: 0.5,     // Middle ring
-            front: 0.7,      // Outer ring
-            edge: 0.85,      // Near edge
-            groundcover: 0.75 // Outer areas
-          };
+        for (const point of zonePoints) {
+          const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
+          if (usedPoints.has(pointKey)) continue;
 
-          const distanceRatio = distanceRatios[bundlePlant.role] || 0.5;
-          const maxRadius = Math.min(bedBounds.width, bedBounds.height) / 2 * 0.9;
-          const targetRadius = maxRadius * distanceRatio;
+          // Check if this point works (no collision)
+          const testPos = findValidPositionInBed(
+            point.x + (Math.random() - 0.5) * 15,
+            point.y + (Math.random() - 0.5) * 15,
+            bundlePlant.plantId,
+            newPlants,
+            bedBounds,
+            useCustomPath ? customBedPath : null
+          );
 
-          // Distribute around the center with golden angle
-          const angleOffset = (index * 137.5 + i * 137.5) * (Math.PI / 180);
-          const variance = (Math.random() - 0.5) * targetRadius * 0.3;
-
-          targetX = bedBounds.centerX + Math.cos(angleOffset) * (targetRadius + variance);
-          targetY = bedBounds.centerY + Math.sin(angleOffset) * (targetRadius + variance);
-        } else {
-          // RECTANGLE BED: Layered zones (traditional back-to-front)
-          const zones = {
-            focal: { yMin: 0.70, yMax: 0.90, xMin: 0.25, xMax: 0.75 },
-            back: { yMin: 0.65, yMax: 0.85, xMin: 0.10, xMax: 0.90 },
-            topiary: { yMin: 0.50, yMax: 0.80, xMin: 0.10, xMax: 0.90 },
-            middle: { yMin: 0.35, yMax: 0.60, xMin: 0.10, xMax: 0.90 },
-            front: { yMin: 0.15, yMax: 0.40, xMin: 0.08, xMax: 0.92 },
-            edge: { yMin: 0.05, yMax: 0.25, xMin: 0.05, xMax: 0.95 },
-            groundcover: { yMin: 0.05, yMax: 0.30, xMin: 0.05, xMax: 0.95 }
-          };
-
-          const zone = zones[bundlePlant.role] || zones.middle;
-          const zoneXMin = bedBounds.minX + bedBounds.width * zone.xMin;
-          const zoneXMax = bedBounds.minX + bedBounds.width * zone.xMax;
-          const zoneYMin = bedBounds.minY + bedBounds.height * zone.yMin;
-          const zoneYMax = bedBounds.minY + bedBounds.height * zone.yMax;
-          const zoneWidth = zoneXMax - zoneXMin;
-
-          const spacing = zoneWidth / (scaledQuantity + 1);
-          targetX = zoneXMin + spacing * (i + 1) + (Math.random() - 0.5) * spacing * 0.4;
-          targetY = zoneYMin + (zoneYMax - zoneYMin) * (0.3 + Math.random() * 0.4);
+          if (testPos) {
+            bestPoint = testPos;
+            usedPoints.add(pointKey);
+            break;
+          }
         }
 
-        const validPos = findValidPositionInBed(
-          targetX, targetY,
-          bundlePlant.plantId,
-          newPlants,
-          bedBounds,
-          useCustomPath ? customBedPath : null
-        );
+        // If no zone point worked, try anywhere in the bed
+        if (!bestPoint) {
+          for (const point of validPoints) {
+            const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
+            if (usedPoints.has(pointKey)) continue;
 
-        if (validPos) {
+            const testPos = findValidPositionInBed(
+              point.x + (Math.random() - 0.5) * 15,
+              point.y + (Math.random() - 0.5) * 15,
+              bundlePlant.plantId,
+              newPlants,
+              bedBounds,
+              useCustomPath ? customBedPath : null
+            );
+
+            if (testPos) {
+              bestPoint = testPos;
+              usedPoints.add(pointKey);
+              break;
+            }
+          }
+        }
+
+        if (bestPoint) {
           newPlants.push({
-            id: `bundle-${Date.now()}-${index}-${i}`,
+            id: `bundle-${Date.now()}-${plantIndex}-${i}`,
             plantId: bundlePlant.plantId,
-            x: validPos.x,
-            y: validPos.y,
+            x: bestPoint.x,
+            y: bestPoint.y,
             rotation: (Math.random() - 0.5) * 10,
             scale: 0.95 + Math.random() * 0.1
           });
