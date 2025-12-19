@@ -52,37 +52,34 @@ exports.handler = async (event) => {
     // Extract just the plant names and counts for emphasis
     const plantListMatch = prompt.match(/EXACT PLANT LIST[\s\S]*?(?=\n\n|$)/);
 
-    const fullPrompt = `STRICT PLANT COUNT RENDER - Show EXACTLY ${totalPlants} plant(s), no more, no less.
+    const fullPrompt = `WIDE SHOT landscape photograph of a residential garden bed with EXACTLY ${totalPlants} plant(s).
 
 ${prompt}
 
+CAMERA: Wide establishing shot showing the ENTIRE garden bed from 15-20 feet away. Must see full plants from ground to top, the mulch bed, lawn edges, and house in background. NOT a close-up. NOT a flower detail. FULL SCENE VIEW.
+
 MANDATORY CONSTRAINTS:
-- Render ONLY ${totalPlants} total plant(s) as specified above
-- If only 2 Crape Myrtles are listed, show EXACTLY 2 Crape Myrtle trees and NOTHING else
-- DO NOT add flowers, shrubs, or any plants not in the list
-- DO NOT fill empty space with extra plants
-- Empty mulch bed space is CORRECT if few plants are specified
+- Show EXACTLY ${totalPlants} plant(s), no more, no less
+- Show the WHOLE plant/tree from base to crown, not just flowers or leaves
+- A Southern Magnolia is a LARGE TREE 35-50ft tall at 60% maturity, not a flower close-up
+- A Crape Myrtle is a TREE 10-15ft tall at 60% maturity
+- DO NOT add extra plants to fill space
+- Empty mulch is correct for sparse designs
 
-SCENE SETUP:
-- Residential suburban home, ${season} season
-- ${seasonInfo.lighting}
-- Single mulched garden bed with defined edges
-- Green lawn grass surrounding the bed
-- Background: house siding, wooden fence, or patio
+SCENE COMPOSITION:
+- ${season} season, ${seasonInfo.lighting}
+- Suburban home visible in background (brick, siding, or stone)
+- Mulched garden bed with clean edges
+- Green lawn surrounding the bed
+- Eye-level view from front yard/street perspective
 
-PLANT RENDERING:
-- Plants at 60-70% mature size (2-3 years growth)
+PLANT SIZE (60-70% MATURITY):
+- Trees should be substantial, 2-3 years established
+- Show full height and canopy spread
 - ${seasonInfo.plants}
-- Dark brown mulch visible between and around plants
-- Sparse planting is intentional - show the mulch
+- Mulch visible at base of plants
 
-STYLE:
-- Professional landscape photography, eye-level view
-- Sharp focus, natural ${season} colors
-- NO text, NO labels, NO people, NO extra plants
-- Photorealistic suburban landscaping
-
-REMEMBER: Only ${totalPlants} plant(s). Mostly mulch if few plants. Do not invent additional plants.`;
+STYLE: Professional real estate or landscaping portfolio photo. Sharp focus, whole scene in frame, natural lighting. NO close-ups, NO macro shots, NO flower details.`;
 
     console.log('Calling Replicate FLUX...');
 
