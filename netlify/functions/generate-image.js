@@ -45,27 +45,44 @@ exports.handler = async (event) => {
 
     const seasonInfo = seasonDetails[season] || seasonDetails.spring;
 
-    const fullPrompt = `Professional landscape photograph of an established residential garden bed at 60-70% maturity (2-3 years after planting) in ${season}:
+    // Parse the plant count from the prompt to enforce strict rendering
+    const plantCountMatch = prompt.match(/Total plants: (\d+)/);
+    const totalPlants = plantCountMatch ? parseInt(plantCountMatch[1]) : 1;
+
+    // Extract just the plant names and counts for emphasis
+    const plantListMatch = prompt.match(/EXACT PLANT LIST[\s\S]*?(?=\n\n|$)/);
+
+    const fullPrompt = `STRICT PLANT COUNT RENDER - Show EXACTLY ${totalPlants} plant(s), no more, no less.
 
 ${prompt}
 
-PLANT MATURITY: All plants at 60-70% of their mature size. Not newly planted, not fully mature. Plants have filled in nicely but still have some growing room. Natural, established look with plants touching neighbors slightly.
+MANDATORY CONSTRAINTS:
+- Render ONLY ${totalPlants} total plant(s) as specified above
+- If only 2 Crape Myrtles are listed, show EXACTLY 2 Crape Myrtle trees and NOTHING else
+- DO NOT add flowers, shrubs, or any plants not in the list
+- DO NOT fill empty space with extra plants
+- Empty mulch bed space is CORRECT if few plants are specified
 
-SETTING: Residential suburban home - front yard foundation bed, backyard border, or side yard. Background shows brick/siding house wall, wooden fence, or stone patio. Well-maintained lawn grass borders the mulch bed edges.
+SCENE SETUP:
+- Residential suburban home, ${season} season
+- ${seasonInfo.lighting}
+- Single mulched garden bed with defined edges
+- Green lawn grass surrounding the bed
+- Background: house siding, wooden fence, or patio
 
-Scene: ${seasonInfo.lighting}. Plants showing ${seasonInfo.plants}. Color palette: ${seasonInfo.colors}.
+PLANT RENDERING:
+- Plants at 60-70% mature size (2-3 years growth)
+- ${seasonInfo.plants}
+- Dark brown mulch visible between and around plants
+- Sparse planting is intentional - show the mulch
 
-CRITICAL Requirements:
-- Show EXACTLY the plants listed above in their EXACT positions described
-- Photorealistic professional landscaping photography
-- Eye-level perspective from front of bed looking toward back
-- Plants at 60-70% mature size, well-established but not overgrown
-- Dark brown hardwood mulch visible between plants (2-3 inch layer)
-- Clean defined bed edge with green lawn grass border
-- Natural layering: tallest at back, medium in middle, lowest at front edge
-- NO extra plants, NO text, NO labels, NO people, NO garden tools
-- Sharp focus, vibrant natural colors, golden hour lighting
-- Authentic suburban residential landscaping style`;
+STYLE:
+- Professional landscape photography, eye-level view
+- Sharp focus, natural ${season} colors
+- NO text, NO labels, NO people, NO extra plants
+- Photorealistic suburban landscaping
+
+REMEMBER: Only ${totalPlants} plant(s). Mostly mulch if few plants. Do not invent additional plants.`;
 
     console.log('Calling Replicate FLUX...');
 
