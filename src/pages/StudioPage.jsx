@@ -38,57 +38,83 @@ const DISNEY_RULES = {
 // DISNEY PLANT DATABASE - Curated Species Collection
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// USDA Hardiness Zones reference
+const HARDINESS_ZONES = [
+  { zone: 3, minTemp: '-40 to -30°F', label: 'Zone 3' },
+  { zone: 4, minTemp: '-30 to -20°F', label: 'Zone 4' },
+  { zone: 5, minTemp: '-20 to -10°F', label: 'Zone 5' },
+  { zone: 6, minTemp: '-10 to 0°F', label: 'Zone 6' },
+  { zone: 7, minTemp: '0 to 10°F', label: 'Zone 7' },
+  { zone: 8, minTemp: '10 to 20°F', label: 'Zone 8' },
+  { zone: 9, minTemp: '20 to 30°F', label: 'Zone 9' },
+  { zone: 10, minTemp: '30 to 40°F', label: 'Zone 10' },
+  { zone: 11, minTemp: '40 to 50°F', label: 'Zone 11' },
+];
+
 const PLANT_DATABASE = {
   // FOCAL POINTS - The "Weenies"
   focal: [
-    { id: 'crape-myrtle', name: 'Crape Myrtle', height: '15-25ft', spread: '15-20ft', color: '#E91E63', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Main Street USA focal trees' },
-    { id: 'japanese-maple', name: 'Japanese Maple', height: '15-25ft', spread: '15-20ft', color: '#C62828', bloomTime: 'Spring foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍁', category: 'focal', disneyUse: 'Japan Pavilion, Fantasyland' },
-    { id: 'magnolia-south', name: 'Southern Magnolia', height: '60-80ft', spread: '30-40ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'focal', disneyUse: 'Grand entrances, Southern theming' },
-    { id: 'live-oak', name: 'Live Oak', height: '40-80ft', spread: '60-100ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌳', category: 'focal', disneyUse: 'Liberty Square, shade canopy' },
+    { id: 'crape-myrtle', name: 'Crape Myrtle', height: '15-25ft', spread: '15-20ft', color: '#E91E63', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Main Street USA focal trees', zones: [6, 7, 8, 9, 10] },
+    { id: 'japanese-maple', name: 'Japanese Maple', height: '15-25ft', spread: '15-20ft', color: '#C62828', bloomTime: 'Spring foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍁', category: 'focal', disneyUse: 'Japan Pavilion, Fantasyland', zones: [5, 6, 7, 8, 9] },
+    { id: 'magnolia-south', name: 'Southern Magnolia', height: '60-80ft', spread: '30-40ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'focal', disneyUse: 'Grand entrances, Southern theming', zones: [6, 7, 8, 9, 10] },
+    { id: 'live-oak', name: 'Live Oak', height: '40-80ft', spread: '60-100ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌳', category: 'focal', disneyUse: 'Liberty Square, shade canopy', zones: [7, 8, 9, 10, 11] },
+    { id: 'redbud', name: 'Eastern Redbud', height: '20-30ft', spread: '25-35ft', color: '#E91E63', bloomTime: 'Early Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Spring color, native beauty', zones: [4, 5, 6, 7, 8, 9] },
+    { id: 'dogwood', name: 'Flowering Dogwood', height: '15-30ft', spread: '15-30ft', color: '#FFFFFF', bloomTime: 'Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Understory elegance', zones: [5, 6, 7, 8, 9] },
   ],
 
   // TOPIARIES - Disney Signature Shapes
   topiary: [
-    { id: 'spiral-juniper', name: 'Spiral Juniper', height: '6-8ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌀', category: 'topiary', shape: 'spiral', disneyUse: 'Formal garden accents' },
-    { id: 'ball-boxwood', name: 'Ball Boxwood', height: '2-4ft', spread: '2-4ft', color: '#33691E', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '⚫', category: 'topiary', shape: 'ball', disneyUse: 'EPCOT topiaries, formal beds' },
-    { id: 'cone-arborvitae', name: 'Cone Arborvitae', height: '10-15ft', spread: '3-4ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🔺', category: 'topiary', shape: 'cone', disneyUse: 'Formal entrances, vertical accent' },
-    { id: 'pom-pom-juniper', name: 'Pom Pom Juniper', height: '4-6ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🎄', category: 'topiary', shape: 'pom-pom', disneyUse: 'Whimsical gardens, Fantasyland' },
+    { id: 'spiral-juniper', name: 'Spiral Juniper', height: '6-8ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌀', category: 'topiary', shape: 'spiral', disneyUse: 'Formal garden accents', zones: [4, 5, 6, 7, 8, 9] },
+    { id: 'ball-boxwood', name: 'Ball Boxwood', height: '2-4ft', spread: '2-4ft', color: '#33691E', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '⚫', category: 'topiary', shape: 'ball', disneyUse: 'EPCOT topiaries, formal beds', zones: [5, 6, 7, 8, 9] },
+    { id: 'cone-arborvitae', name: 'Cone Arborvitae', height: '10-15ft', spread: '3-4ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🔺', category: 'topiary', shape: 'cone', disneyUse: 'Formal entrances, vertical accent', zones: [3, 4, 5, 6, 7, 8] },
+    { id: 'pom-pom-juniper', name: 'Pom Pom Juniper', height: '4-6ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🎄', category: 'topiary', shape: 'pom-pom', disneyUse: 'Whimsical gardens, Fantasyland', zones: [4, 5, 6, 7, 8, 9] },
+    { id: 'yew-topiary', name: 'Yew Topiary', height: '4-8ft', spread: '3-5ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'topiary', shape: 'various', disneyUse: 'Classic formal hedging', zones: [4, 5, 6, 7] },
   ],
 
   // BACK ROW - Tall Structure
   back: [
-    { id: 'holly-nellie', name: "Holly 'Nellie Stevens'", height: '15-25ft', spread: '8-12ft', color: '#1B5E20', bloomTime: 'Evergreen + berries', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'back', disneyUse: 'Privacy screening, winter interest' },
-    { id: 'camellia', name: 'Camellia japonica', height: '6-12ft', spread: '6-10ft', color: '#E91E63', bloomTime: 'Winter-Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌷', category: 'back', disneyUse: 'Japan Pavilion, elegant blooms' },
-    { id: 'azalea-encore', name: "Azalea 'Encore'", height: '4-5ft', spread: '4-5ft', color: '#EC407A', bloomTime: 'Spring + Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Mass color, reblooming' },
-    { id: 'loropetalum', name: 'Loropetalum', height: '6-10ft', spread: '6-10ft', color: '#880E4F', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Purple foliage contrast' },
+    { id: 'holly-nellie', name: "Holly 'Nellie Stevens'", height: '15-25ft', spread: '8-12ft', color: '#1B5E20', bloomTime: 'Evergreen + berries', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'back', disneyUse: 'Privacy screening, winter interest', zones: [6, 7, 8, 9] },
+    { id: 'camellia', name: 'Camellia japonica', height: '6-12ft', spread: '6-10ft', color: '#E91E63', bloomTime: 'Winter-Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌷', category: 'back', disneyUse: 'Japan Pavilion, elegant blooms', zones: [7, 8, 9, 10] },
+    { id: 'azalea-encore', name: "Azalea 'Encore'", height: '4-5ft', spread: '4-5ft', color: '#EC407A', bloomTime: 'Spring + Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Mass color, reblooming', zones: [6, 7, 8, 9, 10] },
+    { id: 'loropetalum', name: 'Loropetalum', height: '6-10ft', spread: '6-10ft', color: '#880E4F', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Purple foliage contrast', zones: [7, 8, 9, 10] },
+    { id: 'hydrangea', name: 'Hydrangea', height: '3-6ft', spread: '3-6ft', color: '#7986CB', bloomTime: 'Summer', sunReq: 'Part Shade', waterReq: 'High', icon: '💠', category: 'back', disneyUse: 'Big blooms, shade tolerant', zones: [5, 6, 7, 8, 9] },
+    { id: 'viburnum', name: 'Viburnum', height: '6-12ft', spread: '6-12ft', color: '#FFFFFF', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Wildlife friendly, 4-season', zones: [4, 5, 6, 7, 8] },
+    { id: 'lilac', name: 'Lilac', height: '8-15ft', spread: '6-12ft', color: '#9C27B0', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '💜', category: 'back', disneyUse: 'Fragrant spring blooms', zones: [3, 4, 5, 6, 7] },
   ],
 
   // MIDDLE ROW - Color Workhorses
   middle: [
-    { id: 'knockout-rose', name: 'Knockout Rose', height: '3-4ft', spread: '3-4ft', color: '#D32F2F', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌹', category: 'middle', disneyUse: 'Continuous color, low maintenance' },
-    { id: 'blue-salvia', name: 'Blue Salvia', height: '2-3ft', spread: '2ft', color: '#1565C0', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Vertical blue spikes' },
-    { id: 'lantana', name: 'Lantana', height: '2-4ft', spread: '3-4ft', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'middle', disneyUse: 'Heat tolerant color' },
-    { id: 'pentas', name: 'Pentas', height: '2-3ft', spread: '2ft', color: '#E91E63', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '⭐', category: 'middle', disneyUse: 'Butterfly magnet, star flowers' },
-    { id: 'rudbeckia', name: 'Black-Eyed Susan', height: '2-3ft', spread: '1-2ft', color: '#FFC107', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌻', category: 'middle', disneyUse: 'Native charm, golden blooms' },
-    { id: 'daylily', name: 'Daylily', height: '1-3ft', spread: '1-2ft', color: '#FF5722', bloomTime: 'Summer', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'middle', disneyUse: 'Reliable perennial, many colors' },
+    { id: 'knockout-rose', name: 'Knockout Rose', height: '3-4ft', spread: '3-4ft', color: '#D32F2F', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌹', category: 'middle', disneyUse: 'Continuous color, low maintenance', zones: [5, 6, 7, 8, 9, 10] },
+    { id: 'blue-salvia', name: 'Blue Salvia', height: '2-3ft', spread: '2ft', color: '#1565C0', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Vertical blue spikes', zones: [5, 6, 7, 8, 9, 10, 11] },
+    { id: 'lantana', name: 'Lantana', height: '2-4ft', spread: '3-4ft', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'middle', disneyUse: 'Heat tolerant color', zones: [8, 9, 10, 11] },
+    { id: 'pentas', name: 'Pentas', height: '2-3ft', spread: '2ft', color: '#E91E63', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '⭐', category: 'middle', disneyUse: 'Butterfly magnet, star flowers', zones: [9, 10, 11] },
+    { id: 'rudbeckia', name: 'Black-Eyed Susan', height: '2-3ft', spread: '1-2ft', color: '#FFC107', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌻', category: 'middle', disneyUse: 'Native charm, golden blooms', zones: [3, 4, 5, 6, 7, 8, 9] },
+    { id: 'daylily', name: 'Daylily', height: '1-3ft', spread: '1-2ft', color: '#FF5722', bloomTime: 'Summer', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'middle', disneyUse: 'Reliable perennial, many colors', zones: [3, 4, 5, 6, 7, 8, 9, 10] },
+    { id: 'coneflower', name: 'Purple Coneflower', height: '2-4ft', spread: '1-2ft', color: '#9C27B0', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'middle', disneyUse: 'Native pollinator magnet', zones: [3, 4, 5, 6, 7, 8, 9] },
+    { id: 'catmint', name: 'Catmint', height: '1-3ft', spread: '2-3ft', color: '#7986CB', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Lavender-like, deer resistant', zones: [3, 4, 5, 6, 7, 8] },
+    { id: 'sedum', name: 'Sedum (Stonecrop)', height: '1-2ft', spread: '1-2ft', color: '#E91E63', bloomTime: 'Late Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'middle', disneyUse: 'Succulent texture, drought proof', zones: [3, 4, 5, 6, 7, 8, 9] },
   ],
 
   // FRONT ROW - Edging & Mass Color
   front: [
-    { id: 'petunia', name: 'Petunia', height: '6-12in', spread: '12-18in', color: '#9C27B0', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'front', disneyUse: 'Mass annual color' },
-    { id: 'begonia', name: 'Begonia', height: '8-12in', spread: '8-12in', color: '#F44336', bloomTime: 'Spring-Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Shade tolerant color' },
-    { id: 'impatiens', name: 'Impatiens', height: '8-12in', spread: '10-12in', color: '#E91E63', bloomTime: 'Spring-Fall', sunReq: 'Shade', waterReq: 'High', icon: '💐', category: 'front', disneyUse: 'Dense shade color' },
-    { id: 'marigold', name: 'Marigold', height: '6-18in', spread: '6-12in', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'front', disneyUse: 'Bold orange/yellow, pest deterrent' },
-    { id: 'vinca', name: 'Vinca', height: '6-12in', spread: '12-18in', color: '#E91E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Heat/drought tolerant' },
-    { id: 'coleus', name: 'Coleus', height: '12-24in', spread: '12-18in', color: '#880E4F', bloomTime: 'Foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍂', category: 'front', disneyUse: 'Dramatic foliage patterns' },
+    { id: 'petunia', name: 'Petunia', height: '6-12in', spread: '12-18in', color: '#9C27B0', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'front', disneyUse: 'Mass annual color', zones: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+    { id: 'begonia', name: 'Begonia', height: '8-12in', spread: '8-12in', color: '#F44336', bloomTime: 'Spring-Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Shade tolerant color', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
+    { id: 'impatiens', name: 'Impatiens', height: '8-12in', spread: '10-12in', color: '#E91E63', bloomTime: 'Spring-Fall', sunReq: 'Shade', waterReq: 'High', icon: '💐', category: 'front', disneyUse: 'Dense shade color', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
+    { id: 'marigold', name: 'Marigold', height: '6-18in', spread: '6-12in', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'front', disneyUse: 'Bold orange/yellow, pest deterrent', zones: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+    { id: 'vinca', name: 'Vinca', height: '6-12in', spread: '12-18in', color: '#E91E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Heat/drought tolerant', zones: [9, 10, 11] },
+    { id: 'coleus', name: 'Coleus', height: '12-24in', spread: '12-18in', color: '#880E4F', bloomTime: 'Foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍂', category: 'front', disneyUse: 'Dramatic foliage patterns', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
+    { id: 'pansy', name: 'Pansy', height: '6-9in', spread: '9-12in', color: '#7B1FA2', bloomTime: 'Fall-Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Cool season color', zones: [4, 5, 6, 7, 8] },
+    { id: 'dianthus', name: 'Dianthus', height: '6-12in', spread: '6-12in', color: '#E91E63', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Fragrant, cottage style', zones: [3, 4, 5, 6, 7, 8, 9] },
   ],
 
   // GROUND COVER - Full Coverage Heroes
   groundcover: [
-    { id: 'liriope', name: 'Liriope', height: '10-12in', spread: '12-18in', color: '#4CAF50', bloomTime: 'Summer spikes', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Clean edging, tough' },
-    { id: 'mondo-grass', name: 'Mondo Grass', height: '6-8in', spread: '8-12in', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '🌱', category: 'groundcover', disneyUse: 'Dense carpet, shade' },
-    { id: 'asiatic-jasmine', name: 'Asiatic Jasmine', height: '6-12in', spread: 'spreading', color: '#388E3C', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Rapid coverage' },
-    { id: 'pachysandra', name: 'Pachysandra', height: '6-8in', spread: 'spreading', color: '#43A047', bloomTime: 'Evergreen', sunReq: 'Shade', waterReq: 'Moderate', icon: '☘️', category: 'groundcover', disneyUse: 'Shade groundcover' },
+    { id: 'liriope', name: 'Liriope', height: '10-12in', spread: '12-18in', color: '#4CAF50', bloomTime: 'Summer spikes', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Clean edging, tough', zones: [5, 6, 7, 8, 9, 10] },
+    { id: 'mondo-grass', name: 'Mondo Grass', height: '6-8in', spread: '8-12in', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '🌱', category: 'groundcover', disneyUse: 'Dense carpet, shade', zones: [6, 7, 8, 9, 10] },
+    { id: 'asiatic-jasmine', name: 'Asiatic Jasmine', height: '6-12in', spread: 'spreading', color: '#388E3C', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Rapid coverage', zones: [7, 8, 9, 10, 11] },
+    { id: 'pachysandra', name: 'Pachysandra', height: '6-8in', spread: 'spreading', color: '#43A047', bloomTime: 'Evergreen', sunReq: 'Shade', waterReq: 'Moderate', icon: '☘️', category: 'groundcover', disneyUse: 'Shade groundcover', zones: [4, 5, 6, 7, 8] },
+    { id: 'creeping-phlox', name: 'Creeping Phlox', height: '4-6in', spread: '24in', color: '#E91E63', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'groundcover', disneyUse: 'Spring carpet of color', zones: [3, 4, 5, 6, 7, 8, 9] },
+    { id: 'ajuga', name: 'Ajuga (Bugleweed)', height: '4-6in', spread: 'spreading', color: '#3F51B5', bloomTime: 'Spring', sunReq: 'Part-Full Shade', waterReq: 'Moderate', icon: '💜', category: 'groundcover', disneyUse: 'Purple foliage, blue flowers', zones: [3, 4, 5, 6, 7, 8, 9] },
   ]
 };
 
@@ -218,6 +244,9 @@ export default function StudioPage() {
   const [drawingPoints, setDrawingPoints] = useState([]);
   const [customBedPath, setCustomBedPath] = useState([]);
 
+  // Hardiness zone filter
+  const [selectedZone, setSelectedZone] = useState(7); // Default to Zone 7
+
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -240,12 +269,13 @@ export default function StudioPage() {
     setCoveragePercent(coverage);
   }, [placedPlants, bedDimensions]);
 
-  // Filter plants based on search and category
+  // Filter plants based on search, category, and hardiness zone
   const filteredPlants = ALL_PLANTS.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          plant.disneyUse.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || plant.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesZone = plant.zones && plant.zones.includes(selectedZone);
+    return matchesSearch && matchesCategory && matchesZone;
   });
 
   // Handle plant placement on canvas (coordinates in inches internally)
@@ -1013,6 +1043,23 @@ export default function StudioPage() {
                 </div>
               </div>
 
+              {/* Hardiness Zone Selector */}
+              <div className="px-4 py-2 border-b border-sage-100 flex items-center gap-2">
+                <Thermometer className="w-4 h-4 text-sage-500" />
+                <span className="text-xs font-medium text-sage-600">Zone:</span>
+                <select
+                  value={selectedZone}
+                  onChange={(e) => setSelectedZone(Number(e.target.value))}
+                  className="flex-1 bg-cream-50 border border-sage-200 rounded-lg px-2 py-1 text-sm text-sage-700 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
+                >
+                  {HARDINESS_ZONES.map(z => (
+                    <option key={z.zone} value={z.zone}>
+                      Zone {z.zone} ({z.minTemp})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Category Filter */}
               <div className="px-4 py-3 border-b border-sage-100 flex flex-wrap gap-2">
                 {['all', 'focal', 'topiary', 'back', 'middle', 'front', 'groundcover'].map(cat => (
@@ -1051,7 +1098,9 @@ export default function StudioPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sage-900 truncate">{plant.name}</div>
-                        <div className="text-xs text-sage-500 truncate">{plant.height}</div>
+                        <div className="text-xs text-sage-500 truncate">
+                          {plant.height} • Zones {plant.zones ? `${Math.min(...plant.zones)}-${Math.max(...plant.zones)}` : 'N/A'}
+                        </div>
                       </div>
                       <div
                         className="w-3 h-3 rounded-full ring-2 ring-sage-200"
