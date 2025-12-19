@@ -9,7 +9,7 @@ export default function DemoSection() {
             See It In Action
           </h2>
           <p className="text-lg text-sage-600 max-w-2xl mx-auto">
-            Watch how easy it is to design professional Disney-quality landscapes in minutes,
+            Watch how easy it is to design professional landscapes in minutes,
             not hours.
           </p>
         </div>
@@ -24,7 +24,7 @@ export default function DemoSection() {
               1
             </div>
             <h3 className="font-semibold text-sage-900 mb-1">Select Plants</h3>
-            <p className="text-sage-600 text-sm">Choose from our curated Disney plant database</p>
+            <p className="text-sage-600 text-sm">Choose from our curated plant database</p>
           </div>
           <div className="text-center p-6 bg-cream-50 rounded-xl border border-sage-100">
             <div className="w-10 h-10 bg-sage-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">

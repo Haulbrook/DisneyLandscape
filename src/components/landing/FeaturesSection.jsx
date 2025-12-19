@@ -11,17 +11,17 @@ const features = [
   {
     icon: Palette,
     title: 'Curated Plant Database',
-    description: '30+ Disney-approved plants organized by category: focal points, topiary, back row, middle row, front row, and ground cover.'
+    description: '30+ professionally-selected plants organized by category: focal points, topiary, back row, middle row, front row, and ground cover.'
   },
   {
     icon: Layers,
     title: 'Theme Bed Bundles',
-    description: 'Pre-designed plant combinations for Main Street USA, Tropical Paradise, Fantasy Garden, and more. Scalable to any bed size.'
+    description: 'Pre-designed plant combinations for Classic American, Tropical Paradise, Fantasy Garden, and more. Scalable to any bed size.'
   },
   {
     icon: CheckCircle2,
-    title: 'Disney Quality Validation',
-    description: 'Real-time checking against Disney standards: 95%+ coverage, height graduation, color harmony, and focal point requirements.'
+    title: 'Quality Validation',
+    description: 'Real-time checking against professional standards: 95%+ coverage, height graduation, color harmony, and focal point requirements.'
   },
   {
     icon: LayoutGrid,
@@ -50,7 +50,7 @@ export default function FeaturesSection() {
           </h2>
           <p className="text-lg text-sage-600 max-w-2xl mx-auto">
             Professional tools designed for landscape architects who demand
-            Disney-level perfection in every design.
+            perfection in every design.
           </p>
         </div>
 

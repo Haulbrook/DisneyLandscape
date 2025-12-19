@@ -16,7 +16,7 @@ export default function Hero() {
           <div className="p-2 bg-sage-500 rounded-xl shadow-lg shadow-sage-500/20">
             <Flower2 className="w-6 h-6 text-white" />
           </div>
-          <span className="font-bold text-xl text-sage-900">Disney Landscape Studio</span>
+          <span className="font-bold text-xl text-sage-900">Imagine Design Landscape Studio</span>
         </div>
         <div className="flex items-center gap-6">
           <a href="#features" className="text-sage-700 hover:text-sage-900 transition-colors">Features</a>
@@ -40,7 +40,7 @@ export default function Hero() {
         </div>
 
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-sage-900 mb-6 leading-tight">
-          Create Disney-Quality<br />
+          Create Professional<br />
           <span className="text-sage-500">Landscape Designs</span>
         </h1>
         <p className="text-xl text-sage-600 max-w-2xl mx-auto mb-12 leading-relaxed">
@@ -76,7 +76,7 @@ export default function Hero() {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-sage-900">100%</div>
-            <div className="text-sage-600">Disney Standards</div>
+            <div className="text-sage-600">Pro Standards</div>
           </div>
         </div>
       </div>

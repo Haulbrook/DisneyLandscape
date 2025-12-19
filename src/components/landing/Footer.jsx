@@ -12,11 +12,11 @@ export default function Footer() {
               <div className="p-2 bg-sage-700 rounded-xl">
                 <Flower2 className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-xl">Disney Landscape Studio</span>
+              <span className="font-bold text-xl">Imagine Design Landscape Studio</span>
             </div>
             <p className="text-sage-300 max-w-md leading-relaxed">
-              Professional landscape design tool built with Disney Imagineering standards.
-              Create beautiful, theme-park quality garden beds with ease.
+              Professional landscape design tool built with theme park quality standards.
+              Create beautiful, professional garden beds with ease.
             </p>
           </div>
 
@@ -62,10 +62,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-sage-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sage-400 text-sm">
-            &copy; {new Date().getFullYear()} Disney Landscape Studio. All rights reserved.
-          </p>
-          <p className="text-sage-500 text-sm">
-            Not affiliated with The Walt Disney Company.
+            &copy; {new Date().getFullYear()} Imagine Design Landscape Studio. All rights reserved.
           </p>
         </div>
       </div>

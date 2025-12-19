@@ -68,7 +68,7 @@ const PLANT_DATABASE = {
     { id: 'river-birch', name: 'River Birch', height: '40-70ft', spread: '40-60ft', color: '#8D6E63', bloomTime: 'Deciduous', sunReq: 'Full Sun', waterReq: 'High', icon: '🌳', category: 'focal', disneyUse: 'Peeling bark, multi-stem beauty', zones: [4, 5, 6, 7, 8, 9] },
   ],
 
-  // TOPIARIES - Disney Signature Shapes
+  // TOPIARIES - Signature Shapes
   topiary: [
     { id: 'spiral-juniper', name: 'Spiral Juniper', height: '6-8ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌀', category: 'topiary', shape: 'spiral', disneyUse: 'Formal garden accents', zones: [4, 5, 6, 7, 8, 9] },
     { id: 'ball-boxwood', name: 'Ball Boxwood', height: '2-4ft', spread: '2-4ft', color: '#33691E', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '⚫', category: 'topiary', shape: 'ball', disneyUse: 'EPCOT topiaries, formal beds', zones: [5, 6, 7, 8, 9] },
@@ -159,7 +159,7 @@ const ALL_PLANTS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BED BUNDLE TEMPLATES - Pre-Designed Disney-Quality Packages
+// BED BUNDLE TEMPLATES - Pre-Designed Professional Packages
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const BED_BUNDLES = [
@@ -258,7 +258,7 @@ export default function StudioPage() {
   const [coveragePercent, setCoveragePercent] = useState(0);
   const [colorHarmonyStatus, setColorHarmonyStatus] = useState({ valid: true, scheme: 'ANALOGOUS' });
   const [showVisionPreview, setShowVisionPreview] = useState(false);
-  const [designName, setDesignName] = useState('Untitled Disney Garden');
+  const [designName, setDesignName] = useState('Untitled Garden');
   const [generatedImage, setGeneratedImage] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
@@ -276,6 +276,12 @@ export default function StudioPage() {
 
   // Hardiness zone filter
   const [selectedZone, setSelectedZone] = useState(7); // Default to Zone 7
+
+  // Plant attribute filters
+  const [sunFilter, setSunFilter] = useState('all'); // 'all', 'Full Sun', 'Part Shade', 'Shade', 'Full-Part Sun'
+  const [waterFilter, setWaterFilter] = useState('all'); // 'all', 'Low', 'Moderate', 'High'
+  const [colorFilter, setColorFilter] = useState('all'); // 'all' or specific hex color
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -299,14 +305,20 @@ export default function StudioPage() {
     setCoveragePercent(coverage);
   }, [placedPlants, bedDimensions]);
 
-  // Filter plants based on search, category, and hardiness zone
+  // Filter plants based on search, category, hardiness zone, and attributes
   const filteredPlants = ALL_PLANTS.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          plant.disneyUse.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || plant.category === categoryFilter;
     const matchesZone = plant.zones && plant.zones.includes(selectedZone);
-    return matchesSearch && matchesCategory && matchesZone;
+    const matchesSun = sunFilter === 'all' || plant.sunReq.includes(sunFilter.replace('Full-Part', 'Full-Part'));
+    const matchesWater = waterFilter === 'all' || plant.waterReq === waterFilter;
+    const matchesColor = colorFilter === 'all' || plant.color === colorFilter;
+    return matchesSearch && matchesCategory && matchesZone && matchesSun && matchesWater && matchesColor;
   });
+
+  // Get unique colors from plants for the color filter
+  const uniqueColors = [...new Set(ALL_PLANTS.map(p => p.color))].sort();
 
   // Handle plant placement on canvas (coordinates in inches internally)
   const handleCanvasClick = (e) => {
@@ -555,6 +567,27 @@ export default function StudioPage() {
       maxY = Math.max(maxY, p.y);
     });
     return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY, centerX: (minX + maxX) / 2, centerY: (minY + maxY) / 2 };
+  };
+
+  // Calculate area of polygon using Shoelace formula (returns sq inches)
+  const getPolygonArea = (path) => {
+    if (!path || path.length < 3) return 0;
+    let area = 0;
+    for (let i = 0; i < path.length; i++) {
+      const j = (i + 1) % path.length;
+      area += path[i].x * path[j].y;
+      area -= path[j].x * path[i].y;
+    }
+    return Math.abs(area / 2);
+  };
+
+  // Get bed area in sq ft (custom path or rectangle)
+  const getBedAreaSqFt = () => {
+    if (bedType === 'custom' && customBedPath.length > 2) {
+      const areaInSqInches = getPolygonArea(customBedPath);
+      return (areaInSqInches / 144).toFixed(0); // Convert sq inches to sq ft
+    }
+    return bedDimensions.width * bedDimensions.height;
   };
 
   // Check if a position collides with existing plants
@@ -999,7 +1032,7 @@ export default function StudioPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-sage-800 tracking-tight">
-                    Disney Imagineering
+                    Imagine Design
                   </h1>
                   <p className="text-sage-500 text-sm font-medium tracking-widest uppercase">
                     Landscape Studio
@@ -1088,6 +1121,101 @@ export default function StudioPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Advanced Filters Toggle */}
+              <div className="px-4 py-2 border-b border-sage-100">
+                <button
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="flex items-center gap-2 text-xs font-medium text-sage-600 hover:text-sage-800 transition-colors"
+                >
+                  <Settings className="w-3 h-3" />
+                  <span>Advanced Filters</span>
+                  {showAdvancedFilters ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {(sunFilter !== 'all' || waterFilter !== 'all' || colorFilter !== 'all') && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-sage-500 text-white rounded-full text-[10px]">
+                      {[sunFilter !== 'all', waterFilter !== 'all', colorFilter !== 'all'].filter(Boolean).length}
+                    </span>
+                  )}
+                </button>
+
+                {showAdvancedFilters && (
+                  <div className="mt-3 space-y-3">
+                    {/* Sun Filter */}
+                    <div className="flex items-center gap-2">
+                      <Sun className="w-4 h-4 text-yellow-500" />
+                      <select
+                        value={sunFilter}
+                        onChange={(e) => setSunFilter(e.target.value)}
+                        className="flex-1 bg-cream-50 border border-sage-200 rounded-lg px-2 py-1 text-xs text-sage-700 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
+                      >
+                        <option value="all">Any Sun</option>
+                        <option value="Full Sun">Full Sun</option>
+                        <option value="Part">Part Shade</option>
+                        <option value="Shade">Shade</option>
+                      </select>
+                    </div>
+
+                    {/* Water Filter */}
+                    <div className="flex items-center gap-2">
+                      <CloudRain className="w-4 h-4 text-blue-500" />
+                      <select
+                        value={waterFilter}
+                        onChange={(e) => setWaterFilter(e.target.value)}
+                        className="flex-1 bg-cream-50 border border-sage-200 rounded-lg px-2 py-1 text-xs text-sage-700 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
+                      >
+                        <option value="all">Any Water</option>
+                        <option value="Low">Low Water</option>
+                        <option value="Moderate">Moderate Water</option>
+                        <option value="High">High Water</option>
+                      </select>
+                    </div>
+
+                    {/* Color Filter */}
+                    <div className="flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-pink-500" />
+                      <div className="flex-1 flex flex-wrap gap-1">
+                        <button
+                          onClick={() => setColorFilter('all')}
+                          className={`px-2 py-1 rounded text-[10px] font-medium transition-all ${
+                            colorFilter === 'all'
+                              ? 'bg-sage-500 text-white'
+                              : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                          }`}
+                        >
+                          All
+                        </button>
+                        {uniqueColors.slice(0, 12).map(color => (
+                          <button
+                            key={color}
+                            onClick={() => setColorFilter(colorFilter === color ? 'all' : color)}
+                            className={`w-6 h-6 rounded border-2 transition-all ${
+                              colorFilter === color
+                                ? 'border-sage-600 ring-2 ring-sage-500/50 scale-110'
+                                : 'border-sage-200 hover:border-sage-400'
+                            }`}
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Clear Filters */}
+                    {(sunFilter !== 'all' || waterFilter !== 'all' || colorFilter !== 'all') && (
+                      <button
+                        onClick={() => {
+                          setSunFilter('all');
+                          setWaterFilter('all');
+                          setColorFilter('all');
+                        }}
+                        className="w-full text-xs text-sage-500 hover:text-sage-700 py-1"
+                      >
+                        Clear all filters
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Category Filter */}
@@ -1370,9 +1498,9 @@ export default function StudioPage() {
                   Drawing Mode - Click & Drag
                 </span>
               )}
-              {/* Bed Dimensions */}
+              {/* Canvas Dimensions */}
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-sage-500">Bed Size:</span>
+                <span className="text-sage-500">Canvas:</span>
                 <input
                   type="number"
                   value={bedDimensions.width}
@@ -1574,14 +1702,14 @@ export default function StudioPage() {
           </div>
         </main>
 
-        {/* Right Sidebar - Disney Rules & Stats */}
+        {/* Right Sidebar - Quality Rules & Stats */}
         <aside className="w-72 border-l border-sage-200 bg-white h-[calc(100vh-73px)] overflow-y-auto">
           <div className="p-4 space-y-4">
-            {/* Disney Quality Score */}
+            {/* Quality Score */}
             <div className="bg-gradient-to-br from-sage-50 to-forest-50 rounded-xl p-4 border border-sage-200">
               <div className="flex items-center gap-2 mb-3">
                 <Crown className="w-5 h-5 text-olive-500" />
-                <h3 className="font-bold text-sage-800">Disney Quality Score</h3>
+                <h3 className="font-bold text-sage-800">Quality Score</h3>
               </div>
               <div className="relative h-4 bg-sage-200 rounded-full overflow-hidden mb-2">
                 <div
@@ -1603,7 +1731,7 @@ export default function StudioPage() {
                 </span>
               </div>
               <div className="text-xs text-sage-500 mt-1">
-                Disney Standard: 95%+ living coverage
+                Professional Standard: 95%+ living coverage
               </div>
             </div>
 
@@ -1619,9 +1747,15 @@ export default function StudioPage() {
                   <span className="text-sage-900 font-medium">{placedPlants.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sage-600">Bed Area</span>
-                  <span className="text-sage-900 font-medium">{bedDimensions.width * bedDimensions.height} sq ft</span>
+                  <span className="text-sage-600">Canvas Size</span>
+                  <span className="text-sage-900 font-medium">{bedDimensions.width} x {bedDimensions.height} ft ({bedDimensions.width * bedDimensions.height} sq ft)</span>
                 </div>
+                {bedType === 'custom' && customBedPath.length > 2 && (
+                  <div className="flex justify-between">
+                    <span className="text-sage-600">Bed Area</span>
+                    <span className="text-sage-900 font-medium">{getBedAreaSqFt()} sq ft</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-sage-600">Applied Bundle</span>
                   <span className="text-sage-700 font-medium truncate ml-2">
@@ -1696,11 +1830,11 @@ export default function StudioPage() {
               </div>
             </div>
 
-            {/* Disney Rules Checklist */}
+            {/* Design Rules Checklist */}
             <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
               <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
                 <Star className="w-4 h-4" />
-                Disney Rules Check
+                Design Rules Check
               </h3>
               <div className="space-y-2 text-sm">
                 {[
@@ -1764,7 +1898,7 @@ export default function StudioPage() {
             <div className="flex items-center justify-between p-4 border-b border-sage-200 sticky top-0 bg-white rounded-t-2xl z-10">
               <h2 className="text-xl font-bold text-sage-800 flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-forest-500" />
-                Disney Vision Preview
+                Vision Preview
               </h2>
               <button
                 onClick={closeVisionModal}
@@ -1780,7 +1914,7 @@ export default function StudioPage() {
                   <div className="text-center">
                     <div className="w-16 h-16 mx-auto mb-4 border-4 border-sage-200 border-t-sage-500 rounded-full animate-spin" />
                     <h3 className="text-xl font-bold text-sage-700 mb-2">Generating {selectedSeason} Vision...</h3>
-                    <p className="text-sage-500">Creating your Disney-quality garden render</p>
+                    <p className="text-sage-500">Creating your professional garden render</p>
                   </div>
                 )}
 
@@ -1815,7 +1949,7 @@ export default function StudioPage() {
                     <h3 className="text-xl font-bold text-sage-700 mb-2">AI Vision Rendering</h3>
                     <p className="text-sage-500 max-w-md">
                       Your design with {placedPlants.length} plants would generate a photorealistic
-                      rendering showing the completed Disney-quality garden at peak bloom.
+                      rendering showing the completed professional garden at peak bloom.
                     </p>
                   </div>
                 )}

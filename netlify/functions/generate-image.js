@@ -27,59 +27,58 @@ exports.handler = async (event) => {
     // Season-specific details
     const seasonDetails = {
       spring: {
-        lighting: 'soft morning light, fresh dewy atmosphere',
-        plants: 'fresh green foliage, early blooms',
-        colors: 'light greens, pinks, whites, soft yellows'
+        lighting: 'soft morning light',
+        sky: 'partly cloudy spring sky'
       },
       summer: {
-        lighting: 'warm golden hour sunlight, clear sky',
-        plants: 'lush foliage at peak, flowers in full bloom',
-        colors: 'deep greens, vibrant reds, purples, yellows'
+        lighting: 'warm afternoon sunlight',
+        sky: 'clear blue summer sky'
       },
       fall: {
-        lighting: 'warm amber light, soft shadows',
-        plants: 'fall colors, ornamental grass plumes',
-        colors: 'oranges, reds, burgundies, golden yellows'
+        lighting: 'golden hour amber light',
+        sky: 'autumn sky with scattered clouds'
+      },
+      winter: {
+        lighting: 'cool diffused light',
+        sky: 'overcast winter sky'
       }
     };
 
     const seasonInfo = seasonDetails[season] || seasonDetails.spring;
 
-    // Parse the plant count from the prompt to enforce strict rendering
+    // Parse the plant count from the prompt
     const plantCountMatch = prompt.match(/Total plants: (\d+)/);
     const totalPlants = plantCountMatch ? parseInt(plantCountMatch[1]) : 1;
 
-    // Extract just the plant names and counts for emphasis
-    const plantListMatch = prompt.match(/EXACT PLANT LIST[\s\S]*?(?=\n\n|$)/);
+    // Build a STRICT prompt that only shows what's in the plan
+    const fullPrompt = `Photorealistic landscape photograph of a residential front yard garden bed.
 
-    const fullPrompt = `WIDE SHOT landscape photograph of a residential garden bed with EXACTLY ${totalPlants} plant(s).
-
+CRITICAL: This image must show ONLY the following plants - NO ADDITIONAL PLANTS:
 ${prompt}
 
-CAMERA: Wide establishing shot showing the ENTIRE garden bed from 15-20 feet away. Must see full plants from ground to top, the mulch bed, lawn edges, and house in background. NOT a close-up. NOT a flower detail. FULL SCENE VIEW.
+STRICT REQUIREMENTS:
+- Show EXACTLY ${totalPlants} individual plant(s) total - count them
+- DO NOT add any plants not listed above
+- DO NOT fill empty space with extra shrubs, flowers, or groundcover
+- Empty mulch areas are CORRECT if the plan is sparse
+- If only 9 Japanese Maples are listed, show ONLY 9 Japanese Maple trees
 
-MANDATORY CONSTRAINTS:
-- Show EXACTLY ${totalPlants} plant(s), no more, no less
-- Show the WHOLE plant/tree from base to crown, not just flowers or leaves
-- A Southern Magnolia is a LARGE TREE 35-50ft tall at 60% maturity, not a flower close-up
-- A Crape Myrtle is a TREE 10-15ft tall at 60% maturity
-- DO NOT add extra plants to fill space
-- Empty mulch is correct for sparse designs
+SCENE:
+- ${season} season, ${seasonInfo.lighting}, ${seasonInfo.sky}
+- Suburban house in background (brick or siding)
+- Brown mulch garden bed with defined edges
+- Green lawn around the bed
+- Wide shot from 15-20 feet away showing entire bed
 
-SCENE COMPOSITION:
-- ${season} season, ${seasonInfo.lighting}
-- Suburban home visible in background (brick, siding, or stone)
-- Mulched garden bed with clean edges
-- Green lawn surrounding the bed
-- Eye-level view from front yard/street perspective
+PLANT RENDERING:
+- Trees at 60-70% mature size (established 2-3 years)
+- Japanese Maple: 12-18ft multi-stem tree with red/burgundy foliage
+- Show full plants from base to crown, not close-ups
+- Appropriate spacing between plants
 
-PLANT SIZE (60-70% MATURITY):
-- Trees should be substantial, 2-3 years established
-- Show full height and canopy spread
-- ${seasonInfo.plants}
-- Mulch visible at base of plants
+STYLE: Professional landscaping portfolio photo, eye-level view, sharp focus, natural lighting.
 
-STYLE: Professional real estate or landscaping portfolio photo. Sharp focus, whole scene in frame, natural lighting. NO close-ups, NO macro shots, NO flower details.`;
+FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not explicitly listed in the plant list above.`;
 
     console.log('Calling Replicate FLUX...');
 
@@ -115,7 +114,7 @@ STYLE: Professional real estate or landscaping portfolio photo. Sharp focus, who
 function createPrediction(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      version: "black-forest-labs/flux-1.1-pro",
+      version: "black-forest-labs/flux-schnell",
       input: {
         prompt: prompt,
         num_outputs: 1,
