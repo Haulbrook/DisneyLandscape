@@ -68,10 +68,10 @@ STRICT REQUIREMENTS:
 - If only 9 Japanese Maples are listed, show ONLY 9 Japanese Maple trees
 
 CAMERA ANGLE:
-- Elevated view from second-story window or 15-20 feet up
-- Camera positioned 25-30 feet back from the garden bed
-- 25-30 degree downward angle (between eye-level and bird's eye)
-- Shows full garden bed layout while still seeing plant forms and structure
+- Slightly elevated view, like standing on a porch or 8-10 feet up
+- Camera positioned 20-25 feet back from the garden bed
+- 15-20 degree downward angle (just above eye-level)
+- Shows full garden bed while emphasizing plant height and form
 - Must see: entire garden bed, surrounding lawn, house facade in background
 
 SCENE:
