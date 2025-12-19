@@ -51,7 +51,7 @@ exports.handler = async (event) => {
     const totalPlants = plantCountMatch ? parseInt(plantCountMatch[1]) : 1;
 
     // Build a STRICT prompt that only shows what's in the plan
-    const fullPrompt = `Aerial drone photograph of a residential front yard garden bed, shot from 40-50 feet above at a 45-degree downward angle.
+    const fullPrompt = `Professional landscape photograph of a residential front yard garden bed, shot from an elevated perspective.
 
 CRITICAL: This image must show ONLY the following plants - NO ADDITIONAL PLANTS:
 ${prompt}
@@ -64,26 +64,26 @@ STRICT REQUIREMENTS:
 - If only 9 Japanese Maples are listed, show ONLY 9 Japanese Maple trees
 
 CAMERA ANGLE:
-- HIGH ANGLE aerial/drone view looking DOWN at the garden
-- Camera positioned 40-50 feet back and 30-40 feet up
-- 45-degree downward angle showing the entire property
-- Bird's eye perspective showing bed shape and plant layout from above
-- Must see: entire garden bed, surrounding lawn, driveway, part of house roof
+- Elevated view from second-story window or 15-20 feet up
+- Camera positioned 25-30 feet back from the garden bed
+- 25-30 degree downward angle (between eye-level and bird's eye)
+- Shows full garden bed layout while still seeing plant forms and structure
+- Must see: entire garden bed, surrounding lawn, house facade in background
 
 SCENE:
 - ${season} season, ${seasonInfo.lighting}, ${seasonInfo.sky}
-- Suburban house visible (showing roof and facade)
+- Suburban house visible in background
 - Brown mulch garden bed with clearly defined edges
 - Green lawn surrounding the bed
-- Driveway or walkway visible for scale
+- Walkway or lawn edge visible for scale
 
 PLANT RENDERING:
 - Trees at 60-70% mature size (established 2-3 years)
-- Show tree canopies from above - circular/oval shapes
-- See the full spread and coverage of each plant
-- Appropriate spacing between plants visible from above
+- Show full plant structure - trunks, branches, and canopy visible
+- See both the height and spread of each plant
+- Appropriate spacing between plants
 
-STYLE: Professional real estate drone photography, sharp focus, natural lighting, high altitude perspective.
+STYLE: Professional landscaping portfolio photo, elevated angle, sharp focus, natural lighting.
 
 FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not explicitly listed in the plant list above.`;
 
