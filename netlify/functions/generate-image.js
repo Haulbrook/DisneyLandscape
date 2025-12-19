@@ -121,13 +121,14 @@ FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not e
 function createPrediction(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      version: "black-forest-labs/flux-schnell",
+      version: "bytedance/seedream-3",
       input: {
         prompt: prompt,
-        num_outputs: 1,
         aspect_ratio: "16:9",
         output_format: "webp",
-        output_quality: 90
+        output_quality: 90,
+        guidance_scale: 7.5,
+        num_inference_steps: 30
       }
     });
 
