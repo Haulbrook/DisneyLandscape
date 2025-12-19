@@ -127,7 +127,7 @@ function createPrediction(apiKey, prompt) {
         aspect_ratio: "16:9",
         output_format: "webp",
         output_quality: 90,
-        guidance_scale: 7.5,
+        guidance_scale: 9,
         num_inference_steps: 30
       }
     });
