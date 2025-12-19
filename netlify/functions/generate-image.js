@@ -50,8 +50,12 @@ exports.handler = async (event) => {
     const plantCountMatch = prompt.match(/Total plants: (\d+)/);
     const totalPlants = plantCountMatch ? parseInt(plantCountMatch[1]) : 1;
 
+    // Parse the bed shape from the prompt
+    const shapeMatch = prompt.match(/Shape: ([^\n]+)/);
+    const bedShape = shapeMatch ? shapeMatch[1] : 'rectangular mulch bed';
+
     // Build a STRICT prompt that only shows what's in the plan
-    const fullPrompt = `Professional landscape photograph of a residential front yard garden bed, shot from an elevated perspective.
+    const fullPrompt = `Professional landscape photograph of a residential front yard with a ${bedShape}, shot from an elevated perspective.
 
 CRITICAL: This image must show ONLY the following plants - NO ADDITIONAL PLANTS:
 ${prompt}
@@ -73,7 +77,8 @@ CAMERA ANGLE:
 SCENE:
 - ${season} season, ${seasonInfo.lighting}, ${seasonInfo.sky}
 - Suburban house visible in background
-- Brown mulch garden bed with clearly defined edges
+- ${bedShape} with brown mulch and clearly defined curved edges
+- The bed shape is NOT rectangular - it has organic, flowing, curved borders
 - Green lawn surrounding the bed
 - Walkway or lawn edge visible for scale
 

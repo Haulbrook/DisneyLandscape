@@ -945,9 +945,35 @@ export default function StudioPage() {
       // Build the detailed prompt - bedDimensions is already in feet
       const bedSizeFt = `${bedDimensions.width}ft x ${bedDimensions.height}ft`;
 
+      // Describe the bed shape
+      let bedShapeDescription = 'rectangular';
+      if (bedType === 'custom' && customBedPath.length > 2) {
+        // Analyze the custom path to describe the shape
+        const bounds = getPathBounds(customBedPath);
+        const width = bounds.maxX - bounds.minX;
+        const height = bounds.maxY - bounds.minY;
+        const aspectRatio = width / height;
+        const numPoints = customBedPath.length;
+
+        if (numPoints <= 6) {
+          bedShapeDescription = 'organic curved kidney-bean shaped';
+        } else if (numPoints <= 12) {
+          bedShapeDescription = 'organic free-form curved';
+        } else {
+          bedShapeDescription = 'natural organic curved with flowing edges';
+        }
+
+        if (aspectRatio > 2) {
+          bedShapeDescription += ', elongated horizontal';
+        } else if (aspectRatio < 0.5) {
+          bedShapeDescription += ', elongated vertical';
+        }
+      }
+
       let promptParts = [];
       promptParts.push(`GARDEN BED SPECIFICATIONS:`);
-      promptParts.push(`- Size: ${bedSizeFt} landscape bed`);
+      promptParts.push(`- Shape: ${bedShapeDescription} mulch bed`);
+      promptParts.push(`- Size: ${bedSizeFt} canvas area`);
       promptParts.push(`- Total plants: ${placedPlants.length}`);
       promptParts.push(`- Coverage: ${coveragePercent.toFixed(0)}%`);
       promptParts.push('');
