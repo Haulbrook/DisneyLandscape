@@ -287,9 +287,25 @@ export default function StudioPage() {
   const fileInputRef = useRef(null);
 
   // Calculate coverage whenever plants change
-  // Calculate coverage whenever plants change (bed is in feet, convert to sq inches)
+  // Uses actual bed area (custom path or rectangle), not canvas size
   useEffect(() => {
-    const totalBedArea = (bedDimensions.width * 12) * (bedDimensions.height * 12); // Convert feet to inches
+    let totalBedArea;
+
+    // Use custom bed area if drawn, otherwise use canvas dimensions
+    if (bedType === 'custom' && customBedPath.length > 2) {
+      // getPolygonArea returns sq inches
+      totalBedArea = getPolygonArea(customBedPath);
+    } else {
+      // Canvas dimensions are in feet, convert to sq inches
+      totalBedArea = (bedDimensions.width * 12) * (bedDimensions.height * 12);
+    }
+
+    // Avoid division by zero
+    if (totalBedArea === 0) {
+      setCoveragePercent(0);
+      return;
+    }
+
     let coveredArea = 0;
 
     placedPlants.forEach(plant => {
@@ -303,7 +319,7 @@ export default function StudioPage() {
 
     const coverage = Math.min(100, (coveredArea / totalBedArea) * 100);
     setCoveragePercent(coverage);
-  }, [placedPlants, bedDimensions]);
+  }, [placedPlants, bedDimensions, bedType, customBedPath]);
 
   // Filter plants based on search, category, hardiness zone, and attributes
   const filteredPlants = ALL_PLANTS.filter(plant => {
@@ -895,7 +911,90 @@ export default function StudioPage() {
     return getPlantSizes(plantId).iconSize;
   };
 
-  // Generate AI vision image using DALL-E 3
+  // Export canvas as a simplified sketch image for ControlNet
+  const exportCanvasAsSketch = () => {
+    const canvas = document.createElement('canvas');
+    const scale = 4; // Scale factor for detail
+    const width = bedDimensions.width * 12 * scale; // Convert feet to inches, then scale
+    const height = bedDimensions.height * 12 * scale;
+
+    canvas.width = 512; // ControlNet works best with 512x512
+    canvas.height = 512;
+
+    const ctx = canvas.getContext('2d');
+    const scaleX = 512 / width;
+    const scaleY = 512 / height;
+    const uniformScale = Math.min(scaleX, scaleY);
+
+    // White background
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Center the drawing
+    const offsetX = (512 - width * uniformScale) / 2;
+    const offsetY = (512 - height * uniformScale) / 2;
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(uniformScale, uniformScale);
+
+    // Draw bed shape (brown/tan fill with black outline)
+    ctx.fillStyle = '#8B7355'; // Brown mulch color
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3 / uniformScale;
+
+    if (bedType === 'custom' && customBedPath.length > 2) {
+      // Draw custom bed path
+      ctx.beginPath();
+      ctx.moveTo(customBedPath[0].x * scale, customBedPath[0].y * scale);
+      customBedPath.forEach((point, i) => {
+        if (i > 0) ctx.lineTo(point.x * scale, point.y * scale);
+      });
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      // Draw rectangle bed
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeRect(0, 0, width, height);
+    }
+
+    // Draw plants as circles with category-based colors
+    placedPlants.forEach(plant => {
+      const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
+      if (!plantData) return;
+
+      const spreadMatch = plantData.spread.match(/(\d+)/);
+      const spread = spreadMatch ? parseInt(spreadMatch[1]) : 12;
+      const radius = (spread / 2) * scale;
+
+      // Color based on category (for sketch clarity)
+      const categoryColors = {
+        focal: '#2E7D32',      // Dark green for trees
+        topiary: '#1B5E20',    // Darker green
+        back: '#4CAF50',       // Medium green
+        middle: '#81C784',     // Light green
+        front: '#C8E6C9',      // Very light green
+        groundcover: '#A5D6A7' // Pale green
+      };
+
+      ctx.fillStyle = categoryColors[plantData.category] || '#4CAF50';
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2 / uniformScale;
+
+      ctx.beginPath();
+      ctx.arc(plant.x * scale, plant.y * scale, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    });
+
+    ctx.restore();
+
+    // Return as base64 data URL
+    return canvas.toDataURL('image/png');
+  };
+
+  // Generate AI vision image
   const generateVisionImage = async (season) => {
     if (placedPlants.length === 0) {
       setGenerateError('Please add some plants to your design first.');
@@ -1000,12 +1099,16 @@ export default function StudioPage() {
 
       const prompt = promptParts.join('\n');
 
+      // Export canvas as sketch for ControlNet
+      const sketchImage = exportCanvasAsSketch();
+
       console.log('Generating image with prompt:', prompt);
+      console.log('Sketch image generated for ControlNet');
 
       const response = await fetch('/.netlify/functions/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, season }),
+        body: JSON.stringify({ prompt, season, sketchImage }),
       });
 
       const data = await response.json();

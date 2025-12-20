@@ -15,7 +15,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { prompt, season = 'spring' } = JSON.parse(event.body);
+    const { prompt, season = 'spring', sketchImage } = JSON.parse(event.body);
 
     if (!prompt) {
       return {
@@ -23,6 +23,9 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: 'prompt is required' })
       };
     }
+
+    // Determine if we're using ControlNet (with sketch) or standard generation
+    const useControlNet = !!sketchImage;
 
     // Season-specific details
     const seasonDetails = {
@@ -92,10 +95,15 @@ STYLE: Professional landscaping portfolio photo, elevated angle, sharp focus, na
 
 FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not explicitly listed in the plant list above.`;
 
-    console.log('Calling Replicate FLUX...');
+    let prediction;
 
-    // Create prediction
-    const prediction = await createPrediction(apiKey, fullPrompt);
+    if (useControlNet) {
+      console.log('Calling Replicate ControlNet Scribble with sketch input...');
+      prediction = await createControlNetPrediction(apiKey, fullPrompt, sketchImage);
+    } else {
+      console.log('Calling Replicate Seedream-3...');
+      prediction = await createPrediction(apiKey, fullPrompt);
+    }
 
     // Poll for result (FLUX is fast, usually 5-10 seconds)
     const result = await pollForResult(apiKey, prediction.id);
@@ -162,6 +170,62 @@ function createPrediction(apiKey, prompt) {
           resolve(response);
         } catch (e) {
           reject(new Error('Failed to parse Replicate response'));
+        }
+      });
+    });
+
+    req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
+    req.setTimeout(10000, () => {
+      req.destroy();
+      reject(new Error('Request timed out'));
+    });
+
+    req.write(data);
+    req.end();
+  });
+}
+
+function createControlNetPrediction(apiKey, prompt, sketchImage) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify({
+      version: "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117",
+      input: {
+        image: sketchImage,
+        prompt: prompt,
+        num_samples: "1",
+        image_resolution: "768",
+        ddim_steps: 30,
+        scale: 9,
+        a_prompt: "best quality, extremely detailed, professional landscape photography, realistic plants, natural lighting",
+        n_prompt: "lowres, bad anatomy, bad hands, cropped, worst quality, cartoon, anime, illustration, painting, drawing"
+      }
+    });
+
+    const options = {
+      hostname: 'api.replicate.com',
+      port: 443,
+      path: '/v1/predictions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Length': Buffer.byteLength(data),
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(body);
+          if (res.statusCode !== 201 && res.statusCode !== 200) {
+            reject(new Error(response.detail || response.error || 'Failed to create ControlNet prediction'));
+            return;
+          }
+          resolve(response);
+        } catch (e) {
+          reject(new Error('Failed to parse ControlNet response'));
         }
       });
     });
