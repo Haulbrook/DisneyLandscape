@@ -24,8 +24,9 @@ exports.handler = async (event) => {
       };
     }
 
-    // Determine if we're using ControlNet (with sketch) or standard generation
-    const useControlNet = !!sketchImage;
+    // Disable ControlNet for now - it renders the sketch literally instead of transforming it
+    // TODO: Investigate ControlNet SDXL or other image-guided approaches
+    const useControlNet = false; // Was: !!sketchImage
 
     // Season-specific details
     const seasonDetails = {
