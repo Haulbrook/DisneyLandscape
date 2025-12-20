@@ -175,7 +175,7 @@ function createPrediction(apiKey, prompt) {
     });
 
     req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
-    req.setTimeout(10000, () => {
+    req.setTimeout(30000, () => {
       req.destroy();
       reject(new Error('Request timed out'));
     });
@@ -231,7 +231,7 @@ function createControlNetPrediction(apiKey, prompt, sketchImage) {
     });
 
     req.on('error', (e) => reject(new Error(`Network error: ${e.message}`)));
-    req.setTimeout(10000, () => {
+    req.setTimeout(30000, () => {
       req.destroy();
       reject(new Error('Request timed out'));
     });
@@ -241,7 +241,7 @@ function createControlNetPrediction(apiKey, prompt, sketchImage) {
   });
 }
 
-function pollForResult(apiKey, predictionId, maxAttempts = 30) {
+function pollForResult(apiKey, predictionId, maxAttempts = 60) {
   return new Promise((resolve, reject) => {
     let attempts = 0;
 

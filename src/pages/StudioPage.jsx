@@ -312,8 +312,12 @@ export default function StudioPage() {
       const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
       if (plantData) {
         const spreadMatch = plantData.spread.match(/(\d+)/);
-        const spread = spreadMatch ? parseInt(spreadMatch[1]) : 12;
-        coveredArea += Math.PI * Math.pow(spread / 2, 2);
+        let spreadInches = spreadMatch ? parseInt(spreadMatch[1]) : 12;
+        // Check if spread is in feet (ft) and convert to inches
+        if (plantData.spread.toLowerCase().includes('ft')) {
+          spreadInches = spreadInches * 12;
+        }
+        coveredArea += Math.PI * Math.pow(spreadInches / 2, 2);
       }
     });
 
