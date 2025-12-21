@@ -587,10 +587,10 @@ export default function StudioPage() {
   };
 
   // Generate grid of valid points inside custom path for even distribution
-  // IMPROVED: Denser grid (15px spacing), smaller padding (5px) for better coverage
-  const generateValidGridPoints = (bedBounds, customPath, gridSpacing = 15) => {
+  // BALANCED: 22px spacing for natural density, edge tracking for proper placement
+  const generateValidGridPoints = (bedBounds, customPath, gridSpacing = 22) => {
     const validPoints = [];
-    const padding = 5; // Reduced padding to extend plants closer to edges
+    const padding = 8; // Small padding for edge access
 
     for (let x = bedBounds.minX + padding; x <= bedBounds.maxX - padding; x += gridSpacing) {
       for (let y = bedBounds.minY + padding; y <= bedBounds.maxY - padding; y += gridSpacing) {
@@ -603,13 +603,17 @@ export default function StudioPage() {
           const maxDist = Math.max(bedBounds.width, bedBounds.height) / 2;
           const normalizedDist = distFromCenter / maxDist;
 
-          // Also calculate distance from nearest edge for edge planting
+          // Calculate distance from nearest edge for edge planting
           const distFromEdgeX = Math.min(x - bedBounds.minX, bedBounds.maxX - x);
           const distFromEdgeY = Math.min(y - bedBounds.minY, bedBounds.maxY - y);
           const distFromEdge = Math.min(distFromEdgeX, distFromEdgeY);
-          const isEdge = distFromEdge < 30; // Points within 30px of edge
 
-          validPoints.push({ x, y, distFromCenter: normalizedDist, isEdge });
+          // Classify edge zones - only groundcover should go to very edge
+          const isVeryEdge = distFromEdge < 20;  // Only groundcover here
+          const isEdge = distFromEdge < 40;       // Small plants OK
+          const isInnerEdge = distFromEdge < 80;  // Medium plants OK
+
+          validPoints.push({ x, y, distFromCenter: normalizedDist, distFromEdge, isVeryEdge, isEdge, isInnerEdge });
         }
       }
     }
@@ -640,19 +644,22 @@ export default function StudioPage() {
 
     if (!bedBounds) return;
 
-    // For custom beds, generate a grid of all valid planting points
-    // IMPROVED: Denser 18px grid for better coverage
+    // Generate grid points - 24px spacing for balanced density
     const validPoints = useCustomPath
-      ? generateValidGridPoints(bedBounds, customBedPath, 18)
-      : generateValidGridPoints(bedBounds, null, 18);
+      ? generateValidGridPoints(bedBounds, customBedPath, 24)
+      : generateValidGridPoints(bedBounds, null, 24);
 
     // Sort points into zones by distance from center
-    // IMPROVED: Expanded zone boundaries for better distribution
     const centerPoints = validPoints.filter(p => p.distFromCenter < 0.20);
     const innerPoints = validPoints.filter(p => p.distFromCenter >= 0.20 && p.distFromCenter < 0.45);
     const middlePoints = validPoints.filter(p => p.distFromCenter >= 0.45 && p.distFromCenter < 0.70);
     const outerPoints = validPoints.filter(p => p.distFromCenter >= 0.70);
-    const edgePoints = validPoints.filter(p => p.isEdge); // New: explicit edge points
+
+    // Edge zones - respects plant size for proper containment
+    const veryEdgePoints = validPoints.filter(p => p.isVeryEdge); // Only groundcover
+    const edgePoints = validPoints.filter(p => p.isEdge && !p.isVeryEdge); // Small plants
+    const innerEdgePoints = validPoints.filter(p => p.isInnerEdge && !p.isEdge); // Medium plants
+    const interiorPoints = validPoints.filter(p => !p.isInnerEdge); // Trees/large shrubs stay interior
 
     // Shuffle each zone for variety
     const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
@@ -660,7 +667,10 @@ export default function StudioPage() {
     shuffle(innerPoints);
     shuffle(middlePoints);
     shuffle(outerPoints);
+    shuffle(veryEdgePoints);
     shuffle(edgePoints);
+    shuffle(innerEdgePoints);
+    shuffle(interiorPoints);
 
     // Map new role names to old role names for zone placement
     const roleMapping = {
@@ -671,23 +681,22 @@ export default function StudioPage() {
       'carpet': 'groundcover'
     };
 
-    // Map roles to point zones (for custom/island beds, center = back)
-    // IMPROVED: Better zone distribution for full coverage
+    // Map roles to point zones - respects plant size for edge containment
+    // Trees/large shrubs stay interior, only groundcover goes to very edge
     const getZonePoints = (role) => {
-      // Normalize role names (new format -> old format)
       const normalizedRole = roleMapping[role] || role;
 
       if (useCustomPath) {
-        // Island bed: focal/back in center, front/edge at perimeter
+        // Island bed: focal in center, groundcover at perimeter
         switch (normalizedRole) {
-          case 'focal': return [...centerPoints, ...innerPoints.slice(0, 5)];
-          case 'back': return [...innerPoints, ...centerPoints, ...middlePoints.slice(0, 10)];
+          case 'focal': return [...interiorPoints.filter(p => p.distFromCenter < 0.4)]; // Trees stay well inside
+          case 'back': return [...interiorPoints, ...innerEdgePoints.slice(0, 5)]; // Shrubs mostly interior
           case 'topiary': return [...innerPoints, ...centerPoints];
-          case 'middle': return [...middlePoints, ...innerPoints, ...outerPoints.slice(0, 15)];
-          case 'front': return [...outerPoints, ...middlePoints, ...edgePoints];
-          case 'edge': return [...edgePoints, ...outerPoints];
-          case 'groundcover': return [...edgePoints, ...outerPoints, ...middlePoints, ...validPoints]; // Fill ALL gaps
-          default: return [...middlePoints, ...validPoints];
+          case 'middle': return [...middlePoints, ...innerEdgePoints, ...innerPoints]; // Perennials can spread more
+          case 'front': return [...outerPoints, ...innerEdgePoints, ...edgePoints.slice(0, 10)];
+          case 'edge': return [...edgePoints, ...innerEdgePoints];
+          case 'groundcover': return [...veryEdgePoints, ...edgePoints, ...outerPoints]; // Groundcover fills edges
+          default: return [...middlePoints];
         }
       } else {
         // Rectangle bed: use Y position for back-to-front
@@ -695,14 +704,14 @@ export default function StudioPage() {
           [...points].sort((a, b) => desc ? b.y - a.y : a.y - b.y);
 
         switch (normalizedRole) {
-          case 'focal': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.25));
-          case 'back': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.40));
-          case 'topiary': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.45));
-          case 'middle': return validPoints.slice(Math.floor(validPoints.length * 0.25), Math.floor(validPoints.length * 0.75));
-          case 'front': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.50));
-          case 'edge': return [...edgePoints, ...sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.40))];
-          case 'groundcover': return [...edgePoints, ...validPoints]; // Fill ALL gaps including edges
-          default: return [...validPoints];
+          case 'focal': return sortByY(interiorPoints, true).slice(0, Math.floor(interiorPoints.length * 0.3)); // Trees interior only
+          case 'back': return sortByY([...interiorPoints, ...innerEdgePoints], true).slice(0, Math.floor(validPoints.length * 0.35));
+          case 'topiary': return sortByY(interiorPoints, true).slice(0, Math.floor(interiorPoints.length * 0.4));
+          case 'middle': return [...middlePoints, ...innerEdgePoints];
+          case 'front': return sortByY([...innerEdgePoints, ...edgePoints], false);
+          case 'edge': return [...edgePoints, ...innerEdgePoints];
+          case 'groundcover': return [...veryEdgePoints, ...edgePoints, ...outerPoints]; // Groundcover to edges
+          default: return [...middlePoints];
         }
       }
     };
@@ -791,39 +800,39 @@ export default function StudioPage() {
       }
     });
 
-    // GAP-FILLING PASS: Fill remaining empty areas with groundcover
-    // Find groundcover/carpet plants from the bundle
+    // GAP-FILLING PASS: Lightly fill remaining edge areas with groundcover only
+    // Only fill obvious gaps near edges, keep interior more open
     const carpetPlants = plantsList.filter(p => p.role === 'carpet' || p.role === 'groundcover');
     if (carpetPlants.length > 0) {
       const primaryCarpet = carpetPlants[0];
       const carpetPlantData = ALL_PLANTS.find(p => p.id === primaryCarpet.plantId);
 
       if (carpetPlantData) {
-        // Find unused points that are far from any placed plant
-        const unusedPoints = validPoints.filter(point => {
+        // Only fill edge points that are far from placed plants
+        const unusedEdgePoints = [...veryEdgePoints, ...edgePoints].filter(point => {
           const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
           if (usedPoints.has(pointKey)) return false;
 
-          // Check distance from nearest placed plant
+          // Check distance from nearest placed plant - need bigger gap
           const minDist = newPlants.reduce((min, plant) => {
             const dist = Math.sqrt(Math.pow(plant.x - point.x, 2) + Math.pow(plant.y - point.y, 2));
             return Math.min(min, dist);
           }, Infinity);
 
-          return minDist > 25; // Only fill gaps larger than 25px
+          return minDist > 40; // Only fill larger gaps (was 25)
         });
 
-        // Add carpet plants to fill gaps (up to 30% of unused points)
-        const fillCount = Math.min(Math.floor(unusedPoints.length * 0.4), 50);
-        shuffle(unusedPoints);
+        // Conservative fill - only 15% of unused edge points, max 20 plants
+        const fillCount = Math.min(Math.floor(unusedEdgePoints.length * 0.15), 20);
+        shuffle(unusedEdgePoints);
 
         for (let i = 0; i < fillCount; i++) {
-          const point = unusedPoints[i];
+          const point = unusedEdgePoints[i];
           if (!point) continue;
 
           const testPos = findValidPositionInBed(
-            point.x + (Math.random() - 0.5) * 10,
-            point.y + (Math.random() - 0.5) * 10,
+            point.x + (Math.random() - 0.5) * 8,
+            point.y + (Math.random() - 0.5) * 8,
             primaryCarpet.plantId,
             newPlants,
             bedBounds,
