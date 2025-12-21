@@ -261,12 +261,47 @@ export default function StudioPage() {
     const matchesZone = !plant.zones || plant.zones.includes(selectedZone);
     const matchesSun = sunFilter === 'all' || (plant.sunReq && plant.sunReq.includes(sunFilter));
     const matchesWater = waterFilter === 'all' || plant.waterReq === waterFilter;
-    const matchesColor = colorFilter === 'all' || plant.color === colorFilter;
+    const matchesColor = colorFilter === 'all' || isColorMatch(plant.color, colorFilter);
     return matchesSearch && matchesCategory && matchesZone && matchesSun && matchesWater && matchesColor;
   });
 
-  // Get unique colors from plants for the color filter
-  const uniqueColors = [...new Set(ALL_PLANTS.map(p => p.color))].sort();
+  // Rainbow color palette for filtering - covers full spectrum
+  const RAINBOW_COLORS = [
+    { hex: '#FF0000', name: 'Red' },
+    { hex: '#FF4500', name: 'Orange-Red' },
+    { hex: '#FF8C00', name: 'Orange' },
+    { hex: '#FFD700', name: 'Gold' },
+    { hex: '#FFFF00', name: 'Yellow' },
+    { hex: '#9ACD32', name: 'Yellow-Green' },
+    { hex: '#32CD32', name: 'Lime Green' },
+    { hex: '#228B22', name: 'Forest Green' },
+    { hex: '#008080', name: 'Teal' },
+    { hex: '#1E90FF', name: 'Blue' },
+    { hex: '#4B0082', name: 'Indigo' },
+    { hex: '#9400D3', name: 'Violet' },
+    { hex: '#FF1493', name: 'Pink' },
+    { hex: '#FFFFFF', name: 'White' },
+    { hex: '#8B4513', name: 'Brown' },
+  ];
+
+  // Function to find closest rainbow color for filtering
+  const getColorDistance = (color1, color2) => {
+    const hex1 = color1.replace('#', '');
+    const hex2 = color2.replace('#', '');
+    const r1 = parseInt(hex1.substr(0, 2), 16);
+    const g1 = parseInt(hex1.substr(2, 2), 16);
+    const b1 = parseInt(hex1.substr(4, 2), 16);
+    const r2 = parseInt(hex2.substr(0, 2), 16);
+    const g2 = parseInt(hex2.substr(2, 2), 16);
+    const b2 = parseInt(hex2.substr(4, 2), 16);
+    return Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
+  };
+
+  const isColorMatch = (plantColor, filterColor) => {
+    if (!plantColor || !filterColor) return false;
+    // Match if plant color is within a threshold distance of the filter color
+    return getColorDistance(plantColor, filterColor) < 120;
+  };
 
   // Handle plant placement on canvas (coordinates in inches internally)
   const handleCanvasClick = (e) => {
@@ -1290,17 +1325,20 @@ export default function StudioPage() {
                         >
                           All
                         </button>
-                        {uniqueColors.slice(0, 12).map(color => (
+                        {RAINBOW_COLORS.map(({ hex, name }) => (
                           <button
-                            key={color}
-                            onClick={() => setColorFilter(colorFilter === color ? 'all' : color)}
+                            key={hex}
+                            onClick={() => setColorFilter(colorFilter === hex ? 'all' : hex)}
                             className={`w-6 h-6 rounded border-2 transition-all ${
-                              colorFilter === color
+                              colorFilter === hex
                                 ? 'border-sage-600 ring-2 ring-sage-500/50 scale-110'
                                 : 'border-sage-200 hover:border-sage-400'
                             }`}
-                            style={{ backgroundColor: color }}
-                            title={color}
+                            style={{
+                              backgroundColor: hex,
+                              boxShadow: hex === '#FFFFFF' ? 'inset 0 0 0 1px #e5e7eb' : 'none'
+                            }}
+                            title={name}
                           />
                         ))}
                       </div>
