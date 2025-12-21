@@ -22,6 +22,16 @@ import {
   TREES
 } from '../data/plantDatabase';
 
+// Import plant bundles/packages
+import {
+  PLANT_BUNDLES,
+  INVASIVE_WARNINGS,
+  getBundleById,
+  getBundlePlants,
+  getInvasiveWarning,
+  PLANT_ROLES
+} from '../data/plantBundles';
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // DISNEY LANDSCAPE RULES - The Non-Negotiable Standards
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -69,83 +79,9 @@ const PLANT_DATABASE = {
   trees: TREES
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// BED BUNDLE TEMPLATES - Pre-Designed Professional Packages
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const BED_BUNDLES = [
-  {
-    id: 'main-street-classic',
-    name: 'Main Street USA Classic',
-    description: 'Traditional American elegance with red, white & blue patriotic palette',
-    theme: 'Classic Americana',
-    colorScheme: ['#D32F2F', '#FFFFFF', '#1565C0'],
-    baseSize: '100 sq ft',
-    plants: [
-      { plantId: 'crape-myrtle', quantity: 1, role: 'focal', position: 'center-back' },
-      { plantId: 'holly-nellie', quantity: 3, role: 'back', position: 'back-row' },
-      { plantId: 'knockout-rose', quantity: 5, role: 'middle', position: 'middle-row' },
-      { plantId: 'blue-salvia', quantity: 7, role: 'middle', position: 'middle-front' },
-      { plantId: 'petunia', quantity: 12, role: 'front', position: 'front-row' },
-      { plantId: 'liriope', quantity: 15, role: 'edge', position: 'border' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏛️'
-  },
-  {
-    id: 'tropical-paradise',
-    name: 'Tropical Paradise',
-    description: 'Adventureland vibes with bold oranges, yellows, and lush greens',
-    theme: 'Tropical Adventure',
-    colorScheme: ['#FF9800', '#FFC107', '#4CAF50'],
-    baseSize: '100 sq ft',
-    plants: [
-      { plantId: 'japanese-maple', quantity: 1, role: 'focal', position: 'off-center' },
-      { plantId: 'loropetalum', quantity: 2, role: 'back', position: 'back-corners' },
-      { plantId: 'lantana', quantity: 6, role: 'middle', position: 'middle-row' },
-      { plantId: 'rudbeckia', quantity: 5, role: 'middle', position: 'middle-accent' },
-      { plantId: 'marigold', quantity: 15, role: 'front', position: 'front-mass' },
-      { plantId: 'asiatic-jasmine', quantity: 20, role: 'edge', position: 'spilling-edge' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏝️'
-  },
-  {
-    id: 'fantasy-garden',
-    name: 'Fantasy Garden',
-    description: 'Whimsical Fantasyland charm with pinks, purples, and magical shapes',
-    theme: 'Enchanted Fantasy',
-    colorScheme: ['#E91E63', '#9C27B0', '#F8BBD9'],
-    baseSize: '100 sq ft',
-    plants: [
-      { plantId: 'pom-pom-juniper', quantity: 2, role: 'focal', position: 'flanking' },
-      { plantId: 'azalea-encore', quantity: 4, role: 'back', position: 'back-row' },
-      { plantId: 'pentas', quantity: 6, role: 'middle', position: 'middle-row' },
-      { plantId: 'coleus', quantity: 8, role: 'front', position: 'front-accent' },
-      { plantId: 'begonia', quantity: 15, role: 'front', position: 'front-mass' },
-      { plantId: 'mondo-grass', quantity: 18, role: 'edge', position: 'clean-border' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🏰'
-  },
-  {
-    id: 'future-modern',
-    name: 'Future Modern',
-    description: 'Tomorrowland sleekness with silver-greens, whites, and architectural forms',
-    theme: 'Futuristic Minimal',
-    colorScheme: ['#607D8B', '#FFFFFF', '#00BCD4'],
-    baseSize: '100 sq ft',
-    plants: [
-      { plantId: 'spiral-juniper', quantity: 3, role: 'focal', position: 'geometric' },
-      { plantId: 'ball-boxwood', quantity: 5, role: 'accent', position: 'rhythmic' },
-      { plantId: 'cone-arborvitae', quantity: 2, role: 'vertical', position: 'punctuation' },
-      { plantId: 'liriope', quantity: 25, role: 'mass', position: 'uniform-grid' },
-      { plantId: 'mondo-grass', quantity: 30, role: 'base', position: 'carpet' }
-    ],
-    scaleMultipliers: [0.5, 1, 1.5, 2, 3],
-    preview: '🚀'
-  }
-];
+// BED_BUNDLES is now imported from plantBundles.js as PLANT_BUNDLES
+// Legacy alias for backward compatibility
+const BED_BUNDLES = PLANT_BUNDLES;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APPLICATION COMPONENT
@@ -715,11 +651,23 @@ export default function StudioPage() {
     shuffle(middlePoints);
     shuffle(outerPoints);
 
+    // Map new role names to old role names for zone placement
+    const roleMapping = {
+      'hero': 'focal',
+      'structure': 'back',
+      'seasonal': 'middle',
+      'texture': 'middle',
+      'carpet': 'groundcover'
+    };
+
     // Map roles to point zones (for custom/island beds, center = back)
     const getZonePoints = (role) => {
+      // Normalize role names (new format -> old format)
+      const normalizedRole = roleMapping[role] || role;
+
       if (useCustomPath) {
         // Island bed: focal/back in center, front/edge at perimeter
-        switch (role) {
+        switch (normalizedRole) {
           case 'focal': return [...centerPoints];
           case 'back': return [...centerPoints, ...innerPoints];
           case 'topiary': return [...innerPoints, ...centerPoints];
@@ -734,7 +682,7 @@ export default function StudioPage() {
         const sortByY = (points, desc = false) =>
           [...points].sort((a, b) => desc ? b.y - a.y : a.y - b.y);
 
-        switch (role) {
+        switch (normalizedRole) {
           case 'focal': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.2));
           case 'back': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.3));
           case 'topiary': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.4));
@@ -747,10 +695,17 @@ export default function StudioPage() {
       }
     };
 
+    // Handle both old flat array format and new object format
+    const plantsList = Array.isArray(bundle.plants)
+      ? bundle.plants
+      : getBundlePlants(bundle);
+
     // Sort bundle plants by category priority (place larger plants first)
-    const sortedPlants = [...bundle.plants].sort((a, b) => {
-      const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
-      return order.indexOf(a.role) - order.indexOf(b.role);
+    const sortedPlants = [...plantsList].sort((a, b) => {
+      const order = ['focal', 'hero', 'back', 'structure', 'topiary', 'middle', 'seasonal', 'texture', 'front', 'edge', 'groundcover', 'carpet'];
+      const roleA = roleMapping[a.role] || a.role;
+      const roleB = roleMapping[b.role] || b.role;
+      return order.indexOf(roleA) - order.indexOf(roleB);
     });
 
     // Track used points to distribute evenly
@@ -1559,50 +1514,93 @@ export default function StudioPage() {
               </div>
 
               {/* Bundle Cards */}
-              {BED_BUNDLES.map(bundle => (
-                <div
-                  key={bundle.id}
-                  className="bg-white rounded-xl overflow-hidden border border-sage-200 hover:border-sage-300 hover:shadow-md transition-all"
-                >
-                  <div className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-3xl">{bundle.preview}</span>
-                      <div>
-                        <h3 className="font-bold text-sage-900">{bundle.name}</h3>
-                        <p className="text-xs text-sage-500">{bundle.theme}</p>
+              {BED_BUNDLES.map(bundle => {
+                // Handle both old flat array format and new object format
+                const plantsList = Array.isArray(bundle.plants)
+                  ? bundle.plants
+                  : getBundlePlants(bundle);
+                const totalPlants = plantsList.reduce((sum, p) => sum + Math.round((p.quantity || 1) * bundleScale), 0);
+                const hasInvasiveWarnings = bundle.invasiveWarnings && bundle.invasiveWarnings.length > 0;
+
+                return (
+                  <div
+                    key={bundle.id}
+                    className="bg-white rounded-xl overflow-hidden border border-sage-200 hover:border-sage-300 hover:shadow-md transition-all"
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-3xl">{bundle.preview}</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-sage-900">{bundle.name}</h3>
+                          {bundle.subtitle && (
+                            <p className="text-xs text-sage-600">{bundle.subtitle}</p>
+                          )}
+                          <p className="text-xs text-sage-400">{bundle.theme}</p>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-sm text-sage-600 mb-3">{bundle.description}</p>
+                      <p className="text-sm text-sage-600 mb-3 line-clamp-2">{bundle.description}</p>
 
-                    {/* Color Scheme Preview */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs text-sage-500">Colors:</span>
-                      <div className="flex gap-1">
-                        {bundle.colorScheme.map((color, i) => (
-                          <div
-                            key={i}
-                            className="w-5 h-5 rounded-full ring-2 ring-sage-100"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
+                      {/* Color Scheme Preview */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-sage-500">Colors:</span>
+                        <div className="flex gap-1">
+                          {bundle.colorScheme.map((color, i) => (
+                            <div
+                              key={i}
+                              className="w-5 h-5 rounded-full ring-2 ring-sage-100"
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Plant Count */}
-                    <div className="text-xs text-sage-500 mb-3">
-                      {bundle.plants.reduce((sum, p) => sum + Math.round(p.quantity * bundleScale), 0)} plants at {bundleScale}x scale
-                    </div>
+                      {/* Package Info */}
+                      <div className="flex items-center gap-3 text-xs text-sage-500 mb-2">
+                        <span>{totalPlants} plants at {bundleScale}x</span>
+                        {bundle.baseSize && <span>• {bundle.baseSize}</span>}
+                        {bundle.defaultZone && <span>• Zone {bundle.defaultZone}</span>}
+                      </div>
 
-                    <button
-                      onClick={() => applyBundle(bundle)}
-                      className="w-full bg-sage-500 hover:bg-sage-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Package className="w-4 h-4" />
-                      Apply Bundle
-                    </button>
+                      {/* Filters/Conditions */}
+                      {bundle.filters && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {bundle.filters.light && (
+                            <span className="text-[10px] bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.light}
+                            </span>
+                          )}
+                          {bundle.filters.moisture && (
+                            <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.moisture}
+                            </span>
+                          )}
+                          {bundle.filters.maintenance && (
+                            <span className="text-[10px] bg-sage-50 text-sage-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.maintenance}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Invasive Warning */}
+                      {hasInvasiveWarnings && (
+                        <div className="text-[10px] bg-amber-50 text-amber-700 px-2 py-1 rounded mb-2 flex items-center gap-1">
+                          <span>⚠️</span>
+                          <span>Contains flagged plants - review before install</span>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => applyBundle(bundle)}
+                        className="w-full bg-sage-500 hover:bg-sage-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Package className="w-4 h-4" />
+                        Apply Bundle
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </aside>
