@@ -3663,13 +3663,13 @@ export const PLANT_DATABASE = {
   trees: TREES,
 };
 
-// Flatten for easy access
+// Flatten for easy access - add dbCategory for filtering
 export const ALL_PLANTS = [
-  ...GRASSES,
-  ...GROUND_COVERS,
-  ...PERENNIALS,
-  ...SHRUBS,
-  ...TREES,
+  ...GRASSES.map(p => ({ ...p, dbCategory: 'grasses' })),
+  ...GROUND_COVERS.map(p => ({ ...p, dbCategory: 'groundcovers' })),
+  ...PERENNIALS.map(p => ({ ...p, dbCategory: 'perennials' })),
+  ...SHRUBS.map(p => ({ ...p, dbCategory: 'shrubs' })),
+  ...TREES.map(p => ({ ...p, dbCategory: 'trees' })),
 ];
 
 // Get all unique sizes available for a plant
