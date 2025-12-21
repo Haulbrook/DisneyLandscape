@@ -587,9 +587,10 @@ export default function StudioPage() {
   };
 
   // Generate grid of valid points inside custom path for even distribution
-  const generateValidGridPoints = (bedBounds, customPath, gridSpacing = 30) => {
+  // IMPROVED: Denser grid (15px spacing), smaller padding (5px) for better coverage
+  const generateValidGridPoints = (bedBounds, customPath, gridSpacing = 15) => {
     const validPoints = [];
-    const padding = 15;
+    const padding = 5; // Reduced padding to extend plants closer to edges
 
     for (let x = bedBounds.minX + padding; x <= bedBounds.maxX - padding; x += gridSpacing) {
       for (let y = bedBounds.minY + padding; y <= bedBounds.maxY - padding; y += gridSpacing) {
@@ -602,7 +603,13 @@ export default function StudioPage() {
           const maxDist = Math.max(bedBounds.width, bedBounds.height) / 2;
           const normalizedDist = distFromCenter / maxDist;
 
-          validPoints.push({ x, y, distFromCenter: normalizedDist });
+          // Also calculate distance from nearest edge for edge planting
+          const distFromEdgeX = Math.min(x - bedBounds.minX, bedBounds.maxX - x);
+          const distFromEdgeY = Math.min(y - bedBounds.minY, bedBounds.maxY - y);
+          const distFromEdge = Math.min(distFromEdgeX, distFromEdgeY);
+          const isEdge = distFromEdge < 30; // Points within 30px of edge
+
+          validPoints.push({ x, y, distFromCenter: normalizedDist, isEdge });
         }
       }
     }
@@ -634,15 +641,18 @@ export default function StudioPage() {
     if (!bedBounds) return;
 
     // For custom beds, generate a grid of all valid planting points
+    // IMPROVED: Denser 18px grid for better coverage
     const validPoints = useCustomPath
-      ? generateValidGridPoints(bedBounds, customBedPath, 25)
-      : generateValidGridPoints(bedBounds, null, 25);
+      ? generateValidGridPoints(bedBounds, customBedPath, 18)
+      : generateValidGridPoints(bedBounds, null, 18);
 
     // Sort points into zones by distance from center
-    const centerPoints = validPoints.filter(p => p.distFromCenter < 0.25);
-    const innerPoints = validPoints.filter(p => p.distFromCenter >= 0.25 && p.distFromCenter < 0.5);
-    const middlePoints = validPoints.filter(p => p.distFromCenter >= 0.5 && p.distFromCenter < 0.75);
-    const outerPoints = validPoints.filter(p => p.distFromCenter >= 0.75);
+    // IMPROVED: Expanded zone boundaries for better distribution
+    const centerPoints = validPoints.filter(p => p.distFromCenter < 0.20);
+    const innerPoints = validPoints.filter(p => p.distFromCenter >= 0.20 && p.distFromCenter < 0.45);
+    const middlePoints = validPoints.filter(p => p.distFromCenter >= 0.45 && p.distFromCenter < 0.70);
+    const outerPoints = validPoints.filter(p => p.distFromCenter >= 0.70);
+    const edgePoints = validPoints.filter(p => p.isEdge); // New: explicit edge points
 
     // Shuffle each zone for variety
     const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
@@ -650,6 +660,7 @@ export default function StudioPage() {
     shuffle(innerPoints);
     shuffle(middlePoints);
     shuffle(outerPoints);
+    shuffle(edgePoints);
 
     // Map new role names to old role names for zone placement
     const roleMapping = {
@@ -661,6 +672,7 @@ export default function StudioPage() {
     };
 
     // Map roles to point zones (for custom/island beds, center = back)
+    // IMPROVED: Better zone distribution for full coverage
     const getZonePoints = (role) => {
       // Normalize role names (new format -> old format)
       const normalizedRole = roleMapping[role] || role;
@@ -668,14 +680,14 @@ export default function StudioPage() {
       if (useCustomPath) {
         // Island bed: focal/back in center, front/edge at perimeter
         switch (normalizedRole) {
-          case 'focal': return [...centerPoints];
-          case 'back': return [...centerPoints, ...innerPoints];
+          case 'focal': return [...centerPoints, ...innerPoints.slice(0, 5)];
+          case 'back': return [...innerPoints, ...centerPoints, ...middlePoints.slice(0, 10)];
           case 'topiary': return [...innerPoints, ...centerPoints];
-          case 'middle': return [...innerPoints, ...middlePoints];
-          case 'front': return [...middlePoints, ...outerPoints];
-          case 'edge': return [...outerPoints, ...middlePoints];
-          case 'groundcover': return [...outerPoints, ...middlePoints, ...innerPoints];
-          default: return [...middlePoints];
+          case 'middle': return [...middlePoints, ...innerPoints, ...outerPoints.slice(0, 15)];
+          case 'front': return [...outerPoints, ...middlePoints, ...edgePoints];
+          case 'edge': return [...edgePoints, ...outerPoints];
+          case 'groundcover': return [...edgePoints, ...outerPoints, ...middlePoints, ...validPoints]; // Fill ALL gaps
+          default: return [...middlePoints, ...validPoints];
         }
       } else {
         // Rectangle bed: use Y position for back-to-front
@@ -683,13 +695,13 @@ export default function StudioPage() {
           [...points].sort((a, b) => desc ? b.y - a.y : a.y - b.y);
 
         switch (normalizedRole) {
-          case 'focal': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.2));
-          case 'back': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.3));
-          case 'topiary': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.4));
-          case 'middle': return validPoints.slice(Math.floor(validPoints.length * 0.3), Math.floor(validPoints.length * 0.7));
-          case 'front': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.4));
-          case 'edge': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.3));
-          case 'groundcover': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.4));
+          case 'focal': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.25));
+          case 'back': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.40));
+          case 'topiary': return sortByY(validPoints, true).slice(0, Math.floor(validPoints.length * 0.45));
+          case 'middle': return validPoints.slice(Math.floor(validPoints.length * 0.25), Math.floor(validPoints.length * 0.75));
+          case 'front': return sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.50));
+          case 'edge': return [...edgePoints, ...sortByY(validPoints, false).slice(0, Math.floor(validPoints.length * 0.40))];
+          case 'groundcover': return [...edgePoints, ...validPoints]; // Fill ALL gaps including edges
           default: return [...validPoints];
         }
       }
@@ -778,6 +790,59 @@ export default function StudioPage() {
         }
       }
     });
+
+    // GAP-FILLING PASS: Fill remaining empty areas with groundcover
+    // Find groundcover/carpet plants from the bundle
+    const carpetPlants = plantsList.filter(p => p.role === 'carpet' || p.role === 'groundcover');
+    if (carpetPlants.length > 0) {
+      const primaryCarpet = carpetPlants[0];
+      const carpetPlantData = ALL_PLANTS.find(p => p.id === primaryCarpet.plantId);
+
+      if (carpetPlantData) {
+        // Find unused points that are far from any placed plant
+        const unusedPoints = validPoints.filter(point => {
+          const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
+          if (usedPoints.has(pointKey)) return false;
+
+          // Check distance from nearest placed plant
+          const minDist = newPlants.reduce((min, plant) => {
+            const dist = Math.sqrt(Math.pow(plant.x - point.x, 2) + Math.pow(plant.y - point.y, 2));
+            return Math.min(min, dist);
+          }, Infinity);
+
+          return minDist > 25; // Only fill gaps larger than 25px
+        });
+
+        // Add carpet plants to fill gaps (up to 30% of unused points)
+        const fillCount = Math.min(Math.floor(unusedPoints.length * 0.4), 50);
+        shuffle(unusedPoints);
+
+        for (let i = 0; i < fillCount; i++) {
+          const point = unusedPoints[i];
+          if (!point) continue;
+
+          const testPos = findValidPositionInBed(
+            point.x + (Math.random() - 0.5) * 10,
+            point.y + (Math.random() - 0.5) * 10,
+            primaryCarpet.plantId,
+            newPlants,
+            bedBounds,
+            useCustomPath ? customBedPath : null
+          );
+
+          if (testPos) {
+            newPlants.push({
+              id: `bundle-fill-${Date.now()}-${i}`,
+              plantId: primaryCarpet.plantId,
+              x: testPos.x,
+              y: testPos.y,
+              rotation: (Math.random() - 0.5) * 15,
+              scale: 0.85 + Math.random() * 0.15
+            });
+          }
+        }
+      }
+    }
 
     setPlacedPlants([...placedPlants, ...newPlants]);
     setSelectedBundle(bundle);

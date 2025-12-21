@@ -2,6 +2,8 @@
 // PLANT PACKAGE / BUNDLE SYSTEM
 // Theme-based landscape packages with swap logic for different conditions
 // Built for North GA / Gainesville (Zone 7b-8a) as default
+// UPDATED: All plant IDs now match plantDatabase.js exactly
+// UPDATED: Every bundle has complete facet coverage (trees, shrubs, perennials, groundcovers)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Package filters - every bundle should define these
@@ -14,9 +16,9 @@ export const PACKAGE_FILTERS = {
 
 // Plant roles in every package
 export const PLANT_ROLES = {
-  HERO: 'hero',           // 1-3 signature plants that sell the theme
-  STRUCTURE: 'structure', // Evergreen backbone
-  SEASONAL: 'seasonal',   // Bloom sequence / seasonal color
+  HERO: 'hero',           // 1-3 signature plants that sell the theme (trees/large shrubs)
+  STRUCTURE: 'structure', // Evergreen backbone (shrubs)
+  SEASONAL: 'seasonal',   // Bloom sequence / seasonal color (perennials/flowering shrubs)
   TEXTURE: 'texture',     // Grasses/perennials for movement
   CARPET: 'carpet'        // Groundcover / edge layer
 };
@@ -54,7 +56,7 @@ export const INVASIVE_WARNINGS = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// THEME PACKAGES
+// THEME PACKAGES - ALL WITH COMPLETE FACET COVERAGE
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const PLANT_BUNDLES = [
@@ -78,45 +80,43 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'tea-olive-15gal', quantity: 1, role: 'hero', note: 'Signature fragrance' },
-        { plantId: 'dogwood-2in', quantity: 1, role: 'hero', note: 'Spring focal - Masters timing' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 5, role: 'hero', note: 'Signature color mass' },
-        { plantId: 'magnolia-southern-10ft', quantity: 1, role: 'hero', note: 'Grand statement' }
+        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'Grand statement tree' },
+        { plantId: 'dogwood', quantity: 2, role: 'hero', note: 'Spring focal - Masters timing' },
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Specimen focal' },
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer blooms' }
       ],
       structure: [
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' },
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 6, role: 'structure' },
-        { plantId: 'cleyera', quantity: 3, role: 'structure' },
+        { plantId: 'tea-olive', quantity: 2, role: 'structure', note: 'Signature fragrance' },
+        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'structure', note: 'Evergreen screen' },
+        { plantId: 'boxwood-wintergreen', quantity: 8, role: 'structure' },
+        { plantId: 'cleyera', quantity: 4, role: 'structure' },
         { plantId: 'distylium-vintage-jade', quantity: 4, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 2, role: 'seasonal', note: 'Winter bloom' },
-        { plantId: 'camellia-japonica-7gal', quantity: 2, role: 'seasonal' },
-        { plantId: 'hydrangea-limelight', quantity: 3, role: 'seasonal' },
-        { plantId: 'gardenia-august-beauty-3gal', quantity: 2, role: 'seasonal' }
+        { plantId: 'azalea-encore-autumn-carnation', quantity: 8, role: 'seasonal', note: 'Signature color mass' },
+        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'seasonal', note: 'Winter bloom' },
+        { plantId: 'camellia-japonica', quantity: 3, role: 'seasonal' },
+        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal' },
+        { plantId: 'gardenia-august-beauty', quantity: 3, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink-1gal', quantity: 5, role: 'texture', note: 'Fall pink clouds' },
-        { plantId: 'muhly-grass-white-cloud-1gal', quantity: 3, role: 'texture' }
+        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'Fall pink clouds' },
+        { plantId: 'muhly-grass-white', quantity: 5, role: 'texture' },
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
+        { plantId: 'carex-everillo', quantity: 6, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet', note: 'Flat coverage' },
-        { plantId: 'fern-autumn-3gal', quantity: 6, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet', note: 'Primary groundcover' },
+        { plantId: 'liriope-variegated', quantity: 1, role: 'carpet' },
+        { plantId: 'pachysandra', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       cold: {
         condition: 'Zone 6-7 / Exposed sites',
         changes: [
-          { remove: 'tea-olive-15gal', add: 'osmanthus-fortunei-tea-olive-15gal', reason: 'More cold hardy' },
-          { remove: 'gardenia-august-beauty-3gal', add: 'camellia-sasanqua-hot-flash', reason: 'Better cold tolerance' }
-        ]
-      },
-      nandinaFree: {
-        condition: 'Client wants nandina-free design',
-        changes: [
-          { remove: 'nandina', add: 'distylium-vintage-jade', reason: 'Similar form, non-invasive' },
-          { remove: 'nandina-blush-pink', add: 'loropetalum-purple-pixie', reason: 'Colorful alternative' }
+          { remove: 'tea-olive', add: 'holly-nellie-stevens', reason: 'More cold hardy' },
+          { remove: 'gardenia-august-beauty', add: 'camellia-sasanqua-hot-flash', reason: 'Better cold tolerance' }
         ]
       }
     },
@@ -144,35 +144,41 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-natchez-2.5in', quantity: 1, role: 'hero', note: 'White summer blooms' },
-        { plantId: 'hydrangea-limelight', quantity: 2, role: 'hero' },
-        { plantId: 'rose-knock-out-double-red', quantity: 4, role: 'hero', note: 'Continuous color' }
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'White summer blooms' },
+        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Spring flowering tree' },
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'Early spring color' },
+        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'hero', note: 'Evergreen backdrop' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 8, role: 'structure', note: 'Foundation hedge' },
-        { plantId: 'holly-sky-pencil-7gal', quantity: 2, role: 'structure', note: 'Vertical accents' },
-        { plantId: 'gardenia-frostproof-3gal', quantity: 3, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'Foundation hedge' },
+        { plantId: 'holly-sky-pencil', quantity: 3, role: 'structure', note: 'Vertical accents' },
+        { plantId: 'gardenia-frostproof', quantity: 4, role: 'structure' },
+        { plantId: 'loropetalum-purple-pixie', quantity: 4, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'rose-coral-drift', quantity: 4, role: 'seasonal' },
-        { plantId: 'rose-pink-drift', quantity: 4, role: 'seasonal' }
+        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal' },
+        { plantId: 'rose-knock-out', quantity: 6, role: 'seasonal', note: 'Continuous color' },
+        { plantId: 'rose-drift-coral', quantity: 5, role: 'seasonal' },
+        { plantId: 'rose-drift-pink', quantity: 5, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'karl-foerster', quantity: 3, role: 'texture', note: 'Vertical grass accents' },
-        { plantId: 'muhly-grass-pink-1gal', quantity: 4, role: 'texture', note: 'Soft fall edge' }
+        { plantId: 'karl-foerster', quantity: 5, role: 'texture', note: 'Vertical grass accents' },
+        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Soft fall edge' },
+        { plantId: 'daylily-stella-doro', quantity: 8, role: 'texture' },
+        { plantId: 'hosta', quantity: 6, role: 'texture' }
       ],
       carpet: [
         { plantId: 'creeping-thyme', quantity: 1, role: 'carpet', note: 'Between stepping stones' },
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
+        { plantId: 'liriope-variegated', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       shade: {
         condition: 'Less than 4-5 hours sun',
         changes: [
-          { remove: 'rose-knock-out-double-red', add: 'hydrangea-endless-summer', reason: 'Shade tolerant blooms' },
-          { remove: 'rose-coral-drift', add: 'fern-autumn-1gal', reason: 'Texture for shade' },
-          { remove: 'rose-pink-drift', add: 'camellia-sasanqua-hot-flash', reason: 'Shade-loving color' }
+          { remove: 'rose-knock-out', add: 'hydrangea-endless-summer', reason: 'Shade tolerant blooms' },
+          { remove: 'rose-drift-coral', add: 'fern-autumn', reason: 'Texture for shade' }
         ]
       }
     },
@@ -200,40 +206,46 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'japanese-maple-bloodgood-6ft', quantity: 1, role: 'hero', note: 'Primary focal' },
-        { plantId: 'japanese-maple-coral-bark-6ft', quantity: 1, role: 'hero', note: 'Winter bark interest' },
-        { plantId: 'camellia-japonica-7gal', quantity: 2, role: 'hero' },
-        { plantId: 'azalea-encore-autumn-amethyst-7gal', quantity: 3, role: 'hero' }
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Primary focal' },
+        { plantId: 'japanese-maple-coral-bark', quantity: 1, role: 'hero', note: 'Winter bark interest' },
+        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'Spring blossoms' },
+        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'Evergreen structure' }
       ],
       structure: [
-        { plantId: 'holly-sky-pencil-7gal', quantity: 3, role: 'structure', note: 'Vertical evergreen' },
-        { plantId: 'holly-needlepoint', quantity: 2, role: 'structure' },
-        { plantId: 'cryptomeria-3gal', quantity: 2, role: 'structure' },
-        { plantId: 'hinoki-cypress-5ft', quantity: 1, role: 'structure' }
+        { plantId: 'holly-sky-pencil', quantity: 5, role: 'structure', note: 'Vertical evergreen' },
+        { plantId: 'holly-compacta', quantity: 4, role: 'structure' },
+        { plantId: 'nandina', quantity: 4, role: 'structure' },
+        { plantId: 'camellia-japonica', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 2, role: 'seasonal' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 4, role: 'seasonal' }
+        { plantId: 'azalea-encore-autumn-amethyst', quantity: 6, role: 'seasonal' },
+        { plantId: 'azalea-encore-autumn-carnation', quantity: 6, role: 'seasonal' },
+        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'seasonal' },
+        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'Near water features' }
       ],
       texture: [
-        { plantId: 'fern-autumn-3gal', quantity: 4, role: 'texture' },
-        { plantId: 'fern-japanese-painted', quantity: 3, role: 'texture' },
-        { plantId: 'fern-holly', quantity: 3, role: 'texture' }
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
+        { plantId: 'fern-japanese-painted', quantity: 6, role: 'texture' },
+        { plantId: 'fern-holly', quantity: 5, role: 'texture' },
+        { plantId: 'hosta', quantity: 8, role: 'texture' },
+        { plantId: 'carex', quantity: 6, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 2, role: 'carpet', note: 'Primary groundcover' }
+        { plantId: 'mondo-grass', quantity: 3, role: 'carpet', note: 'Primary groundcover' },
+        { plantId: 'pachysandra', quantity: 1, role: 'carpet' },
+        { plantId: 'creeping-mazus', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       hot: {
         condition: 'Full sun / hot sites',
         changes: [
-          { remove: 'japanese-maple-bloodgood-6ft', add: 'cryptomeria-10ft', reason: 'Heat tolerant focal' },
-          { remove: 'japanese-maple-coral-bark-6ft', add: 'holly-sky-pencil-7gal', reason: 'Vertical without scorch' }
+          { remove: 'japanese-maple-bloodgood', add: 'cryptomeria-radicans', reason: 'Heat tolerant focal' }
         ]
       }
     },
     finishNotes: 'Decomposed granite or pea gravel paths. Natural boulders. Raked gravel beds optional. Minimal color - structure dominates.',
+    invasiveWarnings: ['nandina'],
     inspirationSource: 'EPCOT Japan Pavilion'
   },
 
@@ -257,35 +269,41 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 12, role: 'hero', note: 'Hedge structure' },
-        { plantId: 'hydrangea-endless-summer', quantity: 3, role: 'hero' },
-        { plantId: 'rose-knock-out-double-red', quantity: 4, role: 'hero' }
+        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'Late spring blooms' },
+        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer color' },
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Fragrant focal' },
+        { plantId: 'redbud-forest-pansy', quantity: 1, role: 'hero', note: 'Purple foliage' }
       ],
       structure: [
-        { plantId: 'yew-podocarpus-plum-pine-7gal', quantity: 3, role: 'structure', note: 'Hedge mass' },
-        { plantId: 'holly-sky-pencil-7gal', quantity: 2, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 14, role: 'structure', note: 'Hedge structure' },
+        { plantId: 'holly-sky-pencil', quantity: 4, role: 'structure' },
+        { plantId: 'yew-podocarpus', quantity: 4, role: 'structure', note: 'Hedge mass' }
       ],
       seasonal: [
-        { plantId: 'lavender-phenomenal', quantity: 5, role: 'seasonal' },
-        { plantId: 'catmint-walkers-low', quantity: 6, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 5, role: 'seasonal' },
-        { plantId: 'peony-2gal', quantity: 2, role: 'seasonal', note: 'Where zone allows' },
-        { plantId: 'daisy-shasta-becky', quantity: 4, role: 'seasonal' }
+        { plantId: 'hydrangea-endless-summer', quantity: 5, role: 'seasonal' },
+        { plantId: 'rose-knock-out', quantity: 6, role: 'seasonal' },
+        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal' },
+        { plantId: 'catmint-walkers-low', quantity: 8, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'peony', quantity: 3, role: 'seasonal', note: 'Where zone allows' },
+        { plantId: 'daisy-shasta-becky', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'karl-foerster', quantity: 3, role: 'texture' }
+        { plantId: 'karl-foerster', quantity: 5, role: 'texture' },
+        { plantId: 'lamb-ear', quantity: 6, role: 'texture' },
+        { plantId: 'russian-sage', quantity: 5, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-phlox', quantity: 1, role: 'carpet' },
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet' },
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       deer: {
         condition: 'High deer pressure',
         changes: [
-          { remove: 'rose-knock-out-double-red', add: 'boxwood-wintergreen-3gal', reason: 'Deer resistant' },
-          { remove: 'hosta', add: 'distylium-vintage-jade', reason: 'Deer resistant foliage' }
+          { remove: 'rose-knock-out', add: 'boxwood-wintergreen', reason: 'Deer resistant' }
         ]
       }
     },
@@ -313,27 +331,33 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'rosemary-1gal', quantity: 3, role: 'hero', note: 'Culinary + ornamental' },
-        { plantId: 'lavender-phenomenal', quantity: 5, role: 'hero' },
-        { plantId: 'vitex-shoal-creek-15gal', quantity: 1, role: 'hero', note: 'Summer blue spikes' },
-        { plantId: 'holly-sky-pencil-7gal', quantity: 4, role: 'hero', note: 'Italian cypress substitute' }
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer statement' },
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Summer blue spikes' },
+        { plantId: 'arborvitae-emerald-green', quantity: 2, role: 'hero', note: 'Italian cypress substitute' },
+        { plantId: 'blue-atlas-cedar-horstmann', quantity: 1, role: 'hero', note: 'Specimen' }
       ],
       structure: [
-        { plantId: 'tea-olive-7gal', quantity: 2, role: 'structure' },
-        { plantId: 'juniper-blue-pacific', quantity: 4, role: 'structure' },
-        { plantId: 'juniper-blue-star-3gal', quantity: 3, role: 'structure' }
+        { plantId: 'holly-sky-pencil', quantity: 6, role: 'structure', note: 'Italian cypress substitute' },
+        { plantId: 'tea-olive', quantity: 2, role: 'structure' },
+        { plantId: 'juniper-blue-pacific', quantity: 6, role: 'structure' },
+        { plantId: 'juniper-blue-star', quantity: 4, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'rose-coral-drift', quantity: 3, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 4, role: 'seasonal' }
+        { plantId: 'rosemary', quantity: 6, role: 'seasonal', note: 'Culinary + ornamental' },
+        { plantId: 'lavender-phenomenal', quantity: 10, role: 'seasonal' },
+        { plantId: 'rose-drift-coral', quantity: 5, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'cone-flower', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'blue-fescue', quantity: 6, role: 'texture', note: 'Silver-blue clumps' },
-        { plantId: 'sedum-autumn-joy', quantity: 4, role: 'texture' },
-        { plantId: 'sedum-angelina', quantity: 1, role: 'texture', note: 'Golden groundcover' }
+        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Silver-blue clumps' },
+        { plantId: 'sedum-autumn-joy', quantity: 6, role: 'texture' },
+        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture' },
+        { plantId: 'karl-foerster', quantity: 4, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' },
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'Golden groundcover' },
         { plantId: 'rosemary-creeping', quantity: 1, role: 'carpet' }
       ]
     },
@@ -341,7 +365,7 @@ export const PLANT_BUNDLES = [
       cold: {
         condition: 'Zone 7 or colder',
         changes: [
-          { remove: 'rosemary-1gal', add: 'juniper-blue-star-3gal', reason: 'More cold hardy' },
+          { remove: 'rosemary', add: 'juniper-blue-star', reason: 'More cold hardy' },
           { remove: 'lavender-phenomenal', add: 'catmint-walkers-low', reason: 'Lavender substitute' }
         ]
       }
@@ -370,25 +394,33 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'wax-myrtle', quantity: 2, role: 'hero', note: 'Native coastal shrub' },
-        { plantId: 'holly-dwarf-yaupon', quantity: 4, role: 'hero' },
-        { plantId: 'juniper-blue-rug', quantity: 6, role: 'hero' },
-        { plantId: 'juniper-blue-pacific', quantity: 4, role: 'hero' }
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Native coastal tree' },
+        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer blooms' },
+        { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'Wet-tolerant focal' },
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Multi-stem specimen' }
       ],
       structure: [
-        { plantId: 'holly-inkberry', quantity: 3, role: 'structure' },
-        { plantId: 'juniper-parsonii', quantity: 3, role: 'structure' }
+        { plantId: 'wax-myrtle', quantity: 3, role: 'structure', note: 'Native coastal shrub' },
+        { plantId: 'holly-yaupon-dwarf', quantity: 6, role: 'structure' },
+        { plantId: 'holly-inkberry', quantity: 4, role: 'structure' },
+        { plantId: 'juniper-parsonii', quantity: 4, role: 'structure' },
+        { plantId: 'juniper-blue-rug', quantity: 8, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'northern-sea-oaks', quantity: 5, role: 'seasonal', note: 'Native oat grass' }
+        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal', note: 'Native blooms' },
+        { plantId: 'gardenia-jubilation', quantity: 3, role: 'seasonal' },
+        { plantId: 'iris', quantity: 8, role: 'seasonal', note: 'Wet-tolerant color' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink-3gal', quantity: 6, role: 'texture', note: 'Fall pink clouds' },
-        { plantId: 'muhly-grass-white-cloud-3gal', quantity: 4, role: 'texture' },
-        { plantId: 'sweet-flag-grass', quantity: 4, role: 'texture', note: 'Wet pocket accents' }
+        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'Fall pink clouds' },
+        { plantId: 'muhly-grass-white', quantity: 6, role: 'texture' },
+        { plantId: 'northern-sea-oaks', quantity: 8, role: 'texture', note: 'Native oat grass' },
+        { plantId: 'sweet-flag-grass', quantity: 6, role: 'texture', note: 'Wet pocket accents' }
       ],
       carpet: [
-        { plantId: 'asiatic-jasmine', quantity: 1, role: 'carpet', note: 'FLAG: Aggressive - manage edges' }
+        { plantId: 'asiatic-jasmine', quantity: 2, role: 'carpet', note: 'FLAG: Aggressive - manage edges' },
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
+        { plantId: 'bar-harbor-juniper', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
@@ -425,34 +457,42 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'cone-flower-1gal', quantity: 8, role: 'hero', note: 'Pollinator magnet' },
-        { plantId: 'black-eyed-susan', quantity: 8, role: 'hero' },
-        { plantId: 'yarrow-1gal', quantity: 5, role: 'hero' }
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'Native spring blooms' },
+        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Native understory' },
+        { plantId: 'black-tupelo', quantity: 1, role: 'hero', note: 'Fall color' },
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Multi-season interest' }
       ],
       structure: [
-        { plantId: 'holly-inkberry', quantity: 2, role: 'structure', note: 'Only if clean edge needed' }
+        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'Native evergreen' },
+        { plantId: 'viburnum-spring-bouquet', quantity: 3, role: 'structure' },
+        { plantId: 'oakleaf-hydrangea', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'salvia-may-night', quantity: 4, role: 'seasonal' },
-        { plantId: 'salvia-blue-hill', quantity: 4, role: 'seasonal' },
-        { plantId: 'bee-balm-petite-delight', quantity: 3, role: 'seasonal' }
+        { plantId: 'cone-flower', quantity: 12, role: 'seasonal', note: 'Pollinator magnet' },
+        { plantId: 'black-eyed-susan', quantity: 12, role: 'seasonal' },
+        { plantId: 'yarrow', quantity: 8, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'salvia-blue-hill', quantity: 6, role: 'seasonal' },
+        { plantId: 'bee-balm', quantity: 5, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink-3gal', quantity: 6, role: 'texture' },
-        { plantId: 'karl-foerster', quantity: 4, role: 'texture' },
-        { plantId: 'purple-lovegrass', quantity: 4, role: 'texture' }
+        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture' },
+        { plantId: 'karl-foerster', quantity: 6, role: 'texture' },
+        { plantId: 'purple-lovegrass', quantity: 6, role: 'texture' },
+        { plantId: 'little-bluestem', quantity: 6, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       shade: {
         condition: 'Part shade areas',
         changes: [
-          { remove: 'cone-flower-1gal', add: 'fern-autumn-1gal', reason: 'Shade tolerant texture' },
-          { remove: 'black-eyed-susan', add: 'hydrangea-oakleaf-7gal', reason: 'Native shade bloomer' },
-          { add: 'carex-everillo', quantity: 6, reason: 'Shade-loving grass' }
+          { remove: 'cone-flower', add: 'fern-autumn', reason: 'Shade tolerant texture' },
+          { remove: 'black-eyed-susan', add: 'hydrangea-oakleaf', reason: 'Native shade bloomer' }
         ]
       }
     },
@@ -480,24 +520,32 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'sweet-flag-grass', quantity: 6, role: 'hero', note: 'Loves wet feet' },
-        { plantId: 'carex-1gal', quantity: 8, role: 'hero' },
-        { plantId: 'iris', quantity: 6, role: 'hero', note: 'Wet-tolerant blooms' }
+        { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'Wet-tolerant focal' },
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Tolerates wet feet' },
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Wet-tolerant' },
+        { plantId: 'black-tupelo', quantity: 1, role: 'hero', note: 'Fall color' }
       ],
       structure: [
-        { plantId: 'wax-myrtle', quantity: 2, role: 'structure', note: 'Tolerates wet' },
-        { plantId: 'river-birch-heritage-8ft', quantity: 1, role: 'structure', note: 'Where space allows' }
+        { plantId: 'wax-myrtle', quantity: 3, role: 'structure', note: 'Tolerates wet' },
+        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'Wet tolerant native' },
+        { plantId: 'clethra', quantity: 3, role: 'structure', note: 'Summersweet' },
+        { plantId: 'itea-virginia', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'calla-lillies', quantity: 4, role: 'seasonal' },
-        { plantId: 'astilbe-fanal', quantity: 4, role: 'seasonal' }
+        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'Wet-tolerant blooms' },
+        { plantId: 'calla-lily', quantity: 6, role: 'seasonal' },
+        { plantId: 'astilbe', quantity: 6, role: 'seasonal' },
+        { plantId: 'lobelia-cardinal', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'northern-sea-oaks', quantity: 4, role: 'texture' },
-        { plantId: 'muhly-grass-pink-1gal', quantity: 4, role: 'texture', note: 'Edge - drier zone' }
+        { plantId: 'sweet-flag-grass', quantity: 10, role: 'texture', note: 'Loves wet feet' },
+        { plantId: 'carex', quantity: 10, role: 'texture' },
+        { plantId: 'northern-sea-oaks', quantity: 6, role: 'texture' },
+        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Edge - drier zone' }
       ],
       carpet: [
-        { plantId: 'creeping-jenny', quantity: 1, role: 'carpet', note: 'Wet-tolerant spreader' }
+        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'Wet-tolerant spreader' },
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' }
       ]
     },
     swaps: {},
@@ -529,33 +577,39 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'rose-coral-drift', quantity: 4, role: 'hero' },
-        { plantId: 'rose-red-drift', quantity: 4, role: 'hero' },
-        { plantId: 'salvia-may-night', quantity: 5, role: 'hero' }
+        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer color' },
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Blue spikes' },
+        { plantId: 'pomegranate', quantity: 1, role: 'hero', note: 'Fruiting accent' }
       ],
       structure: [
-        { plantId: 'tea-olive-3gal', quantity: 2, role: 'structure' },
-        { plantId: 'juniper-blue-pacific', quantity: 3, role: 'structure' },
-        { plantId: 'nandina', quantity: 3, role: 'structure', note: 'FLAG: Invasive - get approval' }
+        { plantId: 'tea-olive', quantity: 2, role: 'structure' },
+        { plantId: 'juniper-blue-pacific', quantity: 4, role: 'structure' },
+        { plantId: 'nandina', quantity: 4, role: 'structure', note: 'FLAG: Invasive - get approval' },
+        { plantId: 'loropetalum-plum-delight', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'cone-flower-cheyenne-spirit', quantity: 4, role: 'seasonal' },
-        { plantId: 'yarrow-1gal', quantity: 4, role: 'seasonal' }
+        { plantId: 'rose-drift-coral', quantity: 6, role: 'seasonal' },
+        { plantId: 'rose-drift-red', quantity: 6, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'cone-flower-cheyenne-spirit', quantity: 6, role: 'seasonal' },
+        { plantId: 'yarrow', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'blue-fescue', quantity: 5, role: 'texture' }
+        { plantId: 'blue-fescue', quantity: 8, role: 'texture' },
+        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture' },
+        { plantId: 'mexican-feather-grass', quantity: 8, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet' },
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       shade: {
         condition: 'Shaded courtyard',
         changes: [
-          { remove: 'rose-coral-drift', add: 'fern-autumn-1gal', reason: 'Shade texture' },
-          { remove: 'rose-red-drift', add: 'camellia-sasanqua-hot-flash', reason: 'Shade color' }
+          { remove: 'rose-drift-coral', add: 'fern-autumn', reason: 'Shade texture' }
         ]
       }
     },
@@ -584,36 +638,39 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'dwarf-alberta', quantity: 2, role: 'hero', note: 'Alpine conifer' },
-        { plantId: 'hinoki-cypress-5ft', quantity: 1, role: 'hero' },
-        { plantId: 'cryptomeria-10ft', quantity: 1, role: 'hero' },
-        { plantId: 'canadian-hemlock-7ft', quantity: 1, role: 'hero' }
+        { plantId: 'arborvitae-emerald-green', quantity: 3, role: 'hero', note: 'Alpine conifer' },
+        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero' },
+        { plantId: 'blue-atlas-cedar', quantity: 1, role: 'hero', note: 'Specimen conifer' },
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'White bark' }
       ],
       structure: [
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' },
-        { plantId: 'juniper-blue-star-3gal', quantity: 3, role: 'structure' }
+        { plantId: 'holly-compacta', quantity: 6, role: 'structure' },
+        { plantId: 'juniper-blue-star', quantity: 5, role: 'structure' },
+        { plantId: 'yew-podocarpus', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-limelight', quantity: 2, role: 'seasonal', note: 'White blooms' },
-        { plantId: 'gardenia-august-beauty-3gal', quantity: 2, role: 'seasonal' },
-        { plantId: 'iris', quantity: 4, role: 'seasonal', note: 'Near water features' }
+        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal', note: 'White blooms' },
+        { plantId: 'gardenia-august-beauty', quantity: 3, role: 'seasonal' },
+        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'Near water features' },
+        { plantId: 'astilbe', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'carex-everillo', quantity: 6, role: 'texture' },
-        { plantId: 'sweet-flag-grass', quantity: 4, role: 'texture' },
-        { plantId: 'fern-autumn-1gal', quantity: 4, role: 'texture' },
-        { plantId: 'fern-holly', quantity: 3, role: 'texture' }
+        { plantId: 'carex-everillo', quantity: 8, role: 'texture' },
+        { plantId: 'sweet-flag-grass', quantity: 6, role: 'texture' },
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
+        { plantId: 'fern-holly', quantity: 6, role: 'texture' },
+        { plantId: 'hosta', quantity: 8, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
+        { plantId: 'pachysandra', quantity: 2, role: 'carpet' }
       ]
     },
     swaps: {
       hot: {
         condition: 'Zone 9-10 heat',
         changes: [
-          { remove: 'canadian-hemlock-7ft', add: 'cryptomeria-10ft', reason: 'Heat tolerant' },
-          { remove: 'dwarf-alberta', add: 'holly-sky-pencil-7gal', reason: 'Heat tolerant vertical' }
+          { remove: 'river-birch', add: 'cryptomeria-radicans', reason: 'Heat tolerant' }
         ]
       }
     },
@@ -641,35 +698,40 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'peony-2gal', quantity: 3, role: 'hero', note: 'Traditional symbol' },
-        { plantId: 'camellia-japonica-7gal', quantity: 2, role: 'hero' },
-        { plantId: 'chinese-snowball-viburnum-15gal', quantity: 1, role: 'hero' }
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Specimen tree' },
+        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'Spring blossoms' },
+        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'Grand focal' },
+        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'Evergreen structure' }
       ],
       structure: [
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' },
-        { plantId: 'cleyera', quantity: 3, role: 'structure' },
-        { plantId: 'distylium-vintage-jade', quantity: 4, role: 'structure' }
+        { plantId: 'holly-compacta', quantity: 6, role: 'structure' },
+        { plantId: 'cleyera', quantity: 4, role: 'structure' },
+        { plantId: 'distylium-vintage-jade', quantity: 5, role: 'structure' },
+        { plantId: 'camellia-japonica', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 2, role: 'seasonal' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 4, role: 'seasonal' }
+        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'Traditional symbol' },
+        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'seasonal' },
+        { plantId: 'azalea-encore-autumn-carnation', quantity: 6, role: 'seasonal' },
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'texture' },
-        { plantId: 'fern-autumn-1gal', quantity: 4, role: 'texture' },
-        { plantId: 'carex-1gal', quantity: 4, role: 'texture' },
-        { plantId: 'muhly-grass-pink-1gal', quantity: 3, role: 'texture', note: 'Sunny outer ring' }
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
+        { plantId: 'carex', quantity: 8, role: 'texture' },
+        { plantId: 'hosta', quantity: 10, role: 'texture' },
+        { plantId: 'muhly-grass-pink', quantity: 5, role: 'texture', note: 'Sunny outer ring' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 3, role: 'carpet' },
+        { plantId: 'pachysandra', quantity: 1, role: 'carpet' },
+        { plantId: 'liriope-variegated', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       shade: {
         condition: 'Deep shade',
         changes: [
-          { remove: 'muhly-grass-pink-1gal', add: 'fern-holly', reason: 'Shade tolerant' },
-          { add: 'sweet-flag-grass', quantity: 4, reason: 'Wet shade accent' }
+          { remove: 'muhly-grass-pink', add: 'fern-holly', reason: 'Shade tolerant' }
         ]
       }
     },
@@ -697,35 +759,39 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 10, role: 'hero', note: 'Formal hedge' },
-        { plantId: 'spirea-gold-flame', quantity: 3, role: 'hero' },
-        { plantId: 'weigela', quantity: 2, role: 'hero' }
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer statement' },
+        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'Spring interest' },
+        { plantId: 'hornbeam-american', quantity: 1, role: 'hero', note: 'Fall color' }
       ],
       structure: [
-        { plantId: 'yew-japanese-plum', quantity: 3, role: 'structure' },
-        { plantId: 'holly-sky-pencil-7gal', quantity: 2, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 14, role: 'structure', note: 'Formal hedge' },
+        { plantId: 'holly-sky-pencil', quantity: 4, role: 'structure' },
+        { plantId: 'yew-podocarpus', quantity: 4, role: 'structure' },
+        { plantId: 'spirea-goldflame', quantity: 5, role: 'structure' },
+        { plantId: 'weigela', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'catmint-walkers-low', quantity: 6, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 5, role: 'seasonal' },
-        { plantId: 'daisy-shasta-becky', quantity: 4, role: 'seasonal' },
-        { plantId: 'cone-flower-1gal', quantity: 4, role: 'seasonal' },
-        { plantId: 'yarrow-1gal', quantity: 4, role: 'seasonal' }
+        { plantId: 'catmint-walkers-low', quantity: 8, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'daisy-shasta-becky', quantity: 6, role: 'seasonal' },
+        { plantId: 'cone-flower', quantity: 6, role: 'seasonal' },
+        { plantId: 'yarrow', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'karl-foerster', quantity: 4, role: 'texture', note: 'Tidy verticals' },
-        { plantId: 'hamlin-grass-3gal', quantity: 3, role: 'texture' }
+        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Tidy verticals' },
+        { plantId: 'hamlin-grass', quantity: 5, role: 'texture' },
+        { plantId: 'lamb-ear', quantity: 8, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       lowMaintenance: {
         condition: 'Reduce perennial maintenance',
         changes: [
-          { remove: 'daisy-shasta-becky', add: 'boxwood-wintergreen-3gal', reason: 'Less deadheading' },
-          { remove: 'cone-flower-1gal', add: 'distylium-vintage-jade', reason: 'Evergreen mass' }
+          { remove: 'daisy-shasta-becky', add: 'boxwood-wintergreen', reason: 'Less deadheading' }
         ]
       }
     },
@@ -753,34 +819,37 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'rose-knock-out-double-red', quantity: 6, role: 'hero', note: 'National flower' },
-        { plantId: 'rose-coral-drift', quantity: 4, role: 'hero' },
-        { plantId: 'dogwood-2in', quantity: 1, role: 'hero' },
-        { plantId: 'redbud-2in', quantity: 1, role: 'hero' }
+        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Native flowering tree' },
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'Spring color' },
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer blooms' },
+        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'hero', note: 'Evergreen backdrop' }
       ],
       structure: [
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' },
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 6, role: 'structure' },
-        { plantId: 'wax-myrtle', quantity: 2, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure' },
+        { plantId: 'holly-compacta', quantity: 6, role: 'structure' },
+        { plantId: 'wax-myrtle', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-limelight', quantity: 3, role: 'seasonal' },
-        { plantId: 'hydrangea-little-lime', quantity: 2, role: 'seasonal' }
+        { plantId: 'rose-knock-out', quantity: 8, role: 'seasonal', note: 'National flower' },
+        { plantId: 'rose-drift-coral', quantity: 6, role: 'seasonal' },
+        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal' },
+        { plantId: 'hydrangea-little-lime', quantity: 3, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'fern-autumn-1gal', quantity: 4, role: 'texture' },
-        { plantId: 'hosta-1gal', quantity: 4, role: 'texture', note: 'Check deer pressure' }
+        { plantId: 'fern-autumn', quantity: 6, role: 'texture' },
+        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'Check deer pressure' },
+        { plantId: 'daylily-stella-doro', quantity: 8, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'liriope-variegated-1gal', quantity: 1, role: 'carpet', note: 'FLAG: Check invasive list' }
+        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'FLAG: Check invasive list' },
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' }
       ]
     },
     swaps: {
       deer: {
         condition: 'High deer pressure',
         changes: [
-          { remove: 'hosta-1gal', add: 'distylium-vintage-jade', reason: 'Deer resistant' },
-          { remove: 'rose-knock-out-double-red', add: 'holly-hoogendorn', reason: 'Deer resistant' }
+          { remove: 'hosta', add: 'distylium-vintage-jade', reason: 'Deer resistant' }
         ]
       }
     },
@@ -809,34 +878,38 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'rose-knock-out-double-red', quantity: 4, role: 'hero', note: 'Damask rose vibe' },
-        { plantId: 'climbing-rose-peggy-martin', quantity: 1, role: 'hero', note: 'Climbing accent' },
-        { plantId: 'tea-olive-7gal', quantity: 2, role: 'hero', note: 'Fragrance' },
-        { plantId: 'gardenia-jubilation', quantity: 2, role: 'hero', note: 'Fragrance' }
+        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer blooms' },
+        { plantId: 'pomegranate', quantity: 1, role: 'hero', note: 'Fruiting focal' },
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Blue spikes' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 8, role: 'structure', note: 'Geometric hedging' },
-        { plantId: 'holly-hoogendorn', quantity: 3, role: 'structure' },
-        { plantId: 'juniper-blue-star-3gal', quantity: 2, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'Geometric hedging' },
+        { plantId: 'holly-compacta', quantity: 4, role: 'structure' },
+        { plantId: 'juniper-blue-star', quantity: 4, role: 'structure' },
+        { plantId: 'tea-olive', quantity: 2, role: 'structure', note: 'Fragrance' }
       ],
       seasonal: [
-        { plantId: 'lavender-phenomenal', quantity: 4, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 4, role: 'seasonal' },
-        { plantId: 'yarrow-1gal', quantity: 3, role: 'seasonal' }
+        { plantId: 'rose-knock-out', quantity: 6, role: 'seasonal', note: 'Damask rose vibe' },
+        { plantId: 'gardenia-jubilation', quantity: 3, role: 'seasonal', note: 'Fragrance' },
+        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
+        { plantId: 'yarrow', quantity: 5, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'blue-fescue', quantity: 4, role: 'texture' }
+        { plantId: 'blue-fescue', quantity: 8, role: 'texture' },
+        { plantId: 'rosemary', quantity: 5, role: 'texture' },
+        { plantId: 'lamb-ear', quantity: 6, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       shade: {
         condition: 'Shaded courtyard',
         changes: [
-          { remove: 'rose-knock-out-double-red', add: 'camellia-japonica-7gal', reason: 'Shade blooms' },
-          { remove: 'lavender-phenomenal', add: 'fern-autumn-1gal', reason: 'Shade texture' }
+          { remove: 'rose-knock-out', add: 'camellia-japonica', reason: 'Shade blooms' }
         ]
       }
     },
@@ -864,32 +937,36 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'boxwood-wintergreen-3gal', quantity: 14, role: 'hero', note: 'Parterre structure' },
-        { plantId: 'holly-sky-pencil-7gal', quantity: 4, role: 'hero', note: 'Vertical accents' },
-        { plantId: 'lavender-phenomenal', quantity: 6, role: 'hero' }
+        { plantId: 'crape-myrtle-muskogee', quantity: 1, role: 'hero', note: 'Lavender blooms' },
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Fragrant focal' },
+        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'Spring interest' }
       ],
       structure: [
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' }
+        { plantId: 'boxwood-wintergreen', quantity: 18, role: 'structure', note: 'Parterre structure' },
+        { plantId: 'holly-sky-pencil', quantity: 6, role: 'structure', note: 'Vertical accents' },
+        { plantId: 'holly-compacta', quantity: 6, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'rose-pink-drift', quantity: 5, role: 'seasonal' },
-        { plantId: 'peony-2gal', quantity: 2, role: 'seasonal' },
-        { plantId: 'hydrangea-endless-summer', quantity: 3, role: 'seasonal' }
+        { plantId: 'lavender-phenomenal', quantity: 12, role: 'seasonal' },
+        { plantId: 'rose-drift-pink', quantity: 6, role: 'seasonal' },
+        { plantId: 'peony', quantity: 4, role: 'seasonal' },
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'catmint-walkers-low', quantity: 6, role: 'texture', note: 'Lavender ally' },
-        { plantId: 'salvia-may-night', quantity: 4, role: 'texture' }
+        { plantId: 'catmint-walkers-low', quantity: 10, role: 'texture', note: 'Lavender ally' },
+        { plantId: 'salvia-may-night', quantity: 6, role: 'texture' },
+        { plantId: 'russian-sage', quantity: 5, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet' }
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
+        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       humid: {
         condition: 'Humid/shady sites',
         changes: [
-          { remove: 'lavender-phenomenal', add: 'catmint-walkers-low', reason: 'Better in humidity' },
-          { add: 'rosemary-1gal', quantity: 3, reason: 'Mediterranean alternative' }
+          { remove: 'lavender-phenomenal', add: 'catmint-walkers-low', reason: 'Better in humidity' }
         ]
       }
     },
@@ -917,35 +994,39 @@ export const PLANT_BUNDLES = [
     },
     plants: {
       hero: [
-        { plantId: 'maple-october-glory-3in', quantity: 1, role: 'hero', note: 'Fall color focal' },
-        { plantId: 'maple-legacy-sugar-2in', quantity: 1, role: 'hero' },
-        { plantId: 'river-birch-heritage-8ft', quantity: 1, role: 'hero' },
-        { plantId: 'serviceberry-autumn-brilliance-2in', quantity: 1, role: 'hero' }
+        { plantId: 'maple-october-glory', quantity: 1, role: 'hero', note: 'Fall color focal' },
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'White bark' },
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Multi-season' },
+        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'Evergreen backdrop' }
       ],
       structure: [
-        { plantId: 'canadian-hemlock-7ft', quantity: 2, role: 'structure', note: 'Site dependent' },
-        { plantId: 'cryptomeria-10ft', quantity: 1, role: 'structure' },
-        { plantId: 'holly-hoogendorn', quantity: 4, role: 'structure' }
+        { plantId: 'holly-compacta', quantity: 6, role: 'structure' },
+        { plantId: 'viburnum-spring-bouquet', quantity: 4, role: 'structure' },
+        { plantId: 'holly-inkberry', quantity: 4, role: 'structure' },
+        { plantId: 'clethra', quantity: 3, role: 'structure' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-oakleaf-7gal', quantity: 2, role: 'seasonal' }
+        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal' },
+        { plantId: 'azalea-encore-autumn-amethyst', quantity: 6, role: 'seasonal' },
+        { plantId: 'astilbe', quantity: 6, role: 'seasonal' }
       ],
       texture: [
-        { plantId: 'fern-autumn-3gal', quantity: 6, role: 'texture' },
-        { plantId: 'fern-christmas', quantity: 4, role: 'texture' },
-        { plantId: 'hosta-1gal', quantity: 6, role: 'texture', note: 'Check deer' },
-        { plantId: 'carex-1gal', quantity: 4, role: 'texture' }
+        { plantId: 'fern-autumn', quantity: 10, role: 'texture' },
+        { plantId: 'fern-christmas', quantity: 6, role: 'texture' },
+        { plantId: 'hosta', quantity: 10, role: 'texture', note: 'Check deer' },
+        { plantId: 'carex', quantity: 8, role: 'texture' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
+        { plantId: 'pachysandra', quantity: 2, role: 'carpet' },
+        { plantId: 'creeping-jenny', quantity: 1, role: 'carpet' }
       ]
     },
     swaps: {
       hot: {
         condition: 'Hot/dry or exposed',
         changes: [
-          { remove: 'canadian-hemlock-7ft', add: 'holly-hoogendorn', reason: 'Heat tolerant' },
-          { remove: 'maple-legacy-sugar-2in', add: 'maple-october-glory-3in', reason: 'Better heat tolerance' }
+          { remove: 'fern-autumn', add: 'muhly-grass-pink', reason: 'Heat tolerant' }
         ]
       }
     },
