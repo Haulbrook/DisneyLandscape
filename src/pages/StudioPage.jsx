@@ -9,6 +9,19 @@ import {
   PenTool, Square
 } from 'lucide-react';
 
+// Import plant database with size variants
+import {
+  ALL_PLANTS,
+  SIZE_MULTIPLIERS,
+  getPlantSizes,
+  getSizeMultiplier,
+  GRASSES,
+  GROUND_COVERS,
+  PERENNIALS,
+  SHRUBS,
+  TREES
+} from '../data/plantDatabase';
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // DISNEY LANDSCAPE RULES - The Non-Negotiable Standards
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -34,10 +47,6 @@ const DISNEY_RULES = {
   }
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// DISNEY PLANT DATABASE - Curated Species Collection
-// ═══════════════════════════════════════════════════════════════════════════════
-
 // USDA Hardiness Zones reference
 const HARDINESS_ZONES = [
   { zone: 3, minTemp: '-40 to -30°F', label: 'Zone 3' },
@@ -51,112 +60,14 @@ const HARDINESS_ZONES = [
   { zone: 11, minTemp: '40 to 50°F', label: 'Zone 11' },
 ];
 
+// Plant categories mapped from new database
 const PLANT_DATABASE = {
-  // FOCAL POINTS - The "Weenies" (Trees)
-  focal: [
-    { id: 'crape-myrtle', name: 'Crape Myrtle', height: '15-25ft', spread: '15-20ft', color: '#E91E63', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Main Street USA focal trees', zones: [6, 7, 8, 9, 10] },
-    { id: 'japanese-maple', name: 'Japanese Maple', height: '15-25ft', spread: '15-20ft', color: '#C62828', bloomTime: 'Spring foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍁', category: 'focal', disneyUse: 'Japan Pavilion, Fantasyland', zones: [5, 6, 7, 8, 9] },
-    { id: 'magnolia-south', name: 'Southern Magnolia', height: '60-80ft', spread: '30-40ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'focal', disneyUse: 'Augusta National, grand entrances', zones: [6, 7, 8, 9, 10] },
-    { id: 'live-oak', name: 'Live Oak', height: '40-80ft', spread: '60-100ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌳', category: 'focal', disneyUse: 'Liberty Square, shade canopy', zones: [7, 8, 9, 10, 11] },
-    { id: 'redbud', name: 'Eastern Redbud', height: '20-30ft', spread: '25-35ft', color: '#E91E63', bloomTime: 'Early Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Spring color, native beauty', zones: [4, 5, 6, 7, 8, 9] },
-    { id: 'dogwood', name: 'Flowering Dogwood', height: '15-30ft', spread: '15-30ft', color: '#FFFFFF', bloomTime: 'Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Augusta National, understory elegance', zones: [5, 6, 7, 8, 9] },
-    { id: 'yoshino-cherry', name: 'Yoshino Cherry', height: '25-35ft', spread: '25-35ft', color: '#FFB6C1', bloomTime: 'Early Spring', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Augusta National, spring spectacle', zones: [5, 6, 7, 8] },
-    { id: 'kwanzan-cherry', name: 'Kwanzan Cherry', height: '25-30ft', spread: '25-30ft', color: '#FF69B4', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'focal', disneyUse: 'Double pink blooms, showstopper', zones: [5, 6, 7, 8, 9] },
-    { id: 'loblolly-pine', name: 'Loblolly Pine', height: '60-90ft', spread: '25-35ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌲', category: 'focal', disneyUse: 'Augusta National backdrop, Georgia native', zones: [6, 7, 8, 9] },
-    { id: 'willow-oak', name: 'Willow Oak', height: '40-60ft', spread: '30-40ft', color: '#558B2F', bloomTime: 'Deciduous', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌳', category: 'focal', disneyUse: 'Fast-growing shade tree', zones: [5, 6, 7, 8, 9] },
-    { id: 'sweetbay-magnolia', name: 'Sweetbay Magnolia', height: '15-35ft', spread: '15-25ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Full-Part Sun', waterReq: 'High', icon: '🌺', category: 'focal', disneyUse: 'Smaller magnolia, wet areas OK', zones: [5, 6, 7, 8, 9, 10] },
-    { id: 'river-birch', name: 'River Birch', height: '40-70ft', spread: '40-60ft', color: '#8D6E63', bloomTime: 'Deciduous', sunReq: 'Full Sun', waterReq: 'High', icon: '🌳', category: 'focal', disneyUse: 'Peeling bark, multi-stem beauty', zones: [4, 5, 6, 7, 8, 9] },
-  ],
-
-  // TOPIARIES - Signature Shapes
-  topiary: [
-    { id: 'spiral-juniper', name: 'Spiral Juniper', height: '6-8ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌀', category: 'topiary', shape: 'spiral', disneyUse: 'Formal garden accents', zones: [4, 5, 6, 7, 8, 9] },
-    { id: 'ball-boxwood', name: 'Ball Boxwood', height: '2-4ft', spread: '2-4ft', color: '#33691E', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '⚫', category: 'topiary', shape: 'ball', disneyUse: 'EPCOT topiaries, formal beds', zones: [5, 6, 7, 8, 9] },
-    { id: 'cone-arborvitae', name: 'Cone Arborvitae', height: '10-15ft', spread: '3-4ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🔺', category: 'topiary', shape: 'cone', disneyUse: 'Formal entrances, vertical accent', zones: [3, 4, 5, 6, 7, 8] },
-    { id: 'pom-pom-juniper', name: 'Pom Pom Juniper', height: '4-6ft', spread: '2-3ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full Sun', waterReq: 'Low', icon: '🎄', category: 'topiary', shape: 'pom-pom', disneyUse: 'Whimsical gardens, Fantasyland', zones: [4, 5, 6, 7, 8, 9] },
-    { id: 'yew-topiary', name: 'Yew Topiary', height: '4-8ft', spread: '3-5ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'topiary', shape: 'various', disneyUse: 'Classic formal hedging', zones: [4, 5, 6, 7] },
-    { id: 'holly-sky-pencil', name: "Sky Pencil Holly", height: '6-10ft', spread: '1-2ft', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '📍', category: 'topiary', shape: 'columnar', disneyUse: 'Narrow vertical accent', zones: [6, 7, 8, 9] },
-  ],
-
-  // BACK ROW - Tall Structure (Shrubs)
-  back: [
-    { id: 'holly-nellie', name: "Holly 'Nellie Stevens'", height: '15-25ft', spread: '8-12ft', color: '#1B5E20', bloomTime: 'Evergreen + berries', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌲', category: 'back', disneyUse: 'Privacy screening, winter interest', zones: [6, 7, 8, 9] },
-    { id: 'camellia', name: 'Camellia japonica', height: '6-12ft', spread: '6-10ft', color: '#E91E63', bloomTime: 'Winter-Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌷', category: 'back', disneyUse: 'Augusta National, elegant winter blooms', zones: [7, 8, 9, 10] },
-    { id: 'azalea-encore', name: "Azalea 'Encore'", height: '4-5ft', spread: '4-5ft', color: '#EC407A', bloomTime: 'Spring + Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Mass color, reblooming', zones: [6, 7, 8, 9, 10] },
-    { id: 'azalea-formosa', name: "Azalea 'Formosa'", height: '6-8ft', spread: '6-8ft', color: '#E91E63', bloomTime: 'Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Augusta National signature, magenta blooms', zones: [7, 8, 9] },
-    { id: 'azalea-george-tabor', name: "Azalea 'George Tabor'", height: '6-8ft', spread: '6-8ft', color: '#FFB6C1', bloomTime: 'Spring', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💮', category: 'back', disneyUse: 'Augusta National, light pink orchid blooms', zones: [7, 8, 9] },
-    { id: 'loropetalum', name: 'Loropetalum', height: '6-10ft', spread: '6-10ft', color: '#880E4F', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Purple foliage contrast', zones: [7, 8, 9, 10] },
-    { id: 'hydrangea', name: 'Hydrangea macrophylla', height: '3-6ft', spread: '3-6ft', color: '#7986CB', bloomTime: 'Summer', sunReq: 'Part Shade', waterReq: 'High', icon: '💠', category: 'back', disneyUse: 'Big mophead blooms, shade tolerant', zones: [5, 6, 7, 8, 9] },
-    { id: 'hydrangea-oakleaf', name: 'Oakleaf Hydrangea', height: '4-8ft', spread: '4-8ft', color: '#FFFFFF', bloomTime: 'Summer', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '💠', category: 'back', disneyUse: 'Georgia native, fall color, texture', zones: [5, 6, 7, 8, 9] },
-    { id: 'viburnum', name: 'Viburnum', height: '6-12ft', spread: '6-12ft', color: '#FFFFFF', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Wildlife friendly, 4-season', zones: [4, 5, 6, 7, 8] },
-    { id: 'lilac', name: 'Lilac', height: '8-15ft', spread: '6-12ft', color: '#9C27B0', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '💜', category: 'back', disneyUse: 'Fragrant spring blooms', zones: [3, 4, 5, 6, 7] },
-    { id: 'tea-olive', name: 'Tea Olive (Osmanthus)', height: '10-15ft', spread: '6-8ft', color: '#FFFFFF', bloomTime: 'Fall-Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌼', category: 'back', disneyUse: 'Incredibly fragrant, Southern classic', zones: [7, 8, 9, 10] },
-    { id: 'gardenia', name: 'Gardenia', height: '4-8ft', spread: '4-8ft', color: '#FFFFFF', bloomTime: 'Spring-Summer', sunReq: 'Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'back', disneyUse: 'Intensely fragrant white blooms', zones: [7, 8, 9, 10, 11] },
-    { id: 'cleyera', name: 'Cleyera', height: '8-10ft', spread: '4-6ft', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌿', category: 'back', disneyUse: 'Glossy foliage, versatile hedge', zones: [7, 8, 9, 10] },
-    { id: 'fatsia', name: 'Fatsia japonica', height: '6-10ft', spread: '6-10ft', color: '#2E7D32', bloomTime: 'Fall', sunReq: 'Shade', waterReq: 'Moderate', icon: '🌿', category: 'back', disneyUse: 'Bold tropical foliage, deep shade', zones: [7, 8, 9, 10] },
-    { id: 'nandina', name: 'Nandina (Heavenly Bamboo)', height: '4-8ft', spread: '3-5ft', color: '#C62828', bloomTime: 'Evergreen + berries', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🎋', category: 'back', disneyUse: 'Red foliage, winter berries', zones: [6, 7, 8, 9, 10] },
-  ],
-
-  // MIDDLE ROW - Color Workhorses
-  middle: [
-    { id: 'knockout-rose', name: 'Knockout Rose', height: '3-4ft', spread: '3-4ft', color: '#D32F2F', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌹', category: 'middle', disneyUse: 'Continuous color, low maintenance', zones: [5, 6, 7, 8, 9, 10] },
-    { id: 'drift-rose', name: 'Drift Rose', height: '1-2ft', spread: '2-3ft', color: '#FF69B4', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌹', category: 'middle', disneyUse: 'Groundcover rose, disease resistant', zones: [5, 6, 7, 8, 9, 10] },
-    { id: 'blue-salvia', name: 'Blue Salvia', height: '2-3ft', spread: '2ft', color: '#1565C0', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Vertical blue spikes', zones: [5, 6, 7, 8, 9, 10, 11] },
-    { id: 'lantana', name: 'Lantana', height: '2-4ft', spread: '3-4ft', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'middle', disneyUse: 'Heat tolerant color', zones: [7, 8, 9, 10, 11] },
-    { id: 'rudbeckia', name: 'Black-Eyed Susan', height: '2-3ft', spread: '1-2ft', color: '#FFC107', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌻', category: 'middle', disneyUse: 'Native charm, golden blooms', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'daylily', name: 'Daylily', height: '1-3ft', spread: '1-2ft', color: '#FF5722', bloomTime: 'Summer', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'middle', disneyUse: 'Reliable perennial, many colors', zones: [3, 4, 5, 6, 7, 8, 9, 10] },
-    { id: 'coneflower', name: 'Purple Coneflower', height: '2-4ft', spread: '1-2ft', color: '#9C27B0', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'middle', disneyUse: 'Native pollinator magnet', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'catmint', name: 'Catmint', height: '1-3ft', spread: '2-3ft', color: '#7986CB', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '💜', category: 'middle', disneyUse: 'Lavender-like, deer resistant', zones: [3, 4, 5, 6, 7, 8] },
-    { id: 'sedum', name: 'Sedum (Stonecrop)', height: '1-2ft', spread: '1-2ft', color: '#E91E63', bloomTime: 'Late Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'middle', disneyUse: 'Succulent texture, drought proof', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'coreopsis', name: 'Coreopsis', height: '1-2ft', spread: '1-2ft', color: '#FFD700', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'middle', disneyUse: 'Georgia state wildflower, golden', zones: [4, 5, 6, 7, 8, 9] },
-    { id: 'salvia-guaranitica', name: "Salvia 'Black & Blue'", height: '3-5ft', spread: '2-3ft', color: '#1A237E', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '💜', category: 'middle', disneyUse: 'Deep blue spikes, hummingbirds', zones: [7, 8, 9, 10] },
-    { id: 'butterfly-bush', name: 'Butterfly Bush', height: '4-8ft', spread: '4-6ft', color: '#7B1FA2', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🦋', category: 'middle', disneyUse: 'Butterfly magnet, fragrant', zones: [5, 6, 7, 8, 9] },
-    { id: 'muhly-grass', name: 'Pink Muhly Grass', height: '3-4ft', spread: '3-4ft', color: '#E91E63', bloomTime: 'Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌾', category: 'middle', disneyUse: 'Pink clouds in fall, native', zones: [6, 7, 8, 9, 10] },
-    { id: 'fountain-grass', name: 'Fountain Grass', height: '2-4ft', spread: '2-3ft', color: '#8D6E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌾', category: 'middle', disneyUse: 'Graceful plumes, movement', zones: [5, 6, 7, 8, 9] },
-    { id: 'indian-hawthorn', name: 'Indian Hawthorn', height: '3-5ft', spread: '3-5ft', color: '#FFB6C1', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'middle', disneyUse: 'Compact evergreen, pink blooms', zones: [7, 8, 9, 10] },
-  ],
-
-  // FRONT ROW - Edging & Mass Color
-  front: [
-    { id: 'petunia', name: 'Petunia', height: '6-12in', spread: '12-18in', color: '#9C27B0', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌺', category: 'front', disneyUse: 'Mass annual color', zones: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'begonia', name: 'Begonia', height: '8-12in', spread: '8-12in', color: '#F44336', bloomTime: 'Spring-Fall', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Shade tolerant color', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'impatiens', name: 'Impatiens', height: '8-12in', spread: '10-12in', color: '#E91E63', bloomTime: 'Spring-Fall', sunReq: 'Shade', waterReq: 'High', icon: '💐', category: 'front', disneyUse: 'Dense shade color', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'marigold', name: 'Marigold', height: '6-18in', spread: '6-12in', color: '#FF9800', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌼', category: 'front', disneyUse: 'Bold orange/yellow, pest deterrent', zones: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'vinca', name: 'Vinca (Annual)', height: '6-12in', spread: '12-18in', color: '#E91E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Heat/drought tolerant annual', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'coleus', name: 'Coleus', height: '12-24in', spread: '12-18in', color: '#880E4F', bloomTime: 'Foliage', sunReq: 'Part Shade', waterReq: 'Moderate', icon: '🍂', category: 'front', disneyUse: 'Dramatic foliage patterns', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'pansy', name: 'Pansy', height: '6-9in', spread: '9-12in', color: '#7B1FA2', bloomTime: 'Fall-Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Cool season color', zones: [4, 5, 6, 7, 8] },
-    { id: 'dianthus', name: 'Dianthus', height: '6-12in', spread: '6-12in', color: '#E91E63', bloomTime: 'Spring-Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Fragrant, cottage style', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'dusty-miller', name: 'Dusty Miller', height: '6-12in', spread: '8-12in', color: '#B0BEC5', bloomTime: 'Foliage', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌿', category: 'front', disneyUse: 'Silver foliage contrast', zones: [3, 4, 5, 6, 7, 8, 9, 10] },
-    { id: 'sweet-potato-vine', name: 'Sweet Potato Vine', height: '6-12in', spread: '24-36in', color: '#7CB342', bloomTime: 'Foliage', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🍠', category: 'front', disneyUse: 'Lime/purple trailing foliage', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'zinnia', name: 'Zinnia', height: '12-36in', spread: '12-18in', color: '#E91E63', bloomTime: 'Summer-Fall', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'front', disneyUse: 'Cut flower garden, butterflies', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-    { id: 'snapdragon', name: 'Snapdragon', height: '12-36in', spread: '6-12in', color: '#FF5722', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Vertical color spikes, cool season', zones: [4, 5, 6, 7, 8, 9, 10] },
-    { id: 'geranium', name: 'Geranium', height: '12-24in', spread: '12-24in', color: '#D32F2F', bloomTime: 'Spring-Fall', sunReq: 'Full Sun', waterReq: 'Moderate', icon: '🌸', category: 'front', disneyUse: 'Classic container/bedding', zones: [3, 4, 5, 6, 7, 8, 9, 10, 11] },
-  ],
-
-  // GROUND COVER - Full Coverage Heroes
-  groundcover: [
-    { id: 'liriope', name: 'Liriope', height: '10-12in', spread: '12-18in', color: '#4CAF50', bloomTime: 'Summer spikes', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Augusta National edging, tough', zones: [5, 6, 7, 8, 9, 10] },
-    { id: 'mondo-grass', name: 'Mondo Grass', height: '6-8in', spread: '8-12in', color: '#2E7D32', bloomTime: 'Evergreen', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '🌱', category: 'groundcover', disneyUse: 'Dense carpet, shade', zones: [6, 7, 8, 9, 10] },
-    { id: 'dwarf-mondo', name: 'Dwarf Mondo Grass', height: '2-4in', spread: '6-8in', color: '#1B5E20', bloomTime: 'Evergreen', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '🌱', category: 'groundcover', disneyUse: 'Between stepping stones, tight spaces', zones: [6, 7, 8, 9, 10] },
-    { id: 'asiatic-jasmine', name: 'Asiatic Jasmine', height: '6-12in', spread: 'spreading', color: '#388E3C', bloomTime: 'Evergreen', sunReq: 'Full-Part Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Rapid coverage', zones: [7, 8, 9, 10, 11] },
-    { id: 'pachysandra', name: 'Pachysandra', height: '6-8in', spread: 'spreading', color: '#43A047', bloomTime: 'Evergreen', sunReq: 'Shade', waterReq: 'Moderate', icon: '☘️', category: 'groundcover', disneyUse: 'Shade groundcover', zones: [4, 5, 6, 7, 8] },
-    { id: 'creeping-phlox', name: 'Creeping Phlox', height: '4-6in', spread: '24in', color: '#E91E63', bloomTime: 'Spring', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌸', category: 'groundcover', disneyUse: 'Spring carpet of color', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'ajuga', name: 'Ajuga (Bugleweed)', height: '4-6in', spread: 'spreading', color: '#3F51B5', bloomTime: 'Spring', sunReq: 'Part-Full Shade', waterReq: 'Moderate', icon: '💜', category: 'groundcover', disneyUse: 'Purple foliage, blue flowers', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'vinca-minor', name: 'Vinca minor (Periwinkle)', height: '4-6in', spread: 'spreading', color: '#7986CB', bloomTime: 'Spring', sunReq: 'Part-Full Shade', waterReq: 'Low', icon: '💜', category: 'groundcover', disneyUse: 'Blue flowers, shade spreader', zones: [4, 5, 6, 7, 8, 9] },
-    { id: 'sedum-groundcover', name: 'Sedum (Groundcover)', height: '2-4in', spread: 'spreading', color: '#8BC34A', bloomTime: 'Summer', sunReq: 'Full Sun', waterReq: 'Low', icon: '🌿', category: 'groundcover', disneyUse: 'Succulent carpet, rock gardens', zones: [3, 4, 5, 6, 7, 8, 9] },
-    { id: 'confederate-jasmine', name: 'Confederate Jasmine', height: '6-12in', spread: 'spreading/climbing', color: '#FFFFFF', bloomTime: 'Spring', sunReq: 'Full-Part Sun', waterReq: 'Moderate', icon: '🌼', category: 'groundcover', disneyUse: 'Fragrant white flowers, versatile', zones: [7, 8, 9, 10, 11] },
-  ]
+  grasses: GRASSES,
+  groundcovers: GROUND_COVERS,
+  perennials: PERENNIALS,
+  shrubs: SHRUBS,
+  trees: TREES
 };
-
-// Flatten for easy access
-const ALL_PLANTS = [
-  ...PLANT_DATABASE.focal,
-  ...PLANT_DATABASE.topiary,
-  ...PLANT_DATABASE.back,
-  ...PLANT_DATABASE.middle,
-  ...PLANT_DATABASE.front,
-  ...PLANT_DATABASE.groundcover
-];
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BED BUNDLE TEMPLATES - Pre-Designed Professional Packages
@@ -277,6 +188,9 @@ export default function StudioPage() {
   // Hardiness zone filter
   const [selectedZone, setSelectedZone] = useState(7); // Default to Zone 7
 
+  // Size variant selection - tracks selected size for each plant that has multiple sizes
+  const [plantSizeSelections, setPlantSizeSelections] = useState({});
+
   // Plant attribute filters
   const [sunFilter, setSunFilter] = useState('all'); // 'all', 'Full Sun', 'Part Shade', 'Shade', 'Full-Part Sun'
   const [waterFilter, setWaterFilter] = useState('all'); // 'all', 'Low', 'Moderate', 'High'
@@ -325,13 +239,27 @@ export default function StudioPage() {
     setCoveragePercent(coverage);
   }, [placedPlants, bedDimensions, bedType, customBedPath]);
 
+  // Helper function to get selected size for a plant
+  const getSelectedSize = (plantId) => {
+    return plantSizeSelections[plantId] || (ALL_PLANTS.find(p => p.id === plantId)?.sizes?.[0]) || '3gal';
+  };
+
+  // Helper to update size selection for a plant
+  const handleSizeChange = (plantId, newSize) => {
+    setPlantSizeSelections(prev => ({ ...prev, [plantId]: newSize }));
+  };
+
   // Filter plants based on search, category, hardiness zone, and attributes
   const filteredPlants = ALL_PLANTS.filter(plant => {
     const matchesSearch = plant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         plant.disneyUse.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || plant.category === categoryFilter;
-    const matchesZone = plant.zones && plant.zones.includes(selectedZone);
-    const matchesSun = sunFilter === 'all' || plant.sunReq.includes(sunFilter.replace('Full-Part', 'Full-Part'));
+                         (plant.botanicalName && plant.botanicalName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (plant.description && plant.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Match against dbCategory for new plants (grasses, groundcovers, perennials, shrubs, trees)
+    const matchesCategory = categoryFilter === 'all' ||
+                           plant.dbCategory === categoryFilter ||
+                           plant.category === categoryFilter;
+    const matchesZone = !plant.zones || plant.zones.includes(selectedZone);
+    const matchesSun = sunFilter === 'all' || (plant.sunReq && plant.sunReq.includes(sunFilter));
     const matchesWater = waterFilter === 'all' || plant.waterReq === waterFilter;
     const matchesColor = colorFilter === 'all' || plant.color === colorFilter;
     return matchesSearch && matchesCategory && matchesZone && matchesSun && matchesWater && matchesColor;
@@ -361,13 +289,18 @@ export default function StudioPage() {
       if (!isPointInPath(x, y, customBedPath)) return;
     }
 
+    const selectedSize = getSelectedSize(selectedPlant.id);
+    const sizeMultiplier = getSizeMultiplier(selectedSize);
+
     const newPlant = {
       id: `placed-${Date.now()}`,
       plantId: selectedPlant.id,
       x,
       y,
       rotation: 0,
-      scale: 1
+      scale: 1,
+      size: selectedSize, // Store the selected container size
+      sizeMultiplier: sizeMultiplier // Store the size multiplier for rendering
     };
 
     setPlacedPlants([...placedPlants, newPlant]);
@@ -574,6 +507,25 @@ export default function StudioPage() {
       setPlacedPlants(placedPlants.filter(p => p.id !== selectedPlacedPlant));
       setSelectedPlacedPlant(null);
     }
+  };
+
+  // Change size of a placed plant
+  const changePlacedPlantSize = (plantId, newSize) => {
+    const sizeMultiplier = getSizeMultiplier(newSize);
+    setPlacedPlants(placedPlants.map(p =>
+      p.id === plantId
+        ? { ...p, size: newSize, sizeMultiplier: sizeMultiplier }
+        : p
+    ));
+  };
+
+  // Get available sizes for currently selected placed plant
+  const getSelectedPlantSizes = () => {
+    if (!selectedPlacedPlant) return [];
+    const placed = placedPlants.find(p => p.id === selectedPlacedPlant);
+    if (!placed) return [];
+    const plantData = ALL_PLANTS.find(p => p.id === placed.plantId);
+    return plantData?.sizes || ['3gal'];
   };
 
   // Get bounding box of custom bed path
@@ -897,7 +849,27 @@ export default function StudioPage() {
   };
 
   // Get plant sizes for rendering - returns icon size and mature spread in inches
-  const getPlantSizes = (plantId) => {
+  const getPlantSizesWithMultiplier = (plantId, sizeMultiplier) => {
+    const plant = ALL_PLANTS.find(p => p.id === plantId);
+    if (!plant) return { iconSize: 20, matureSpread: 12 };
+
+    const matureSpread = parseSpreadToInches(plant.spread);
+
+    // Apply size multiplier from container size
+    const spreadMultiplier = sizeMultiplier?.spreadMult || 0.5;
+    const iconMultiplier = sizeMultiplier?.iconScale || 0.5;
+
+    // Adjusted spread based on container size (smaller container = less mature)
+    const adjustedSpread = matureSpread * spreadMultiplier;
+
+    // Icon size is a fraction of adjusted spread for visual clarity
+    const iconSize = Math.max(8, Math.min(60, adjustedSpread * 0.4 * (1 + iconMultiplier)));
+
+    return { iconSize, matureSpread: adjustedSpread };
+  };
+
+  // Legacy function for backward compatibility
+  const getPlantSizesLegacy = (plantId) => {
     const plant = ALL_PLANTS.find(p => p.id === plantId);
     if (!plant) return { iconSize: 20, matureSpread: 12 };
 
@@ -1353,53 +1325,112 @@ export default function StudioPage() {
 
               {/* Category Filter */}
               <div className="px-4 py-3 border-b border-sage-100 flex flex-wrap gap-2">
-                {['all', 'focal', 'topiary', 'back', 'middle', 'front', 'groundcover'].map(cat => (
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'trees', label: 'Trees' },
+                  { key: 'shrubs', label: 'Shrubs' },
+                  { key: 'perennials', label: 'Perennials' },
+                  { key: 'grasses', label: 'Grasses' },
+                  { key: 'groundcovers', label: 'Ground Cover' }
+                ].map(cat => (
                   <button
-                    key={cat}
-                    onClick={() => setCategoryFilter(cat)}
+                    key={cat.key}
+                    onClick={() => setCategoryFilter(cat.key)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      categoryFilter === cat
+                      categoryFilter === cat.key
                         ? 'bg-sage-500 text-white'
                         : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
                     }`}
                   >
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    {cat.label}
                   </button>
                 ))}
               </div>
 
               {/* Plant List */}
               <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                {filteredPlants.map(plant => (
-                  <button
-                    key={plant.id}
-                    onClick={() => setSelectedPlant(plant)}
-                    className={`w-full text-left p-3 rounded-xl transition-all ${
-                      selectedPlant?.id === plant.id
-                        ? 'bg-sage-100 border-2 border-sage-500 ring-2 ring-sage-500/20'
-                        : 'bg-cream-50 border border-sage-100 hover:bg-sage-50 hover:border-sage-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                        style={{ backgroundColor: plant.color + '30' }}
+                {filteredPlants.map(plant => {
+                  const hasSizes = plant.sizes && plant.sizes.length > 1;
+                  const selectedSize = getSelectedSize(plant.id);
+                  const sizeMultiplier = getSizeMultiplier(selectedSize);
+
+                  return (
+                    <div
+                      key={plant.id}
+                      className={`w-full text-left rounded-xl transition-all ${
+                        selectedPlant?.id === plant.id
+                          ? 'bg-sage-100 border-2 border-sage-500 ring-2 ring-sage-500/20'
+                          : 'bg-cream-50 border border-sage-100 hover:bg-sage-50 hover:border-sage-200'
+                      }`}
+                    >
+                      {/* Main plant button */}
+                      <button
+                        onClick={() => setSelectedPlant(plant)}
+                        className="w-full text-left p-3"
                       >
-                        {plant.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sage-900 truncate">{plant.name}</div>
-                        <div className="text-xs text-sage-500 truncate">
-                          {plant.height} • Zones {plant.zones ? `${Math.min(...plant.zones)}-${Math.max(...plant.zones)}` : 'N/A'}
+                        <div className="flex items-center gap-3">
+                          {/* Plant icon - size scales with selected container size */}
+                          <div
+                            className="rounded-lg flex items-center justify-center transition-all"
+                            style={{
+                              backgroundColor: plant.color + '30',
+                              width: `${24 + (sizeMultiplier?.iconScale || 0.5) * 24}px`,
+                              height: `${24 + (sizeMultiplier?.iconScale || 0.5) * 24}px`,
+                              fontSize: `${12 + (sizeMultiplier?.iconScale || 0.5) * 12}px`
+                            }}
+                          >
+                            {plant.icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sage-900 truncate">{plant.name}</div>
+                            <div className="text-xs text-sage-500 truncate">
+                              {plant.height} {hasSizes && `• ${selectedSize}`}
+                              {plant.zones && ` • Zones ${Math.min(...plant.zones)}-${Math.max(...plant.zones)}`}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {hasSizes && (
+                              <span className="text-xs bg-sage-200 text-sage-700 px-1.5 py-0.5 rounded-full">
+                                {plant.sizes.length} sizes
+                              </span>
+                            )}
+                            <div
+                              className="w-3 h-3 rounded-full ring-2 ring-sage-200"
+                              style={{ backgroundColor: plant.color }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div
-                        className="w-3 h-3 rounded-full ring-2 ring-sage-200"
-                        style={{ backgroundColor: plant.color }}
-                      />
+                      </button>
+
+                      {/* Size selector - shows for plants with multiple sizes */}
+                      {hasSizes && (
+                        <div
+                          className="px-3 pb-3 pt-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center gap-1 bg-sage-50 rounded-lg p-1">
+                            {plant.sizes.map((size, idx) => (
+                              <button
+                                key={size}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSizeChange(plant.id, size);
+                                }}
+                                className={`flex-1 px-2 py-1 text-xs rounded-md transition-all ${
+                                  selectedSize === size
+                                    ? 'bg-sage-500 text-white font-medium shadow-sm'
+                                    : 'text-sage-600 hover:bg-sage-200'
+                                }`}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Selected Plant Info - Collapsible */}
@@ -1608,15 +1639,44 @@ export default function StudioPage() {
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
-              {selectedPlacedPlant && (
-                <button
-                  onClick={deleteSelectedPlant}
-                  className="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
-                  title="Delete Selected"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
+              {selectedPlacedPlant && (() => {
+                const availableSizes = getSelectedPlantSizes();
+                const placedPlant = placedPlants.find(p => p.id === selectedPlacedPlant);
+                const currentSize = placedPlant?.size || availableSizes[0];
+                const plantData = ALL_PLANTS.find(p => p.id === placedPlant?.plantId);
+
+                return (
+                  <div className="flex items-center gap-2">
+                    {/* Size selector for placed plant */}
+                    {availableSizes.length > 1 && (
+                      <div className="flex items-center gap-1 bg-sage-50 rounded-lg p-1">
+                        <span className="text-xs text-sage-500 px-1">Size:</span>
+                        {availableSizes.map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => changePlacedPlantSize(selectedPlacedPlant, size)}
+                            className={`px-2 py-1 text-xs rounded-md transition-all ${
+                              currentSize === size
+                                ? 'bg-sage-500 text-white font-medium shadow-sm'
+                                : 'text-sage-600 hover:bg-sage-200'
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="w-px h-6 bg-sage-200 mx-1" />
+                    <button
+                      onClick={deleteSelectedPlant}
+                      className="p-2 rounded-lg bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
+                      title="Delete Selected"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="flex items-center gap-4">
@@ -1757,7 +1817,10 @@ export default function StudioPage() {
               {/* Placed Plants */}
               {placedPlants.map(plant => {
                 const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
-                const { iconSize, matureSpread } = getPlantSizes(plant.plantId);
+                // Use stored size multiplier if available, otherwise fall back to default
+                const { iconSize, matureSpread } = plant.sizeMultiplier
+                  ? getPlantSizesWithMultiplier(plant.plantId, plant.sizeMultiplier)
+                  : getPlantSizesLegacy(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
                 const isBeingDragged = draggingPlantId === plant.id;
 
@@ -1808,12 +1871,12 @@ export default function StudioPage() {
                       <span style={{ fontSize: iconPixels * 0.5 }}>{plantData?.icon}</span>
                     </div>
 
-                    {/* Selection ring */}
+                    {/* Selection ring - now shows size info */}
                     {isSelected && (
                       <>
                         <div className="absolute inset-0 rounded-full ring-4 ring-sage-500 ring-opacity-50" />
                         <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-sage-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-20">
-                          {plantData?.name} ({matureSpread}"spread)
+                          {plantData?.name} {plant.size && `(${plant.size})`} - {Math.round(matureSpread)}" spread
                         </div>
                       </>
                     )}

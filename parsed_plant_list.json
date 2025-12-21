@@ -1,0 +1,379 @@
+{
+  "plants_with_multiple_sizes": [
+    {
+      "base_name": "Liriope Variegated",
+      "category": "GRASSES",
+      "sizes": ["1 Gal", "4 Inch"]
+    },
+    {
+      "base_name": "Muhly Grass Pink",
+      "category": "GRASSES",
+      "sizes": ["1 Gal", "3 Gal"]
+    },
+    {
+      "base_name": "Muhly Grass White Cloud",
+      "category": "GRASSES",
+      "sizes": ["1 Gal", "3 Gal"]
+    },
+    {
+      "base_name": "Pachysandra",
+      "category": "GROUND COVERS",
+      "sizes": ["Flat", "4\" Pot"]
+    },
+    {
+      "base_name": "Phlox",
+      "category": "GROUND COVERS",
+      "sizes": ["1 Gal", "1 Gal (Blue)"]
+    },
+    {
+      "base_name": "Fern Autumn",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "3 Gal"]
+    },
+    {
+      "base_name": "Hamlin Grass",
+      "category": "GRASSES/PERENNIALS",
+      "sizes": ["3 Gal", "1 Gal"],
+      "note": "Appears in both GRASSES and PERENNIALS"
+    },
+    {
+      "base_name": "Lenten Rose",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 Gal (Pine Knot)"]
+    },
+    {
+      "base_name": "Peony",
+      "category": "PERENNIALS",
+      "sizes": ["2 Gal", "2 Gal (White)"]
+    },
+    {
+      "base_name": "Creeping Mazus",
+      "category": "GROUND COVERS/PERENNIALS",
+      "sizes": ["Flat", "1 Qt (Purple)"],
+      "note": "Appears in both categories"
+    },
+    {
+      "base_name": "Lavender",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 gal (English)", "1 Gal (Phenomenal)"]
+    },
+    {
+      "base_name": "Catmint",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 gal (Walker's Low)"]
+    },
+    {
+      "base_name": "Cone Flower",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 Gal (Cheyenne Spirit)"]
+    },
+    {
+      "base_name": "Daisy Shasta",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 Gal (Becky)"]
+    },
+    {
+      "base_name": "Hosta",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal", "1 Gal (Blue Angel)", "1 Gal (Guacamole)", "1 Gal (Patriot)"]
+    },
+    {
+      "base_name": "Salvia",
+      "category": "PERENNIALS",
+      "sizes": ["1 Gal (May Night)", "1 gal (Blue Hill)"]
+    },
+    {
+      "base_name": "Yarrow",
+      "category": "GROUND COVERS/PERENNIALS",
+      "sizes": ["No size specified", "1 Gal"],
+      "note": "Appears in both categories"
+    }
+  ],
+  "plants_with_single_size": [
+    {
+      "name": "Adagio",
+      "category": "GRASSES",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Blue Fescue",
+      "category": "GRASSES",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Carex Everillo",
+      "category": "GRASSES",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Karl Foerster Grass",
+      "category": "GRASSES",
+      "size": "Not specified"
+    },
+    {
+      "name": "Karley Rose",
+      "category": "GRASSES",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Maiden Grass",
+      "category": "GRASSES",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Mexican Feather Grass",
+      "category": "GRASSES",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Mondo Grass",
+      "category": "GRASSES",
+      "size": "Flat"
+    },
+    {
+      "name": "Northern Sea Oaks",
+      "category": "GRASSES",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Sweet Flag Grass",
+      "category": "GRASSES",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Zebra Grass",
+      "category": "GRASSES",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Asiatic Jasmine",
+      "category": "GROUND COVERS",
+      "size": "Not specified"
+    },
+    {
+      "name": "Bar Harbor Juniper",
+      "category": "GROUND COVERS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Creeping Thyme",
+      "category": "GROUND COVERS",
+      "size": "Not specified"
+    },
+    {
+      "name": "Ogon Sweetflag",
+      "category": "GROUND COVERS",
+      "size": "4\""
+    },
+    {
+      "name": "Sedum Angelina",
+      "category": "GROUND COVERS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Ajuga Chocolate Chip",
+      "category": "PERENNIALS",
+      "size": "4\" pot"
+    },
+    {
+      "name": "Astilbe Fanal",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Bee Balm Petite Delight",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Big Blue",
+      "category": "PERENNIALS",
+      "size": "Flat"
+    },
+    {
+      "name": "Blue Danube Stokesia",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Burgandy Lace Painted Fern",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Calla Lillies",
+      "category": "PERENNIALS",
+      "size": "Not specified"
+    },
+    {
+      "name": "Carex",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Cast Iron Plant",
+      "category": "PERENNIALS",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Cat's Pajamas",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Clematis Armandi",
+      "category": "PERENNIALS",
+      "size": "2 Gal"
+    },
+    {
+      "name": "Coral Bell",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Coreopsis Red Tickseed",
+      "category": "PERENNIALS",
+      "size": "1 gal"
+    },
+    {
+      "name": "Creeping Jenny",
+      "category": "PERENNIALS",
+      "size": "Flat"
+    },
+    {
+      "name": "Creeping Phlox",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Daffodils",
+      "category": "PERENNIALS",
+      "size": "Ea."
+    },
+    {
+      "name": "Denim n' Lace",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "English Ivy",
+      "category": "PERENNIALS",
+      "size": "Flat"
+    },
+    {
+      "name": "Fern Christmas",
+      "category": "PERENNIALS",
+      "size": "3 Gal"
+    },
+    {
+      "name": "Fern Japanese Painted",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Frans Hals Daylily",
+      "category": "PERENNIALS",
+      "size": "1G"
+    },
+    {
+      "name": "Geranium",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Giant Leopard Plant",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Happy Returns",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Holly Fern",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Iris",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Lambs Ear",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Ms Huff Lantana",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Pink Muhly Grass",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Pugster Pink Buddleia",
+      "category": "PERENNIALS",
+      "size": "3 gal"
+    },
+    {
+      "name": "Purple Lovegrass",
+      "category": "PERENNIALS",
+      "size": "Not specified"
+    },
+    {
+      "name": "Rosemary",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Russian Sage",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Saucer Magnolia",
+      "category": "PERENNIALS",
+      "size": "6'"
+    },
+    {
+      "name": "Sedum Autumn Joy",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Stella De Ore",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Stokesia Mel's Blue",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Veronica Georgia Blue",
+      "category": "PERENNIALS",
+      "size": "1 Gal"
+    },
+    {
+      "name": "Yellow Asiatic Lilly",
+      "category": "PERENNIALS",
+      "size": "2.5 Qt"
+    }
+  ],
+  "summary": {
+    "total_plants_with_multiple_sizes": 17,
+    "total_plants_with_single_size": 62,
+    "categories_analyzed": ["GRASSES", "GROUND COVERS", "PERENNIALS"],
+    "notes": [
+      "Some plants appear in multiple categories (Hamlin Grass, Creeping Mazus, Yarrow)",
+      "Some size variants are actually different cultivars of the same base plant (e.g., Hosta varieties, Lavender types)",
+      "SHRUBS and TREES sections were noted but not parsed as they contained placeholder text"
+    ]
+  }
+}
