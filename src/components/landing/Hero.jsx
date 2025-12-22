@@ -1,7 +1,21 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Flower2, Play, Sparkles } from 'lucide-react'
+import { Flower2, Play, Sparkles, User, LogOut, Crown, Settings } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { useSubscription } from '../../context/SubscriptionContext'
+import { AuthModal } from '../auth/AuthModal'
 
 export default function Hero() {
+  const { user, isAuthenticated, signOut } = useAuth()
+  const { isPro, hasFullAccess, getStatusMessage } = useSubscription()
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+
+  const handleSignOut = async () => {
+    await signOut()
+    setShowUserMenu(false)
+  }
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-cream-50 to-cream-100">
       {/* Decorative background elements */}
@@ -21,12 +35,87 @@ export default function Hero() {
         <div className="flex items-center gap-6">
           <a href="#features" className="text-sage-700 hover:text-sage-900 transition-colors">Features</a>
           <a href="#pricing" className="text-sage-700 hover:text-sage-900 transition-colors">Pricing</a>
-          <button className="text-sage-700 hover:text-sage-900 transition-colors">Sign In</button>
+          <Link to="/portfolio" className="text-sage-700 hover:text-sage-900 transition-colors">Portfolio</Link>
+
+          {isAuthenticated ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sage-100 transition-colors"
+              >
+                <div className="w-8 h-8 bg-sage-500 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sage-700 font-medium">
+                  {user?.email?.split('@')[0]}
+                </span>
+                {hasFullAccess && (
+                  <Crown className="w-4 h-4 text-olive-500" />
+                )}
+              </button>
+
+              {/* User Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-sage-200 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-sage-100">
+                    <p className="text-sm text-sage-500">Signed in as</p>
+                    <p className="font-medium text-sage-900 truncate">{user?.email}</p>
+                    <p className="text-xs text-sage-500 mt-1">{getStatusMessage()}</p>
+                  </div>
+
+                  <Link
+                    to="/studio"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Open Studio
+                  </Link>
+
+                  <Link
+                    to="/account"
+                    onClick={() => setShowUserMenu(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Account Settings
+                  </Link>
+
+                  {!hasFullAccess && (
+                    <a
+                      href="#pricing"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-olive-600 hover:bg-olive-50 transition-colors"
+                    >
+                      <Crown className="w-4 h-4" />
+                      Upgrade to Pro
+                    </a>
+                  )}
+
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="text-sage-700 hover:text-sage-900 transition-colors"
+            >
+              Sign In
+            </button>
+          )}
+
           <Link
             to="/studio"
             className="bg-sage-500 hover:bg-sage-600 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-sage-500/20"
           >
-            Try Free
+            {isAuthenticated && hasFullAccess ? 'Open Studio' : 'Try Free'}
           </Link>
         </div>
       </nav>
@@ -53,7 +142,7 @@ export default function Hero() {
             className="inline-flex items-center justify-center gap-2 bg-sage-500 hover:bg-sage-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-xl shadow-sage-500/25 transition-all hover:shadow-sage-500/40 hover:-translate-y-0.5"
           >
             <Sparkles className="w-5 h-5" />
-            Start Free Trial
+            {isAuthenticated && hasFullAccess ? 'Open Studio' : 'Start Free Demo'}
           </Link>
           <a
             href="#demo"
@@ -80,6 +169,12 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
     </section>
   )
 }

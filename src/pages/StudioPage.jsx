@@ -6,8 +6,16 @@ import {
   X, ChevronRight, ChevronDown, ChevronUp, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
   Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home,
-  PenTool, Square
+  PenTool, Square, User, LogOut, Lock
 } from 'lucide-react';
+
+// Import auth and subscription hooks
+import { useAuth } from '../context/AuthContext';
+import { useSubscription } from '../context/SubscriptionContext';
+import { useDemoMode } from '../hooks/useDemoMode';
+import { AuthModal } from '../components/auth/AuthModal';
+import { UpgradePrompt } from '../components/subscription/UpgradePrompt';
+import { DemoModeIndicator } from '../components/studio/DemoModeIndicator';
 
 // Import plant database with size variants
 import {
@@ -191,6 +199,16 @@ const BED_ORIENTATION_PRESETS = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function StudioPage() {
+  // Auth & Subscription Hooks
+  const { user, isAuthenticated, signOut } = useAuth();
+  const { hasFullAccess, getStatusMessage } = useSubscription();
+  const demoMode = useDemoMode();
+
+  // Auth & Demo Mode UI State
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeContext, setUpgradeContext] = useState('default');
+
   // State Management
   const [activeTab, setActiveTab] = useState('plants');
   const [selectedPlant, setSelectedPlant] = useState(null);
@@ -467,6 +485,13 @@ export default function StudioPage() {
     // Don't place plants if in drawing mode
     if (isDrawingMode) return;
     if (!selectedPlant || isDragging) return;
+
+    // DEMO MODE: Check plant limit
+    if (demoMode.isDemoMode && !demoMode.canPlacePlant(placedPlants.length)) {
+      setUpgradeContext('plantLimit');
+      setShowUpgradePrompt(true);
+      return;
+    }
 
     const rect = canvasRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / (zoom * 4); // x in inches
@@ -1040,6 +1065,13 @@ export default function StudioPage() {
 
   // Apply bed bundle with smart placement - Disney spacing standards
   const applyBundle = (bundle) => {
+    // DEMO MODE: Bundles require Pro subscription
+    if (demoMode.isDemoMode) {
+      setUpgradeContext('bundles');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     const newPlants = [];
 
     // Determine bed bounds
@@ -1494,6 +1526,13 @@ export default function StudioPage() {
 
   // Export blueprint
   const exportBlueprint = () => {
+    // DEMO MODE: Export requires Pro subscription
+    if (demoMode.isDemoMode) {
+      setUpgradeContext('export');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     const blueprint = {
       name: designName,
       created: new Date().toISOString(),
@@ -1694,6 +1733,13 @@ export default function StudioPage() {
 
   // Generate AI vision image
   const generateVisionImage = async (season) => {
+    // DEMO MODE: Vision rendering requires Pro subscription
+    if (demoMode.isDemoMode) {
+      setUpgradeContext('vision');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     if (placedPlants.length === 0) {
       setGenerateError('Please add some plants to your design first.');
       return;
@@ -1940,6 +1986,18 @@ export default function StudioPage() {
 
   return (
     <div className="min-h-screen bg-cream-50 text-sage-900">
+      {/* Demo Mode Indicator */}
+      {demoMode.isDemoMode && (
+        <DemoModeIndicator
+          plantsPlaced={placedPlants.length}
+          maxPlants={demoMode.maxPlants}
+          onUpgrade={() => {
+            setUpgradeContext('default');
+            setShowUpgradePrompt(true);
+          }}
+        />
+      )}
+
       {/* Header */}
       <header className="relative z-10 border-b border-sage-200 bg-white shadow-sm">
         <div className="max-w-[1800px] mx-auto px-6 py-4">
@@ -3821,6 +3879,19 @@ export default function StudioPage() {
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+
+      {/* Upgrade Prompt Modal */}
+      <UpgradePrompt
+        isOpen={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        context={upgradeContext}
+      />
     </div>
   );
 }
