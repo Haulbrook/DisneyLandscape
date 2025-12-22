@@ -5,13 +5,13 @@ const FEATURES = [
   {
     icon: Flower2,
     title: 'Smart Plant Placement',
-    description: 'Drag and drop from 30+ curated plants with real-time quality scoring',
+    description: 'Drag and drop from 200+ curated plants with real-time quality scoring',
     color: 'bg-sage-500',
   },
   {
     icon: Package,
     title: 'Theme Bundles',
-    description: 'One-click professional designs: Augusta, Tropical, Cottage & more',
+    description: '25 professional design packages: Augusta, Tropical, Modern & more',
     color: 'bg-olive-500',
   },
   {
@@ -74,8 +74,8 @@ export default function DemoSection() {
         {/* Stats row */}
         <div className="mt-12 flex flex-wrap justify-center gap-8 py-6 border-y border-sage-100">
           {[
-            { value: '30+', label: 'Curated Plants' },
-            { value: '5', label: 'Theme Bundles' },
+            { value: '200+', label: 'Curated Plants' },
+            { value: '25', label: 'Theme Bundles' },
             { value: 'AI', label: 'Vision Rendering' },
             { value: 'PDF', label: 'Export Ready' },
           ].map((stat) => (

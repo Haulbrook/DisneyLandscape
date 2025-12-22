@@ -14,12 +14,14 @@ const DEMO_PLANTS = [
   { id: 5, icon: '🌿', name: 'Liriope', color: '#4CAF50', category: 'ground', size: 'Ground' },
 ]
 
-// Theme bundles to showcase
+// Theme bundles to showcase (showing 6 of 25 available)
 const THEME_BUNDLES = [
-  { name: 'Augusta Classic', icon: '⛳', plants: 12, style: 'Southern Elegance', color: '#2E7D32' },
-  { name: 'Tropical Paradise', icon: '🌴', plants: 10, style: 'Bold & Exotic', color: '#FF6F00' },
-  { name: 'English Cottage', icon: '🏡', plants: 15, style: 'Romantic Layers', color: '#8E24AA' },
-  { name: 'Desert Modern', icon: '🌵', plants: 8, style: 'Drought-Smart', color: '#F4511E' },
+  { name: 'Augusta Classic', icon: '⛳', plants: 45, style: 'Southern Elegance', color: '#2E7D32' },
+  { name: 'Tropical Paradise', icon: '🌴', plants: 38, style: 'Bold & Exotic', color: '#FF6F00' },
+  { name: 'English Cottage', icon: '🏡', plants: 42, style: 'Romantic Layers', color: '#8E24AA' },
+  { name: 'Japanese Zen', icon: '🎋', plants: 35, style: 'Minimalist Peace', color: '#5D4037' },
+  { name: 'Modern Minimalist', icon: '🔲', plants: 28, style: 'Clean Lines', color: '#455A64' },
+  { name: 'Desert Oasis', icon: '🌵', plants: 32, style: 'Drought-Smart', color: '#F4511E' },
 ]
 
 // Plant positions for animation
@@ -410,19 +412,22 @@ export default function AnimatedDemo() {
 
       {/* Bundle info */}
       <div className="w-40 bg-cream-50 border-l border-sage-200 p-3">
-        <div className="text-xs font-semibold text-sage-700 mb-2">Bundle Benefits</div>
+        <div className="text-xs font-semibold text-sage-700 mb-2">25 Bundles Include</div>
         <div className="space-y-2">
           {[
             { icon: '✓', text: 'Pre-designed combos' },
             { icon: '✓', text: 'Color coordinated' },
             { icon: '✓', text: 'Zone-matched plants' },
-            { icon: '✓', text: 'Pro-curated layouts' },
+            { icon: '✓', text: '200+ plants total' },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2 text-[10px] text-sage-600 bg-white p-1.5 rounded">
               <span className="text-green-500">{item.icon}</span>
               {item.text}
             </div>
           ))}
+        </div>
+        <div className="mt-3 text-[9px] text-sage-400 text-center">
+          Showing 6 of 25 bundles
         </div>
       </div>
     </div>
@@ -484,42 +489,27 @@ export default function AnimatedDemo() {
         </div>
         <div className={`flex-1 relative rounded-xl border-2 overflow-hidden transition-all duration-500 ${
           showRendered
-            ? 'bg-gradient-to-b from-green-200 via-green-300 to-green-400 border-green-400'
+            ? 'border-green-400 shadow-lg'
             : 'bg-sage-100 border-sage-200'
         }`}>
           {showRendered ? (
             <div className="absolute inset-0">
-              {/* Simulated photorealistic garden */}
-              <div className="absolute inset-0 bg-gradient-to-t from-amber-800/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-amber-700/30 to-transparent" />
-              {/* Stylized plants */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-40 h-32">
-                  {/* Back tree */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2">
-                    <div className="w-16 h-16 bg-gradient-to-b from-pink-300 via-pink-400 to-pink-500 rounded-full shadow-lg" />
-                    <div className="w-3 h-6 bg-amber-700 mx-auto -mt-1 rounded-b" />
-                  </div>
-                  {/* Middle roses */}
-                  <div className="absolute top-8 left-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-red-300 to-red-500 rounded-full shadow-md" />
-                  </div>
-                  <div className="absolute top-8 right-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-red-300 to-red-500 rounded-full shadow-md" />
-                  </div>
-                  {/* Front flowers */}
-                  <div className="absolute bottom-4 left-0 right-0 flex justify-around">
-                    <div className="w-6 h-6 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full shadow" />
-                    <div className="w-6 h-6 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full shadow" />
-                    <div className="w-6 h-6 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full shadow" />
-                  </div>
-                  {/* Ground cover */}
-                  <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-r from-green-400 via-green-500 to-green-400 rounded-full opacity-80" />
-                </div>
-              </div>
+              {/* Real garden photo */}
+              <img
+                src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80"
+                alt="AI Generated Garden Render"
+                className="w-full h-full object-cover"
+              />
+              {/* Overlay gradient for polish */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
               {/* Sparkle effects */}
-              <Sparkles className="absolute top-4 right-4 w-5 h-5 text-yellow-300 animate-pulse" />
-              <Sparkles className="absolute bottom-4 left-4 w-4 h-4 text-yellow-300 animate-pulse" style={{ animationDelay: '500ms' }} />
+              <Sparkles className="absolute top-3 right-3 w-5 h-5 text-yellow-300 animate-pulse drop-shadow-lg" />
+              <Sparkles className="absolute bottom-3 left-3 w-4 h-4 text-yellow-300 animate-pulse drop-shadow-lg" style={{ animationDelay: '500ms' }} />
+              {/* AI badge */}
+              <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Wand2 className="w-2.5 h-2.5" />
+                AI Generated
+              </div>
             </div>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
