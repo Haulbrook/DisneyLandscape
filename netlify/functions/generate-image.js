@@ -24,9 +24,8 @@ exports.handler = async (event) => {
       };
     }
 
-    // Disable ControlNet for now - it renders the sketch literally instead of transforming it
-    // TODO: Investigate ControlNet SDXL or other image-guided approaches
-    const useControlNet = false; // Was: !!sketchImage
+    // Use img2img when sketch is provided - this preserves plant positions
+    const useImg2Img = !!sketchImage;
 
     // Season-specific details
     const seasonDetails = {
@@ -58,51 +57,42 @@ exports.handler = async (event) => {
     const shapeMatch = prompt.match(/Shape: ([^\n]+)/);
     const bedShape = shapeMatch ? shapeMatch[1] : 'rectangular mulch bed';
 
-    // Build a STRICT prompt that only shows what's in the plan
-    const fullPrompt = `Professional landscape photograph of a residential front yard with a ${bedShape}, shot from an elevated perspective.
+    // Build a STRICT prompt that includes spatial layout
+    const fullPrompt = `Professional landscape photograph of a residential garden bed, viewed from an elevated front angle.
 
-CRITICAL: This image must show ONLY the following plants - NO ADDITIONAL PLANTS:
 ${prompt}
 
-STRICT REQUIREMENTS:
-- Show EXACTLY ${totalPlants} individual plant(s) total - count them
-- DO NOT add any plants not listed above
-- DO NOT fill empty space with extra shrubs, flowers, or groundcover
-- Empty mulch areas are CORRECT if the plan is sparse
-- If only 9 Japanese Maples are listed, show ONLY 9 Japanese Maple trees
+CRITICAL PLACEMENT INSTRUCTIONS:
+- Position plants EXACTLY as described in the layout above
+- "BACK" means furthest from viewer (against house/fence)
+- "FRONT" means closest to viewer (lawn edge)
+- "LEFT/RIGHT" are from the viewer's perspective looking at the bed
+- Clusters should show plants of the same type grouped tightly together
+- Maintain the spatial relationships described
 
-CAMERA ANGLE:
-- Slightly elevated view, like standing on a porch or 8-10 feet up
-- Camera positioned 20-25 feet back from the garden bed
-- 15-20 degree downward angle (just above eye-level)
-- Shows full garden bed while emphasizing plant height and form
-- Must see: entire garden bed, surrounding lawn, house facade in background
-
-SCENE:
+CAMERA & SCENE:
 - ${season} season, ${seasonInfo.lighting}, ${seasonInfo.sky}
-- Suburban house visible in background
-- ${bedShape} with brown mulch and clearly defined curved edges
-- The bed shape is NOT rectangular - it has organic, flowing, curved borders
+- Elevated view from 8-10 feet up, 20-25 feet back
+- 15-20 degree downward angle showing full bed layout
+- ${bedShape} with brown hardwood mulch, curved organic edges
 - Green lawn surrounding the bed
-- Walkway or lawn edge visible for scale
+- House or fence visible in background behind the bed
 
 PLANT RENDERING:
-- Trees at 60-70% mature size (established 2-3 years)
-- Show full plant structure - trunks, branches, and canopy visible
-- See both the height and spread of each plant
-- Appropriate spacing between plants
+- Plants at 60-70% mature size (2-3 year established look)
+- Show natural plant forms - not perfectly symmetrical
+- Clusters of same plants should touch/overlap slightly
+- Taller plants in back, shorter in front (layered depth)
 
-STYLE: Professional landscaping portfolio photo, elevated angle, sharp focus, natural lighting.
-
-FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not explicitly listed in the plant list above.`;
+STYLE: Professional landscaping portfolio photo, sharp focus, natural ${seasonInfo.lighting}.`;
 
     let prediction;
 
-    if (useControlNet) {
-      console.log('Calling Replicate ControlNet Scribble with sketch input...');
-      prediction = await createControlNetPrediction(apiKey, fullPrompt, sketchImage);
+    if (useImg2Img && sketchImage) {
+      console.log('Calling Replicate SDXL img2img with sketch for accurate placement...');
+      prediction = await createImg2ImgPrediction(apiKey, fullPrompt, sketchImage);
     } else {
-      console.log('Calling Replicate Seedream-3...');
+      console.log('Calling Replicate Seedream-3 (text only)...');
       prediction = await createPrediction(apiKey, fullPrompt);
     }
 
@@ -135,7 +125,6 @@ FORBIDDEN: Do not add roses, azaleas, hostas, ferns, annuals, or ANY plant not e
 function createPrediction(apiKey, prompt) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      version: "bytedance/seedream-3",
       input: {
         prompt: prompt,
         aspect_ratio: "16:9",
@@ -146,15 +135,17 @@ function createPrediction(apiKey, prompt) {
       }
     });
 
+    // Use the models endpoint with model name (not version hash)
     const options = {
       hostname: 'api.replicate.com',
       port: 443,
-      path: '/v1/predictions',
+      path: '/v1/models/bytedance/seedream-3/predictions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
         'Content-Length': Buffer.byteLength(data),
+        'Prefer': 'wait'
       },
     };
 
@@ -186,26 +177,26 @@ function createPrediction(apiKey, prompt) {
   });
 }
 
-function createControlNetPrediction(apiKey, prompt, sketchImage) {
+// Img2Img using SDXL - preserves layout structure from sketch
+function createImg2ImgPrediction(apiKey, prompt, sketchImage) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      version: "435061a1b5a4c1e26740464bf786efdfa9cb3a3ac488595a2de23e143fdb0117",
       input: {
         image: sketchImage,
-        prompt: prompt,
-        num_samples: "1",
-        image_resolution: "768",
-        ddim_steps: 30,
-        scale: 9,
-        a_prompt: "best quality, extremely detailed, professional landscape photography, realistic plants, natural lighting",
-        n_prompt: "lowres, bad anatomy, bad hands, cropped, worst quality, cartoon, anime, illustration, painting, drawing"
+        prompt: prompt + ", professional landscape photography, realistic plants and foliage, natural lighting, photorealistic, 8k quality",
+        negative_prompt: "cartoon, anime, illustration, painting, drawing, sketch, abstract, unrealistic colors, blurry, low quality",
+        prompt_strength: 0.75,  // 0.75 = keep 25% of original structure, transform 75%
+        num_outputs: 1,
+        guidance_scale: 7.5,
+        num_inference_steps: 30,
+        scheduler: "K_EULER"
       }
     });
 
     const options = {
       hostname: 'api.replicate.com',
       port: 443,
-      path: '/v1/predictions',
+      path: '/v1/models/stability-ai/sdxl/predictions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -221,12 +212,12 @@ function createControlNetPrediction(apiKey, prompt, sketchImage) {
         try {
           const response = JSON.parse(body);
           if (res.statusCode !== 201 && res.statusCode !== 200) {
-            reject(new Error(response.detail || response.error || 'Failed to create ControlNet prediction'));
+            reject(new Error(response.detail || response.error || 'Failed to create img2img prediction'));
             return;
           }
           resolve(response);
         } catch (e) {
-          reject(new Error('Failed to parse ControlNet response'));
+          reject(new Error('Failed to parse img2img response'));
         }
       });
     });

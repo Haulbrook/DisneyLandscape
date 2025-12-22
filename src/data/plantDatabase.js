@@ -3,6 +3,14 @@
 // Complete plant catalog with size variants support
 // ═══════════════════════════════════════════════════════════════════════════════
 
+import {
+  parseBloomTime,
+  parseHeightToInches,
+  getHeightTier,
+  inferPlantForm,
+  inferPlantTexture
+} from './disneyDesignSystem';
+
 // Size variant definitions - maps container size to expected plant dimensions
 export const SIZE_MULTIPLIERS = {
   '4in': { heightMult: 0.15, spreadMult: 0.2, iconScale: 0.3 },
@@ -3663,13 +3671,37 @@ export const PLANT_DATABASE = {
   trees: TREES,
 };
 
-// Flatten for easy access - add dbCategory for filtering
+// Enhance a plant with Disney design system attributes
+const enhancePlant = (plant, dbCategory) => {
+  const bloomData = parseBloomTime(plant.bloomTime);
+  const heightInches = parseHeightToInches(plant.height);
+  const heightTier = getHeightTier(heightInches);
+
+  return {
+    ...plant,
+    dbCategory,
+    // Bloom/interest data
+    bloomMonths: bloomData.bloomMonths,
+    interestMonths: bloomData.interestMonths,
+    isEvergreen: bloomData.isEvergreen,
+    interestType: bloomData.interestType,
+    // Height tier
+    heightInches,
+    heightTier: heightTier.id,
+    heightTierName: heightTier.name,
+    // Form and texture
+    form: plant.form || inferPlantForm({ ...plant, dbCategory }),
+    texture: plant.texture || inferPlantTexture({ ...plant, dbCategory })
+  };
+};
+
+// Flatten for easy access - add dbCategory and Disney design attributes
 export const ALL_PLANTS = [
-  ...GRASSES.map(p => ({ ...p, dbCategory: 'grasses' })),
-  ...GROUND_COVERS.map(p => ({ ...p, dbCategory: 'groundcovers' })),
-  ...PERENNIALS.map(p => ({ ...p, dbCategory: 'perennials' })),
-  ...SHRUBS.map(p => ({ ...p, dbCategory: 'shrubs' })),
-  ...TREES.map(p => ({ ...p, dbCategory: 'trees' })),
+  ...GRASSES.map(p => enhancePlant(p, 'grasses')),
+  ...GROUND_COVERS.map(p => enhancePlant(p, 'groundcovers')),
+  ...PERENNIALS.map(p => enhancePlant(p, 'perennials')),
+  ...SHRUBS.map(p => enhancePlant(p, 'shrubs')),
+  ...TREES.map(p => enhancePlant(p, 'trees')),
 ];
 
 // Get all unique sizes available for a plant

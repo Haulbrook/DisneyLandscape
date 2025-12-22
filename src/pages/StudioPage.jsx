@@ -32,6 +32,49 @@ import {
   PLANT_ROLES
 } from '../data/plantBundles';
 
+// Import Disney Design System
+import {
+  HEIGHT_TIERS,
+  MONTHS,
+  SEASONS,
+  PLANT_FORMS,
+  PLANT_TEXTURES,
+  analyzeBloomSequence,
+  analyzeHeightLayering,
+  analyzeMassPlanting,
+  validateFormVariety,
+  validateTextureVariety,
+  calculateShowReadyScore,
+  SHOW_READY_CRITERIA
+} from '../data/disneyDesignSystem';
+
+// Import Residential Design System - Home Landscape Training Boost
+import {
+  YARD_ZONES,
+  FOUNDATION_RULES,
+  STRUCTURE_EDGE_RULES,
+  CANOPY_RULES,
+  SMALL_BED_RULES,
+  BED_DEPTH_RULES,
+  SPACING_FORMULAS,
+  CURB_APPEAL_RULES,
+  PRIVACY_SCREENING_RULES,
+  RESIDENTIAL_DESIGN_PRINCIPLES,
+  RESIDENTIAL_BUNDLE_TEMPLATES,
+  RESIDENTIAL_BUNDLES,
+  RESIDENTIAL_CRITERIA,
+  calculateIdealBedDepth,
+  calculateLayerCount,
+  calculateLayerDepths,
+  calculatePlantQuantity,
+  validateResidentialPlacement,
+  analyzeResidentialLayering,
+  analyzeResidentialSpacing,
+  analyzeOddGroupings,
+  analyzeZoneCompliance,
+  calculateResidentialScore
+} from '../data/residentialDesignSystem';
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // DISNEY LANDSCAPE RULES - The Non-Negotiable Standards
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -84,6 +127,66 @@ const PLANT_DATABASE = {
 const BED_BUNDLES = PLANT_BUNDLES;
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// BED ORIENTATION SYSTEM - Define what each edge faces
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const BED_EDGE_OPTIONS = [
+  { id: 'front', label: 'Front (Viewing)', icon: '👁️', color: '#4CAF50', description: 'Primary viewing angle' },
+  { id: 'back', label: 'Back (House/Fence)', icon: '🏠', color: '#795548', description: 'Against structure' },
+  { id: 'street', label: 'Street Side', icon: '🛣️', color: '#607D8B', description: 'Faces road/curb' },
+  { id: 'walkway', label: 'Walkway/Path', icon: '🚶', color: '#FF9800', description: 'Along path' },
+  { id: 'neighbor', label: 'Neighbor Side', icon: '🏘️', color: '#9C27B0', description: 'Property line' },
+  { id: 'patio', label: 'Patio/Deck', icon: '🪑', color: '#00BCD4', description: 'Outdoor living' },
+  { id: 'entry', label: 'Entry/Door', icon: '🚪', color: '#F44336', description: 'Near entrance' },
+  { id: 'side', label: 'Side', icon: '➡️', color: '#9E9E9E', description: 'Secondary view' },
+];
+
+const BED_ORIENTATION_PRESETS = [
+  {
+    id: 'foundation-front',
+    name: 'Foundation (Front Yard)',
+    icon: '🏠',
+    orientation: { top: 'back', bottom: 'street', left: 'side', right: 'side' },
+    description: 'House behind, street in front'
+  },
+  {
+    id: 'foundation-side',
+    name: 'Foundation (Side Yard)',
+    icon: '🏡',
+    orientation: { top: 'back', bottom: 'walkway', left: 'neighbor', right: 'entry' },
+    description: 'House behind, walkway access'
+  },
+  {
+    id: 'island-bed',
+    name: 'Island Bed',
+    icon: '🏝️',
+    orientation: { top: 'front', bottom: 'front', left: 'front', right: 'front' },
+    description: 'Viewable from all sides'
+  },
+  {
+    id: 'border-privacy',
+    name: 'Privacy Border',
+    icon: '🌲',
+    orientation: { top: 'neighbor', bottom: 'front', left: 'side', right: 'side' },
+    description: 'Screen neighbor, view from yard'
+  },
+  {
+    id: 'patio-surround',
+    name: 'Patio Surround',
+    icon: '🪴',
+    orientation: { top: 'back', bottom: 'patio', left: 'side', right: 'side' },
+    description: 'Frame outdoor living space'
+  },
+  {
+    id: 'entry-path',
+    name: 'Entry Walkway',
+    icon: '🚶',
+    orientation: { top: 'back', bottom: 'walkway', left: 'entry', right: 'side' },
+    description: 'Along path to front door'
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APPLICATION COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -94,6 +197,7 @@ export default function StudioPage() {
   const [placedPlants, setPlacedPlants] = useState([]);
   const [selectedBundle, setSelectedBundle] = useState(null);
   const [bundleScale, setBundleScale] = useState(1);
+  const [bundleTypeFilter, setBundleTypeFilter] = useState('disney'); // 'disney' | 'residential'
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showGrid, setShowGrid] = useState(true);
@@ -121,6 +225,16 @@ export default function StudioPage() {
   const [drawingPoints, setDrawingPoints] = useState([]);
   const [customBedPath, setCustomBedPath] = useState([]);
 
+  // Bed Orientation & Sides - defines what each edge faces
+  const [bedOrientation, setBedOrientation] = useState({
+    top: 'back',      // What the top edge represents
+    bottom: 'front',  // What the bottom edge represents (viewing side)
+    left: 'side',     // Left edge
+    right: 'side',    // Right edge
+  });
+  const [showBedLabels, setShowBedLabels] = useState(true);
+  const [selectedEdge, setSelectedEdge] = useState(null); // For editing edge labels
+
   // Hardiness zone filter
   const [selectedZone, setSelectedZone] = useState(7); // Default to Zone 7
 
@@ -132,6 +246,24 @@ export default function StudioPage() {
   const [waterFilter, setWaterFilter] = useState('all'); // 'all', 'Low', 'Moderate', 'High'
   const [colorFilter, setColorFilter] = useState('all'); // 'all' or specific hex color
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Disney Design System Analysis State
+  const [showReadyScore, setShowReadyScore] = useState(null);
+  const [bloomAnalysis, setBloomAnalysis] = useState(null);
+  const [heightAnalysis, setHeightAnalysis] = useState(null);
+  const [massPlantingAnalysis, setMassPlantingAnalysis] = useState(null);
+  const [formAnalysis, setFormAnalysis] = useState(null);
+  const [textureAnalysis, setTextureAnalysis] = useState(null);
+  const [showBloomCalendar, setShowBloomCalendar] = useState(false);
+
+  // Residential Design System - Home Plant Trainer State
+  const [designMode, setDesignMode] = useState('hybrid'); // 'disney' | 'residential' | 'hybrid'
+  const [selectedYardZone, setSelectedYardZone] = useState('FRONT_FOUNDATION');
+  const [residentialScore, setResidentialScore] = useState(null);
+  const [residentialAnalysis, setResidentialAnalysis] = useState(null);
+  const [layerAnalysis, setLayerAnalysis] = useState(null);
+  const [spacingAnalysis, setSpacingAnalysis] = useState(null);
+  const [placementWarnings, setPlacementWarnings] = useState([]); // Warnings for placement rule violations
 
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -174,6 +306,97 @@ export default function StudioPage() {
     const coverage = Math.min(100, (coveredArea / totalBedArea) * 100);
     setCoveragePercent(coverage);
   }, [placedPlants, bedDimensions, bedType, customBedPath]);
+
+  // Calculate Disney Design System analysis whenever plants change
+  useEffect(() => {
+    if (placedPlants.length === 0) {
+      setShowReadyScore(null);
+      setBloomAnalysis(null);
+      setHeightAnalysis(null);
+      setMassPlantingAnalysis(null);
+      setFormAnalysis(null);
+      setTextureAnalysis(null);
+      return;
+    }
+
+    // Get plant data for all placed plants
+    const plantsWithData = placedPlants.map(placed => {
+      const plantData = ALL_PLANTS.find(p => p.id === placed.plantId);
+      return { ...placed, ...plantData };
+    }).filter(p => p.id);
+
+    // Run all analyses
+    const bloom = analyzeBloomSequence(placedPlants, ALL_PLANTS);
+    const height = analyzeHeightLayering(placedPlants, ALL_PLANTS, bedDimensions);
+    const mass = analyzeMassPlanting(placedPlants, ALL_PLANTS);
+    const form = validateFormVariety(plantsWithData);
+    const texture = validateTextureVariety(plantsWithData);
+
+    setBloomAnalysis(bloom);
+    setHeightAnalysis(height);
+    setMassPlantingAnalysis(mass);
+    setFormAnalysis(form);
+    setTextureAnalysis(texture);
+
+    // Calculate overall Show Ready Score
+    const score = calculateShowReadyScore({
+      coveragePercent,
+      bloomSequence: bloom,
+      heightLayering: height,
+      formVariety: form,
+      textureVariety: texture,
+      massPlanting: mass,
+      colorHarmony: colorHarmonyStatus
+    });
+
+    setShowReadyScore(score);
+  }, [placedPlants, coveragePercent, colorHarmonyStatus, bedDimensions]);
+
+  // Calculate Residential Design System analysis - Home Plant Trainer Boost
+  useEffect(() => {
+    if (placedPlants.length === 0) {
+      setResidentialScore(null);
+      setResidentialAnalysis(null);
+      setLayerAnalysis(null);
+      setSpacingAnalysis(null);
+      return;
+    }
+
+    // Run residential analyses
+    const layering = analyzeResidentialLayering(placedPlants, ALL_PLANTS, bedDimensions);
+    const spacing = analyzeResidentialSpacing(placedPlants, ALL_PLANTS);
+    const oddGroups = analyzeOddGroupings(placedPlants, ALL_PLANTS);
+    const zoneCheck = analyzeZoneCompliance(placedPlants, ALL_PLANTS, selectedYardZone, bedDimensions);
+
+    // Use bloom analysis for four-season (reuse Disney's analysis)
+    const fourSeason = bloomAnalysis ? { score: bloomAnalysis.coverageScore || 50 } : { score: 50 };
+
+    // Curb appeal score based on form variety and visual balance
+    const curbAppeal = formAnalysis ? { score: formAnalysis.valid ? 85 : 60 } : { score: 70 };
+
+    setLayerAnalysis(layering);
+    setSpacingAnalysis(spacing);
+
+    // Calculate overall residential score
+    const resScore = calculateResidentialScore({
+      layering,
+      spacing,
+      oddGroupings: oddGroups,
+      zoneCompliance: zoneCheck,
+      fourSeason,
+      curbAppeal,
+    });
+
+    setResidentialScore(resScore);
+    setResidentialAnalysis({
+      layering,
+      spacing,
+      oddGroupings: oddGroups,
+      zoneCompliance: zoneCheck,
+      fourSeason,
+      curbAppeal,
+    });
+  }, [placedPlants, bedDimensions, selectedYardZone, bloomAnalysis, formAnalysis]);
 
   // Helper function to get selected size for a plant
   const getSelectedSize = (plantId) => {
@@ -273,6 +496,18 @@ export default function StudioPage() {
       size: selectedSize, // Store the selected container size
       sizeMultiplier: sizeMultiplier // Store the size multiplier for rendering
     };
+
+    // Validate placement against residential rules (structure edges, canopy, small beds)
+    if (designMode === 'residential' || designMode === 'hybrid') {
+      const warnings = validatePlantPlacement(selectedPlant, x, y, widthInches, heightInches);
+      if (warnings.length > 0) {
+        setPlacementWarnings(prev => [...prev.slice(-4), ...warnings]); // Keep last 5 warnings
+        // Auto-dismiss warnings after 8 seconds
+        setTimeout(() => {
+          setPlacementWarnings(prev => prev.filter(w => !warnings.includes(w)));
+        }, 8000);
+      }
+    }
 
     setPlacedPlants([...placedPlants, newPlant]);
   };
@@ -389,6 +624,105 @@ export default function StudioPage() {
       }
     }
     return simplified;
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // RESIDENTIAL PLACEMENT VALIDATION - Check plant placement against structure rules
+  // ═══════════════════════════════════════════════════════════════════════════════
+  const validatePlantPlacement = (plant, x, y, bedWidthInches, bedHeightInches) => {
+    const warnings = [];
+
+    // Get plant data
+    const plantData = ALL_PLANTS.find(p => p.id === plant.id);
+    if (!plantData) return warnings;
+
+    // Parse plant dimensions
+    const heightMatch = plantData.height?.match(/(\d+)/);
+    let heightInches = heightMatch ? parseInt(heightMatch[1]) : 24;
+    if (plantData.height?.toLowerCase().includes('ft')) heightInches *= 12;
+
+    const spreadMatch = plantData.spread?.match(/(\d+)/);
+    let spreadInches = spreadMatch ? parseInt(spreadMatch[1]) : 24;
+    if (plantData.spread?.toLowerCase().includes('ft')) spreadInches *= 12;
+
+    const canopyRadius = spreadInches / 2;
+    const bedArea = (bedWidthInches * bedHeightInches) / 144; // sq ft
+
+    // Define edge proximity thresholds
+    const edgeBuffer = 24; // 2 feet from edge considered "near"
+    const nearTop = y < edgeBuffer;
+    const nearBottom = y > bedHeightInches - edgeBuffer;
+    const nearLeft = x < edgeBuffer;
+    const nearRight = x > bedWidthInches - edgeBuffer;
+
+    // Check structure edge rules (back, entry = structure)
+    const structureEdges = STRUCTURE_EDGE_RULES.STRUCTURE_EDGES;
+
+    // Check each edge for structure proximity
+    if (nearTop && structureEdges.includes(bedOrientation.top)) {
+      // Plant is near a structure edge (top)
+      if (STRUCTURE_EDGE_RULES.PROHIBITED_NEAR_STRUCTURE.includes(plant.id)) {
+        warnings.push({
+          type: 'error',
+          message: `${plantData.name} is too large for placement against a structure. Consider columnar or dwarf varieties.`
+        });
+      } else if (heightInches > STRUCTURE_EDGE_RULES.MAX_HEIGHT_AGAINST_STRUCTURE) {
+        warnings.push({
+          type: 'warning',
+          message: `${plantData.name} (${Math.round(heightInches/12)}ft) may be too tall near the house. Max recommended: 8ft.`
+        });
+      }
+    }
+
+    if (nearBottom && structureEdges.includes(bedOrientation.bottom)) {
+      if (STRUCTURE_EDGE_RULES.PROHIBITED_NEAR_STRUCTURE.includes(plant.id)) {
+        warnings.push({
+          type: 'error',
+          message: `${plantData.name} is too large for placement against a structure.`
+        });
+      } else if (heightInches > STRUCTURE_EDGE_RULES.MAX_HEIGHT_AGAINST_STRUCTURE) {
+        warnings.push({
+          type: 'warning',
+          message: `${plantData.name} may be too tall near the structure.`
+        });
+      }
+    }
+
+    // Check canopy rules - trees can't overhang structure edges
+    if (plantData.category === 'trees' || heightInches > 120) {
+      const canopyResult = CANOPY_RULES.wouldCanopyHitStructure(
+        x, y, spreadInches, bedWidthInches, bedHeightInches, bedOrientation
+      );
+      if (!canopyResult.valid) {
+        canopyResult.issues.forEach(issue => {
+          warnings.push({
+            type: 'error',
+            message: issue
+          });
+        });
+      }
+    }
+
+    // Check small bed preferences
+    if (bedArea < SMALL_BED_RULES.SMALL_BED_THRESHOLD) {
+      const maxHeight = SMALL_BED_RULES.getMaxPlantHeight(bedArea);
+      const maxSpread = SMALL_BED_RULES.getMaxPlantSpread(bedArea);
+
+      if (heightInches > maxHeight) {
+        warnings.push({
+          type: 'warning',
+          message: `This bed is small (${Math.round(bedArea)} sq ft). Consider dwarf varieties like ${plantData.name.includes('Dwarf') ? 'another compact plant' : 'a dwarf version'}.`
+        });
+      }
+      if (spreadInches > maxSpread) {
+        warnings.push({
+          type: 'warning',
+          message: `${plantData.name} may spread too wide for this small bed.`
+        });
+      }
+    }
+
+    return warnings;
   };
 
   // Handle bed drawing start
@@ -534,12 +868,93 @@ export default function StudioPage() {
   };
 
   // Check if a position collides with existing plants
-  const checkCollision = (x, y, plantId, existingPlants) => {
-    const newPlantSize = getPlantSizes(plantId).matureSpread / 2;
+  // Parse spread string to get radius in inches (using max value)
+  const getPlantSpreadRadius = (plantId) => {
+    const plant = ALL_PLANTS.find(p => p.id === plantId);
+    if (!plant || !plant.spread) return 12; // Default 12 inches radius
 
+    const spreadStr = plant.spread.toLowerCase();
+    const matches = spreadStr.match(/(\d+(?:\.\d+)?)/g);
+    if (!matches) return 12;
+
+    let maxSpread = Math.max(...matches.map(Number));
+    // Convert feet to inches if needed
+    if (spreadStr.includes('ft')) {
+      maxSpread = maxSpread * 12;
+    }
+    return maxSpread / 2; // Return radius, not diameter
+  };
+
+  // Get plant height in inches
+  const getPlantHeightInches = (plantId) => {
+    const plant = ALL_PLANTS.find(p => p.id === plantId);
+    if (!plant || !plant.height) return 24;
+
+    const heightStr = plant.height.toLowerCase();
+    const matches = heightStr.match(/(\d+(?:\.\d+)?)/g);
+    if (!matches) return 24;
+
+    let maxHeight = Math.max(...matches.map(Number));
+    if (heightStr.includes('ft')) {
+      maxHeight = maxHeight * 12;
+    }
+    return maxHeight;
+  };
+
+  // Check if plant is a canopy tree (>10ft tall)
+  const isCanopyTree = (plantId) => {
+    return getPlantHeightInches(plantId) > 120; // 10ft = 120 inches
+  };
+
+  // Get minimum spacing between two plants based on their roles/sizes
+  // HEIGHT-BASED OVERLAP RULES:
+  // - Small plants can fit UNDER tall trees (height diff > 6ft)
+  // - Groundcover under trees, pixie loropetalum under dogwood, etc.
+  const getMinSpacing = (plantId1, plantId2) => {
+    const radius1 = getPlantSpreadRadius(plantId1);
+    const radius2 = getPlantSpreadRadius(plantId2);
+    const height1 = getPlantHeightInches(plantId1);
+    const height2 = getPlantHeightInches(plantId2);
+
+    // HEIGHT OVERLAP RULE: If height difference > 6ft (72 inches), allow overlap
+    // Small plants can nestle under tall trees
+    const heightDiff = Math.abs(height1 - height2);
+    const tallerHeight = Math.max(height1, height2);
+    const shorterHeight = Math.min(height1, height2);
+
+    // Allow overlap when:
+    // 1. Height difference is at least 72" (6ft) - clearly different layers
+    // 2. The shorter plant is under 48" (4ft) - it's a small shrub/groundcover
+    // 3. The taller plant is at least 96" (8ft) - it's a proper canopy tree
+    if (heightDiff >= 72 && shorterHeight <= 48 && tallerHeight >= 96) {
+      // Allow near-complete overlap - just keep them from being on exact same spot
+      return 12; // Only 12 inch minimum - allows nesting under canopy
+    }
+
+    // Groundcover (under 18") can always go under anything taller than 60"
+    if (shorterHeight <= 18 && tallerHeight >= 60) {
+      return 6; // Minimal spacing for groundcovers under larger plants
+    }
+
+    // Base spacing is sum of radii
+    let spacing = radius1 + radius2;
+
+    // Trees need extra spacing from each other (at least 60% of combined spread)
+    if (height1 > 72 && height2 > 72) {
+      spacing = Math.max(spacing, (radius1 + radius2) * 1.2);
+    }
+
+    // Large trees (canopy) need even more space FROM EACH OTHER
+    if (height1 > 120 && height2 > 120) {
+      spacing = Math.max(spacing, Math.max(radius1, radius2) * 1.5);
+    }
+
+    return spacing + 6; // 6 inch buffer
+  };
+
+  const checkCollision = (x, y, plantId, existingPlants) => {
     for (const existing of existingPlants) {
-      const existingSize = getPlantSizes(existing.plantId).matureSpread / 2;
-      const minDistance = newPlantSize + existingSize + 6; // 6 inch buffer
+      const minDistance = getMinSpacing(plantId, existing.plantId);
       const distance = Math.sqrt(Math.pow(x - existing.x, 2) + Math.pow(y - existing.y, 2));
       if (distance < minDistance) return true;
     }
@@ -547,9 +962,11 @@ export default function StudioPage() {
   };
 
   // Find valid position using spiral search - respects custom bed shape
-  const findValidPositionInBed = (targetX, targetY, plantId, existingPlants, bedBounds, customPath) => {
-    const plantSize = getPlantSizes(plantId).matureSpread / 2;
-    const padding = plantSize + 6;
+  // canOverhang: true for canopy trees that can extend beyond bed edge
+  const findValidPositionInBed = (targetX, targetY, plantId, existingPlants, bedBounds, customPath, canOverhang = false) => {
+    const plantRadius = getPlantSpreadRadius(plantId);
+    // Only canopy trees can overhang, others must stay inside with their full spread
+    const padding = canOverhang ? 12 : plantRadius + 6;
 
     // Check if position is valid (inside bed and no collision)
     const isValidPosition = (x, y) => {
@@ -621,11 +1038,11 @@ export default function StudioPage() {
     return validPoints;
   };
 
-  // Apply bed bundle with smart placement that fills the entire bed shape
+  // Apply bed bundle with smart placement - Disney spacing standards
   const applyBundle = (bundle) => {
     const newPlants = [];
 
-    // Determine bed bounds - use custom path if available, otherwise rectangle
+    // Determine bed bounds
     let bedBounds;
     let useCustomPath = bedType === 'custom' && customBedPath.length > 2;
 
@@ -644,35 +1061,14 @@ export default function StudioPage() {
 
     if (!bedBounds) return;
 
-    // Generate grid points - 24px spacing for balanced density
-    const validPoints = useCustomPath
-      ? generateValidGridPoints(bedBounds, customBedPath, 24)
-      : generateValidGridPoints(bedBounds, null, 24);
-
-    // Sort points into zones by distance from center
-    const centerPoints = validPoints.filter(p => p.distFromCenter < 0.20);
-    const innerPoints = validPoints.filter(p => p.distFromCenter >= 0.20 && p.distFromCenter < 0.45);
-    const middlePoints = validPoints.filter(p => p.distFromCenter >= 0.45 && p.distFromCenter < 0.70);
-    const outerPoints = validPoints.filter(p => p.distFromCenter >= 0.70);
-
-    // Edge zones - respects plant size for proper containment
-    const veryEdgePoints = validPoints.filter(p => p.isVeryEdge); // Only groundcover
-    const edgePoints = validPoints.filter(p => p.isEdge && !p.isVeryEdge); // Small plants
-    const innerEdgePoints = validPoints.filter(p => p.isInnerEdge && !p.isEdge); // Medium plants
-    const interiorPoints = validPoints.filter(p => !p.isInnerEdge); // Trees/large shrubs stay interior
-
-    // Shuffle each zone for variety
     const shuffle = (arr) => arr.sort(() => Math.random() - 0.5);
-    shuffle(centerPoints);
-    shuffle(innerPoints);
-    shuffle(middlePoints);
-    shuffle(outerPoints);
-    shuffle(veryEdgePoints);
-    shuffle(edgePoints);
-    shuffle(innerEdgePoints);
-    shuffle(interiorPoints);
 
-    // Map new role names to old role names for zone placement
+    // Handle both old flat array format and new object format
+    const plantsList = Array.isArray(bundle.plants)
+      ? bundle.plants
+      : getBundlePlants(bundle);
+
+    // Map role names
     const roleMapping = {
       'hero': 'focal',
       'structure': 'back',
@@ -681,173 +1077,405 @@ export default function StudioPage() {
       'carpet': 'groundcover'
     };
 
-    // Map roles to point zones - respects plant size for edge containment
-    // Trees/large shrubs stay interior, only groundcover goes to very edge
-    const getZonePoints = (role) => {
-      const normalizedRole = roleMapping[role] || role;
+    // Calculate bed area for quantity scaling
+    const bedArea = bedBounds.width * bedBounds.height;
+    const baseArea = 150 * 144; // 150 sq ft in sq inches (bundle base size)
+    const areaScale = Math.sqrt(bedArea / baseArea);
 
-      if (useCustomPath) {
-        // Island bed: focal in center, groundcover at perimeter
-        switch (normalizedRole) {
-          case 'focal': return [...interiorPoints.filter(p => p.distFromCenter < 0.4)]; // Trees stay well inside
-          case 'back': return [...interiorPoints, ...innerEdgePoints.slice(0, 5)]; // Shrubs mostly interior
-          case 'topiary': return [...innerPoints, ...centerPoints];
-          case 'middle': return [...middlePoints, ...innerEdgePoints, ...innerPoints]; // Perennials can spread more
-          case 'front': return [...outerPoints, ...innerEdgePoints, ...edgePoints.slice(0, 10)];
-          case 'edge': return [...edgePoints, ...innerEdgePoints];
-          case 'groundcover': return [...veryEdgePoints, ...edgePoints, ...outerPoints]; // Groundcover fills edges
-          default: return [...middlePoints];
-        }
-      } else {
-        // Rectangle bed: use Y position for back-to-front
-        const sortByY = (points, desc = false) =>
-          [...points].sort((a, b) => desc ? b.y - a.y : a.y - b.y);
+    // Process plants with quantity scaling for small plants
+    const processedPlants = plantsList.map(bp => {
+      const plantData = ALL_PLANTS.find(p => p.id === bp.plantId);
+      if (!plantData) return null;
 
-        switch (normalizedRole) {
-          case 'focal': return sortByY(interiorPoints, true).slice(0, Math.floor(interiorPoints.length * 0.3)); // Trees interior only
-          case 'back': return sortByY([...interiorPoints, ...innerEdgePoints], true).slice(0, Math.floor(validPoints.length * 0.35));
-          case 'topiary': return sortByY(interiorPoints, true).slice(0, Math.floor(interiorPoints.length * 0.4));
-          case 'middle': return [...middlePoints, ...innerEdgePoints];
-          case 'front': return sortByY([...innerEdgePoints, ...edgePoints], false);
-          case 'edge': return [...edgePoints, ...innerEdgePoints];
-          case 'groundcover': return [...veryEdgePoints, ...edgePoints, ...outerPoints]; // Groundcover to edges
-          default: return [...middlePoints];
-        }
+      const height = getPlantHeightInches(bp.plantId);
+      const radius = getPlantSpreadRadius(bp.plantId);
+      const role = roleMapping[bp.role] || bp.role;
+
+      // Get plant size category
+      const sizes = plantData.sizes || ['3gal'];
+      const primarySize = sizes[0];
+      const isSmallPlant = ['4in', 'flat', '1qt', '1gal'].includes(primarySize);
+      const isMediumPlant = ['2gal', '3gal'].includes(primarySize);
+
+      // Scale quantity based on plant size and bed area
+      let quantity = Math.round(bp.quantity * bundleScale * areaScale);
+
+      // Small plants (1gal or less) get significantly more quantity
+      if (isSmallPlant) {
+        quantity = Math.max(quantity * 2.5, 7); // At least 7, usually 2.5x more
+      } else if (isMediumPlant) {
+        quantity = Math.max(quantity * 1.5, 5); // At least 5
       }
-    };
 
-    // Handle both old flat array format and new object format
-    const plantsList = Array.isArray(bundle.plants)
-      ? bundle.plants
-      : getBundlePlants(bundle);
+      // Groundcover needs lots of plants
+      if (role === 'groundcover' || role === 'front') {
+        quantity = Math.max(quantity, Math.floor(bedArea / (radius * radius * 4)));
+      }
 
-    // Sort bundle plants by category priority (place larger plants first)
-    const sortedPlants = [...plantsList].sort((a, b) => {
-      const order = ['focal', 'hero', 'back', 'structure', 'topiary', 'middle', 'seasonal', 'texture', 'front', 'edge', 'groundcover', 'carpet'];
-      const roleA = roleMapping[a.role] || a.role;
-      const roleB = roleMapping[b.role] || b.role;
-      return order.indexOf(roleA) - order.indexOf(roleB);
+      // Trees/focal limited by spacing
+      if (role === 'focal' || height > 120) {
+        const minTreeSpacing = radius * 2.5;
+        const maxTrees = Math.floor(bedBounds.width / minTreeSpacing) * Math.floor(bedBounds.height / minTreeSpacing);
+        quantity = Math.min(quantity, Math.max(1, maxTrees));
+      }
+
+      return {
+        ...bp,
+        plantData,
+        role,
+        height,
+        radius,
+        quantity,
+        isSmallPlant,
+        isCanopy: height > 120
+      };
+    }).filter(Boolean);
+
+    // Sort: place large plants first, then fill with smaller ones
+    processedPlants.sort((a, b) => {
+      const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
+      const orderDiff = order.indexOf(a.role) - order.indexOf(b.role);
+      if (orderDiff !== 0) return orderDiff;
+      return b.height - a.height; // Taller plants first within same role
     });
 
-    // Track used points to distribute evenly
-    const usedPoints = new Set();
+    // PHASE 1: Place focal/canopy trees with maximum spacing
+    const focalPlants = processedPlants.filter(p => p.role === 'focal' || p.isCanopy);
+    focalPlants.forEach(bundlePlant => {
+      const minSpacing = bundlePlant.radius * 2.5; // Trees need 2.5x their radius apart
 
-    sortedPlants.forEach((bundlePlant, plantIndex) => {
-      const plantData = ALL_PLANTS.find(p => p.id === bundlePlant.plantId);
-      if (!plantData) return;
+      for (let i = 0; i < bundlePlant.quantity; i++) {
+        // Try to space trees evenly across interior
+        let bestPos = null;
+        let bestMinDist = 0;
 
-      const scaledQuantity = Math.round(bundlePlant.quantity * bundleScale);
-      const zonePoints = getZonePoints(bundlePlant.role);
+        // Generate candidate positions in interior
+        for (let attempt = 0; attempt < 50; attempt++) {
+          // Keep trees away from edges (inset by their radius + buffer)
+          const inset = bundlePlant.isCanopy ? 24 : bundlePlant.radius + 36;
+          const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
+          const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
 
-      for (let i = 0; i < scaledQuantity; i++) {
-        // Find best available point in the zone
-        let bestPoint = null;
+          // Check if in custom path
+          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
 
-        for (const point of zonePoints) {
-          const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
-          if (usedPoints.has(pointKey)) continue;
+          // Check minimum distance from other trees
+          const minDistToOthers = newPlants
+            .filter(p => getPlantHeightInches(p.plantId) > 72)
+            .reduce((min, p) => Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
 
-          // Check if this point works (no collision)
-          const testPos = findValidPositionInBed(
-            point.x + (Math.random() - 0.5) * 15,
-            point.y + (Math.random() - 0.5) * 15,
-            bundlePlant.plantId,
-            newPlants,
-            bedBounds,
-            useCustomPath ? customBedPath : null
-          );
-
-          if (testPos) {
-            bestPoint = testPos;
-            usedPoints.add(pointKey);
-            break;
-          }
-        }
-
-        // If no zone point worked, try anywhere in the bed
-        if (!bestPoint) {
-          for (const point of validPoints) {
-            const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
-            if (usedPoints.has(pointKey)) continue;
-
-            const testPos = findValidPositionInBed(
-              point.x + (Math.random() - 0.5) * 15,
-              point.y + (Math.random() - 0.5) * 15,
-              bundlePlant.plantId,
-              newPlants,
-              bedBounds,
-              useCustomPath ? customBedPath : null
-            );
-
-            if (testPos) {
-              bestPoint = testPos;
-              usedPoints.add(pointKey);
-              break;
+          if (minDistToOthers > minSpacing && minDistToOthers > bestMinDist) {
+            if (!checkCollision(x, y, bundlePlant.plantId, newPlants)) {
+              bestPos = { x, y };
+              bestMinDist = minDistToOthers;
             }
           }
         }
 
-        if (bestPoint) {
+        if (bestPos) {
           newPlants.push({
-            id: `bundle-${Date.now()}-${plantIndex}-${i}`,
+            id: `bundle-${Date.now()}-focal-${i}`,
             plantId: bundlePlant.plantId,
-            x: bestPoint.x,
-            y: bestPoint.y,
-            rotation: (Math.random() - 0.5) * 10,
+            x: bestPos.x,
+            y: bestPos.y,
+            rotation: (Math.random() - 0.5) * 5,
             scale: 0.95 + Math.random() * 0.1
           });
         }
       }
     });
 
-    // GAP-FILLING PASS: Lightly fill remaining edge areas with groundcover only
-    // Only fill obvious gaps near edges, keep interior more open
-    const carpetPlants = plantsList.filter(p => p.role === 'carpet' || p.role === 'groundcover');
-    if (carpetPlants.length > 0) {
-      const primaryCarpet = carpetPlants[0];
-      const carpetPlantData = ALL_PLANTS.find(p => p.id === primaryCarpet.plantId);
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 2: Place structure/back plants in TIGHT CLUSTERS
+    // Shrubs like loropetalum, hydrangea, camellias should be grouped, not spread
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const structurePlants = processedPlants.filter(p => p.role === 'back' || p.role === 'topiary');
+    structurePlants.forEach(bundlePlant => {
+      // Find a cluster center position
+      let clusterCenter = null;
+      for (let attempt = 0; attempt < 50 && !clusterCenter; attempt++) {
+        const inset = bundlePlant.radius * 2 + 24;
+        const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
+        const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
 
-      if (carpetPlantData) {
-        // Only fill edge points that are far from placed plants
-        const unusedEdgePoints = [...veryEdgePoints, ...edgePoints].filter(point => {
-          const pointKey = `${Math.round(point.x)},${Math.round(point.y)}`;
-          if (usedPoints.has(pointKey)) return false;
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
 
-          // Check distance from nearest placed plant - need bigger gap
-          const minDist = newPlants.reduce((min, plant) => {
-            const dist = Math.sqrt(Math.pow(plant.x - point.x, 2) + Math.pow(plant.y - point.y, 2));
-            return Math.min(min, dist);
-          }, Infinity);
+        // Check distance from existing cluster centers (other plant types)
+        const existingCenters = newPlants.filter(p => p.isClusterCenter);
+        const minDist = existingCenters.reduce((min, p) =>
+          Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
 
-          return minDist > 40; // Only fill larger gaps (was 25)
+        if (minDist > bundlePlant.radius * 3) {
+          clusterCenter = { x, y };
+        }
+      }
+
+      if (!clusterCenter) {
+        clusterCenter = {
+          x: bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5,
+          y: bedBounds.centerY + (Math.random() - 0.5) * bedBounds.height * 0.5
+        };
+      }
+
+      // Place all plants of this type in a cluster around center
+      // Cluster spacing = 40% of spread (close but not overly jammed)
+      const clusterSpacing = bundlePlant.radius * 0.8;
+
+      for (let i = 0; i < bundlePlant.quantity; i++) {
+        let placed = false;
+        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
+          // Spiral outward from cluster center
+          const angle = (i * 137.5 + attempt * 45) * Math.PI / 180; // Golden angle spiral
+          const dist = clusterSpacing * (0.35 + Math.sqrt(i) * 0.55) + (attempt * clusterSpacing * 0.2);
+          const x = clusterCenter.x + Math.cos(angle) * dist;
+          const y = clusterCenter.y + Math.sin(angle) * dist;
+
+          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+          if (x < bedBounds.minX + 6 || x > bedBounds.maxX - 6) continue;
+          if (y < bedBounds.minY + 6 || y > bedBounds.maxY - 6) continue;
+
+          // Check collision - with HEIGHT-BASED OVERLAP rules
+          const tooClose = newPlants.some(p => {
+            const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+            const isSameType = p.plantId === bundlePlant.plantId;
+
+            // Use height-based spacing for different plant types
+            if (!isSameType) {
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
+              return d < minDist;
+            }
+
+            // Same type: cluster tightly
+            return d < clusterSpacing * 0.9;
+          });
+
+          if (!tooClose) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-struct-${i}`,
+              plantId: bundlePlant.plantId,
+              x, y,
+              rotation: (Math.random() - 0.5) * 10,
+              scale: 0.95 + Math.random() * 0.1,
+              isClusterCenter: i === 0
+            });
+            placed = true;
+          }
+        }
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 3: Place middle/seasonal plants in TIGHT CLUSTERS
+    // Perennial shrubs should also cluster - hydrangeas together, azaleas together
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const middlePlants = processedPlants.filter(p => p.role === 'middle');
+    middlePlants.forEach(bundlePlant => {
+      // Find cluster center - try to place between focal plants and edges
+      let clusterCenter = null;
+      for (let attempt = 0; attempt < 50 && !clusterCenter; attempt++) {
+        const inset = bundlePlant.radius + 18;
+        const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
+        const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
+
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+
+        // Keep away from other cluster centers
+        const existingCenters = newPlants.filter(p => p.isClusterCenter);
+        const minDist = existingCenters.reduce((min, p) =>
+          Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
+
+        if (minDist > bundlePlant.radius * 2.5) {
+          clusterCenter = { x, y };
+        }
+      }
+
+      if (!clusterCenter) {
+        clusterCenter = {
+          x: bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6,
+          y: bedBounds.centerY + (Math.random() - 0.5) * bedBounds.height * 0.6
+        };
+      }
+
+      // Cluster for mid-size plants - slightly looser than structure
+      const clusterSpacing = bundlePlant.radius * 0.7;
+
+      for (let i = 0; i < bundlePlant.quantity; i++) {
+        let placed = false;
+        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
+          const angle = (i * 137.5 + attempt * 30) * Math.PI / 180;
+          const dist = clusterSpacing * (0.25 + Math.sqrt(i) * 0.45) + (attempt * clusterSpacing * 0.15);
+          const x = clusterCenter.x + Math.cos(angle) * dist;
+          const y = clusterCenter.y + Math.sin(angle) * dist;
+
+          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+          if (x < bedBounds.minX + 4 || x > bedBounds.maxX - 4) continue;
+          if (y < bedBounds.minY + 4 || y > bedBounds.maxY - 4) continue;
+
+          // Check collision - with HEIGHT-BASED OVERLAP rules
+          const tooClose = newPlants.some(p => {
+            const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+            const isSameType = p.plantId === bundlePlant.plantId;
+
+            // Use height-based spacing for different plant types
+            if (!isSameType) {
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
+              return d < minDist;
+            }
+
+            // Same type: cluster tightly
+            return d < clusterSpacing * 0.8;
+          });
+
+          if (!tooClose) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-mid-${i}`,
+              plantId: bundlePlant.plantId,
+              x, y,
+              rotation: (Math.random() - 0.5) * 15,
+              scale: 0.9 + Math.random() * 0.15,
+              isClusterCenter: i === 0
+            });
+            placed = true;
+          }
+        }
+      }
+    });
+
+    // PHASE 4: Place front/edge plants - prioritize edges
+    const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
+    frontPlants.forEach(bundlePlant => {
+      for (let i = 0; i < bundlePlant.quantity; i++) {
+        let placed = false;
+        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
+          // Bias toward edges
+          const edgeBias = Math.random() < 0.7;
+          let x, y;
+
+          if (edgeBias) {
+            // Place near an edge
+            const edge = Math.floor(Math.random() * 4);
+            const inset = bundlePlant.radius + 6;
+            switch (edge) {
+              case 0: x = bedBounds.minX + inset + Math.random() * 30; y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2); break;
+              case 1: x = bedBounds.maxX - inset - Math.random() * 30; y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2); break;
+              case 2: x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2); y = bedBounds.minY + inset + Math.random() * 30; break;
+              case 3: x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2); y = bedBounds.maxY - inset - Math.random() * 30; break;
+            }
+          } else {
+            const inset = bundlePlant.radius + 8;
+            x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
+            y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
+          }
+
+          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+
+          const pos = findValidPositionInBed(x, y, bundlePlant.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
+          if (pos) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-front-${i}`,
+              plantId: bundlePlant.plantId,
+              x: pos.x,
+              y: pos.y,
+              rotation: (Math.random() - 0.5) * 20,
+              scale: 0.85 + Math.random() * 0.2
+            });
+            placed = true;
+          }
+        }
+      }
+    });
+
+    // PHASE 5: Fill edges with groundcover - CARPET THE EDGES
+    const groundcoverPlants = processedPlants.filter(p => p.role === 'groundcover');
+    groundcoverPlants.forEach(bundlePlant => {
+      const spacing = bundlePlant.radius * 1.8; // Groundcover can overlap slightly
+
+      // Generate edge points for systematic filling
+      const edgePoints = [];
+      const edgeInset = bundlePlant.radius + 4; // Get right to the edge
+
+      // All four edges
+      for (let x = bedBounds.minX + edgeInset; x <= bedBounds.maxX - edgeInset; x += spacing) {
+        edgePoints.push({ x, y: bedBounds.minY + edgeInset });
+        edgePoints.push({ x, y: bedBounds.maxY - edgeInset });
+      }
+      for (let y = bedBounds.minY + edgeInset + spacing; y <= bedBounds.maxY - edgeInset - spacing; y += spacing) {
+        edgePoints.push({ x: bedBounds.minX + edgeInset, y });
+        edgePoints.push({ x: bedBounds.maxX - edgeInset, y });
+      }
+
+      // Second row from edge
+      const innerInset = edgeInset + spacing;
+      for (let x = bedBounds.minX + innerInset; x <= bedBounds.maxX - innerInset; x += spacing) {
+        edgePoints.push({ x, y: bedBounds.minY + innerInset });
+        edgePoints.push({ x, y: bedBounds.maxY - innerInset });
+      }
+      for (let y = bedBounds.minY + innerInset + spacing; y <= bedBounds.maxY - innerInset - spacing; y += spacing) {
+        edgePoints.push({ x: bedBounds.minX + innerInset, y });
+        edgePoints.push({ x: bedBounds.maxX - innerInset, y });
+      }
+
+      shuffle(edgePoints);
+
+      let placedCount = 0;
+      const maxToPlace = Math.min(bundlePlant.quantity, edgePoints.length);
+
+      for (const point of edgePoints) {
+        if (placedCount >= maxToPlace) break;
+
+        if (useCustomPath && !isPointInPath(point.x, point.y, customBedPath)) continue;
+
+        // Check if there's already a plant very close
+        const tooClose = newPlants.some(p => {
+          const dist = Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
+          return dist < spacing * 0.6;
         });
 
-        // Conservative fill - only 15% of unused edge points, max 20 plants
-        const fillCount = Math.min(Math.floor(unusedEdgePoints.length * 0.15), 20);
-        shuffle(unusedEdgePoints);
-
-        for (let i = 0; i < fillCount; i++) {
-          const point = unusedEdgePoints[i];
-          if (!point) continue;
-
-          const testPos = findValidPositionInBed(
-            point.x + (Math.random() - 0.5) * 8,
-            point.y + (Math.random() - 0.5) * 8,
-            primaryCarpet.plantId,
-            newPlants,
-            bedBounds,
-            useCustomPath ? customBedPath : null
-          );
-
-          if (testPos) {
+        if (!tooClose) {
+          const pos = findValidPositionInBed(point.x, point.y, bundlePlant.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
+          if (pos) {
             newPlants.push({
-              id: `bundle-fill-${Date.now()}-${i}`,
-              plantId: primaryCarpet.plantId,
-              x: testPos.x,
-              y: testPos.y,
-              rotation: (Math.random() - 0.5) * 15,
-              scale: 0.85 + Math.random() * 0.15
+              id: `bundle-${Date.now()}-gc-${placedCount}`,
+              plantId: bundlePlant.plantId,
+              x: pos.x,
+              y: pos.y,
+              rotation: (Math.random() - 0.5) * 30,
+              scale: 0.8 + Math.random() * 0.25
             });
+            placedCount++;
+          }
+        }
+      }
+    });
+
+    // PHASE 6: Gap-fill with groundcover in any remaining spaces
+    const primaryGroundcover = groundcoverPlants[0];
+    if (primaryGroundcover) {
+      const gcSpacing = primaryGroundcover.radius * 2;
+
+      // Scan for gaps
+      for (let x = bedBounds.minX + 20; x < bedBounds.maxX - 20; x += gcSpacing) {
+        for (let y = bedBounds.minY + 20; y < bedBounds.maxY - 20; y += gcSpacing) {
+          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+
+          // Check if this area is empty
+          const nearestDist = newPlants.reduce((min, p) => {
+            return Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2)));
+          }, Infinity);
+
+          // If there's a gap bigger than groundcover spread, fill it
+          if (nearestDist > gcSpacing * 1.5) {
+            const pos = findValidPositionInBed(x, y, primaryGroundcover.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
+            if (pos) {
+              newPlants.push({
+                id: `bundle-${Date.now()}-fill-${x}-${y}`,
+                plantId: primaryGroundcover.plantId,
+                x: pos.x,
+                y: pos.y,
+                rotation: (Math.random() - 0.5) * 30,
+                scale: 0.8 + Math.random() * 0.2
+              });
+            }
           }
         }
       }
@@ -999,7 +1627,7 @@ export default function StudioPage() {
       ctx.strokeRect(0, 0, width, height);
     }
 
-    // Draw plants as circles with category-based colors
+    // Draw plants as circles with realistic colors based on bloom/foliage
     placedPlants.forEach(plant => {
       const plantData = ALL_PLANTS.find(p => p.id === plant.plantId);
       if (!plantData) return;
@@ -1008,18 +1636,48 @@ export default function StudioPage() {
       const spread = spreadMatch ? parseInt(spreadMatch[1]) : 12;
       const radius = (spread / 2) * scale;
 
-      // Color based on category (for sketch clarity)
-      const categoryColors = {
-        focal: '#2E7D32',      // Dark green for trees
-        topiary: '#1B5E20',    // Darker green
-        back: '#4CAF50',       // Medium green
-        middle: '#81C784',     // Light green
-        front: '#C8E6C9',      // Very light green
-        groundcover: '#A5D6A7' // Pale green
+      // Get realistic color based on bloom color or foliage
+      let fillColor = '#4CAF50'; // Default green
+
+      // Map bloom colors to actual colors
+      const colorMap = {
+        'white': '#F5F5F5',
+        'pink': '#F8BBD9',
+        'red': '#EF5350',
+        'purple': '#9C27B0',
+        'lavender': '#B39DDB',
+        'blue': '#64B5F6',
+        'yellow': '#FFEE58',
+        'orange': '#FFB74D',
+        'coral': '#FF8A65',
+        'green': '#66BB6A',
+        'chartreuse': '#C0CA33',
+        'burgundy': '#7B1FA2',
+        'magenta': '#E91E63',
       };
 
-      ctx.fillStyle = categoryColors[plantData.category] || '#4CAF50';
-      ctx.strokeStyle = '#000000';
+      // Use bloom color if available
+      if (plantData.bloomColor) {
+        const bloomLower = plantData.bloomColor.toLowerCase();
+        for (const [colorName, hexColor] of Object.entries(colorMap)) {
+          if (bloomLower.includes(colorName)) {
+            fillColor = hexColor;
+            break;
+          }
+        }
+      }
+
+      // Trees and large shrubs should be darker green
+      if (plantData.category === 'focal' || plantData.category === 'back') {
+        const heightMatch = plantData.height?.match(/(\d+)/);
+        const height = heightMatch ? parseInt(heightMatch[1]) : 24;
+        if (height > 60) { // Trees over 5ft
+          fillColor = '#2E7D32'; // Dark green for tree canopy
+        }
+      }
+
+      ctx.fillStyle = fillColor;
+      ctx.strokeStyle = '#1B5E20';
       ctx.lineWidth = 2 / uniformScale;
 
       ctx.beginPath();
@@ -1046,96 +1704,134 @@ export default function StudioPage() {
     setSelectedSeason(season);
 
     try {
-      // Build detailed plant inventory
-      const plantDetails = {};
+      // Get bed dimensions
+      const bedWidthInches = bedDimensions.width * 12;
+      const bedHeightInches = bedDimensions.height * 12;
+      const bedSizeFt = `${bedDimensions.width}ft x ${bedDimensions.height}ft`;
+
+      // Analyze spatial positions of each plant
+      const getPosition = (x, y) => {
+        const xPercent = x / bedWidthInches;
+        const yPercent = y / bedHeightInches;
+
+        // Horizontal position
+        let hPos = 'center';
+        if (xPercent < 0.33) hPos = 'left';
+        else if (xPercent > 0.67) hPos = 'right';
+
+        // Vertical/depth position (y=0 is back, y=max is front)
+        let vPos = 'middle';
+        if (yPercent < 0.33) vPos = 'back';
+        else if (yPercent > 0.67) vPos = 'front';
+
+        return { hPos, vPos, xPercent, yPercent };
+      };
+
+      // Group plants by spatial zones with clustering detection
+      const spatialGroups = {
+        'back-left': [],
+        'back-center': [],
+        'back-right': [],
+        'middle-left': [],
+        'middle-center': [],
+        'middle-right': [],
+        'front-left': [],
+        'front-center': [],
+        'front-right': []
+      };
+
+      // Also track plant counts for summary
+      const plantCounts = {};
+
       placedPlants.forEach(p => {
         const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
-        if (plantData) {
-          if (!plantDetails[plantData.name]) {
-            plantDetails[plantData.name] = {
-              count: 0,
-              height: plantData.height,
-              spread: plantData.spread,
-              category: plantData.category,
-              bloomTime: plantData.bloomTime,
-              bloomColor: plantData.bloomColor || 'green foliage',
-              disneyUse: plantData.disneyUse
-            };
-          }
-          plantDetails[plantData.name].count++;
+        if (!plantData) return;
+
+        const pos = getPosition(p.x, p.y);
+        const zoneKey = `${pos.vPos}-${pos.hPos}`;
+
+        // Count total plants
+        if (!plantCounts[plantData.name]) {
+          plantCounts[plantData.name] = { count: 0, color: plantData.bloomColor || 'green foliage', height: plantData.height };
+        }
+        plantCounts[plantData.name].count++;
+
+        // Add to spatial group
+        if (!spatialGroups[zoneKey]) spatialGroups[zoneKey] = [];
+
+        // Check if this plant type already exists in zone (for clustering description)
+        const existing = spatialGroups[zoneKey].find(g => g.name === plantData.name);
+        if (existing) {
+          existing.count++;
+        } else {
+          spatialGroups[zoneKey].push({
+            name: plantData.name,
+            count: 1,
+            height: plantData.height,
+            color: plantData.bloomColor || 'green foliage',
+            category: plantData.category
+          });
         }
       });
 
-      // Group plants by category with detailed descriptions
-      const byCategory = {
-        focal: [],
-        topiary: [],
-        back: [],
-        middle: [],
-        front: [],
-        groundcover: []
-      };
-
-      Object.entries(plantDetails).forEach(([name, info]) => {
-        const description = `${info.count}x ${name} (${info.height} tall, ${info.bloomColor}, blooms ${info.bloomTime})`;
-        byCategory[info.category]?.push(description);
-      });
-
-      // Build the detailed prompt - bedDimensions is already in feet
-      const bedSizeFt = `${bedDimensions.width}ft x ${bedDimensions.height}ft`;
-
-      // Describe the bed shape
+      // Describe bed shape
       let bedShapeDescription = 'rectangular';
       if (bedType === 'custom' && customBedPath.length > 2) {
-        // Analyze the custom path to describe the shape
         const bounds = getPathBounds(customBedPath);
         const width = bounds.maxX - bounds.minX;
         const height = bounds.maxY - bounds.minY;
         const aspectRatio = width / height;
-        const numPoints = customBedPath.length;
 
-        if (numPoints <= 6) {
+        if (customBedPath.length <= 6) {
           bedShapeDescription = 'organic curved kidney-bean shaped';
-        } else if (numPoints <= 12) {
+        } else if (customBedPath.length <= 12) {
           bedShapeDescription = 'organic free-form curved';
         } else {
           bedShapeDescription = 'natural organic curved with flowing edges';
         }
 
-        if (aspectRatio > 2) {
-          bedShapeDescription += ', elongated horizontal';
-        } else if (aspectRatio < 0.5) {
-          bedShapeDescription += ', elongated vertical';
-        }
+        if (aspectRatio > 2) bedShapeDescription += ', elongated horizontal';
+        else if (aspectRatio < 0.5) bedShapeDescription += ', elongated vertical';
       }
 
+      // Build spatial layout description
       let promptParts = [];
-      promptParts.push(`GARDEN BED SPECIFICATIONS:`);
-      promptParts.push(`- Shape: ${bedShapeDescription} mulch bed`);
-      promptParts.push(`- Size: ${bedSizeFt} canvas area`);
-      promptParts.push(`- Total plants: ${placedPlants.length}`);
-      promptParts.push(`- Coverage: ${coveragePercent.toFixed(0)}%`);
+      promptParts.push(`GARDEN BED: ${bedShapeDescription} mulch bed, ${bedSizeFt}, ${placedPlants.length} plants total`);
       promptParts.push('');
-      promptParts.push('EXACT PLANT LIST (show these specific plants):');
+      promptParts.push('PRECISE PLANT LAYOUT (viewer looking at bed from front):');
 
-      if (byCategory.focal.length) {
-        promptParts.push(`FOCAL/SPECIMEN TREES (tallest, back-center): ${byCategory.focal.join('; ')}`);
-      }
-      if (byCategory.topiary.length) {
-        promptParts.push(`TOPIARIES (sculptural, accent positions): ${byCategory.topiary.join('; ')}`);
-      }
-      if (byCategory.back.length) {
-        promptParts.push(`BACK ROW (tall shrubs 4-8ft, along back edge): ${byCategory.back.join('; ')}`);
-      }
-      if (byCategory.middle.length) {
-        promptParts.push(`MIDDLE ROW (medium shrubs 2-4ft): ${byCategory.middle.join('; ')}`);
-      }
-      if (byCategory.front.length) {
-        promptParts.push(`FRONT ROW (low plants 1-2ft, along front edge): ${byCategory.front.join('; ')}`);
-      }
-      if (byCategory.groundcover.length) {
-        promptParts.push(`GROUNDCOVER/EDGING (under 1ft, fills gaps): ${byCategory.groundcover.join('; ')}`);
-      }
+      // Describe each zone that has plants
+      const zoneDescriptions = {
+        'back-left': 'BACK LEFT CORNER',
+        'back-center': 'BACK CENTER (against house/fence)',
+        'back-right': 'BACK RIGHT CORNER',
+        'middle-left': 'MIDDLE LEFT SIDE',
+        'middle-center': 'CENTER OF BED',
+        'middle-right': 'MIDDLE RIGHT SIDE',
+        'front-left': 'FRONT LEFT (near viewer)',
+        'front-center': 'FRONT CENTER EDGE',
+        'front-right': 'FRONT RIGHT (near viewer)'
+      };
+
+      Object.entries(spatialGroups).forEach(([zone, plants]) => {
+        if (plants.length === 0) return;
+
+        const zoneName = zoneDescriptions[zone];
+        const plantDescriptions = plants.map(p => {
+          if (p.count > 1) {
+            return `cluster of ${p.count} ${p.name} (${p.color})`;
+          }
+          return `1 ${p.name} (${p.height}, ${p.color})`;
+        });
+
+        promptParts.push(`${zoneName}: ${plantDescriptions.join(', ')}`);
+      });
+
+      promptParts.push('');
+      promptParts.push('PLANT SUMMARY:');
+      Object.entries(plantCounts).forEach(([name, info]) => {
+        promptParts.push(`- ${info.count}x ${name} (${info.height}, ${info.color})`);
+      });
 
       const prompt = promptParts.join('\n');
 
@@ -1145,16 +1841,73 @@ export default function StudioPage() {
       console.log('Generating image with prompt:', prompt);
       console.log('Sketch image generated for ControlNet');
 
-      const response = await fetch('/.netlify/functions/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, season, sketchImage }),
-      });
+      let imageUrl;
 
-      const data = await response.json();
+      // Try Netlify function first (production), fall back to direct API call (dev)
+      try {
+        const response = await fetch('/.netlify/functions/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, season, sketchImage }),
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate image');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to generate image');
+        }
+        imageUrl = data.imageUrl;
+      } catch (netlifyError) {
+        console.log('Netlify function not available, trying direct API call...');
+
+        // Check for API token in localStorage (dev mode fallback)
+        const apiToken = localStorage.getItem('REPLICATE_API_TOKEN');
+        if (!apiToken) {
+          throw new Error('Vision Preview requires setup. Enter your Replicate API token in browser console: localStorage.setItem("REPLICATE_API_TOKEN", "your_token_here") - Get a free token at replicate.com/account/api-tokens');
+        }
+
+        // Call Replicate SDXL img2img API directly with sketch
+        const replicateResponse = await fetch('https://api.replicate.com/v1/models/stability-ai/sdxl/predictions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiToken}`,
+          },
+          body: JSON.stringify({
+            input: {
+              image: sketchImage,
+              prompt: prompt + ", professional landscape photography, realistic plants and foliage, natural lighting, photorealistic",
+              negative_prompt: "cartoon, anime, illustration, drawing, sketch, abstract, blurry",
+              prompt_strength: 0.75,  // Keep 25% structure from sketch
+              num_outputs: 1,
+              guidance_scale: 7.5,
+              num_inference_steps: 30,
+            }
+          }),
+        });
+
+        if (!replicateResponse.ok) {
+          const errorData = await replicateResponse.json();
+          throw new Error(errorData.detail || 'Replicate API error');
+        }
+
+        const prediction = await replicateResponse.json();
+
+        // Poll for result
+        let result = prediction;
+        while (result.status !== 'succeeded' && result.status !== 'failed') {
+          await new Promise(r => setTimeout(r, 1000));
+          const pollResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
+            headers: { 'Authorization': `Bearer ${apiToken}` }
+          });
+          result = await pollResponse.json();
+        }
+
+        if (result.status === 'failed') {
+          throw new Error(result.error || 'Image generation failed');
+        }
+
+        imageUrl = Array.isArray(result.output) ? result.output[0] : result.output;
       }
 
       const plantList = Object.entries(plantDetails)
@@ -1162,12 +1915,12 @@ export default function StudioPage() {
         .join(', ');
 
       setGeneratedImage({
-        url: data.imageUrl,
+        url: imageUrl,
         season: season,
         description: `${season.charAt(0).toUpperCase() + season.slice(1)} garden with ${plantList}`,
         plantCount: placedPlants.length,
         coverage: coveragePercent.toFixed(1),
-        revisedPrompt: data.revisedPrompt
+        revisedPrompt: prompt.substring(0, 200) + '...'
       });
     } catch (error) {
       console.error('Vision generation error:', error);
@@ -1452,7 +2205,31 @@ export default function StudioPage() {
                             <div className="font-medium text-sage-900 truncate">{plant.name}</div>
                             <div className="text-xs text-sage-500 truncate">
                               {plant.height} {hasSizes && `• ${selectedSize}`}
-                              {plant.zones && ` • Zones ${Math.min(...plant.zones)}-${Math.max(...plant.zones)}`}
+                              {plant.zones && ` • Z${Math.min(...plant.zones)}-${Math.max(...plant.zones)}`}
+                            </div>
+                            {/* Form, Texture & Bloom badges */}
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {plant.form && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-forest-100 text-forest-700 rounded capitalize">
+                                  {PLANT_FORMS[plant.form.toUpperCase()]?.icon || '●'} {plant.form}
+                                </span>
+                              )}
+                              {plant.texture && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-olive-100 text-olive-700 rounded capitalize">
+                                  {plant.texture}
+                                </span>
+                              )}
+                              {plant.bloomMonths && plant.bloomMonths.length > 0 && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded">
+                                  {MONTHS.find(m => m.id === plant.bloomMonths[0])?.abbr}-
+                                  {MONTHS.find(m => m.id === plant.bloomMonths[plant.bloomMonths.length - 1])?.abbr}
+                                </span>
+                              )}
+                              {plant.isEvergreen && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-sage-100 text-sage-700 rounded">
+                                  Evergreen
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -1565,6 +2342,32 @@ export default function StudioPage() {
 
           {activeTab === 'bundles' && (
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* Bundle Type Toggle */}
+              <div className="flex gap-1 bg-sage-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setBundleTypeFilter('disney')}
+                  className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                    (bundleTypeFilter || 'disney') === 'disney'
+                      ? 'bg-white text-sage-800 shadow-sm'
+                      : 'text-sage-600 hover:text-sage-800'
+                  }`}
+                >
+                  <Crown className="w-3 h-3" />
+                  Disney Themes
+                </button>
+                <button
+                  onClick={() => setBundleTypeFilter('residential')}
+                  className={`flex-1 py-2 px-3 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1 ${
+                    bundleTypeFilter === 'residential'
+                      ? 'bg-white text-sage-800 shadow-sm'
+                      : 'text-sage-600 hover:text-sage-800'
+                  }`}
+                >
+                  <Home className="w-3 h-3" />
+                  Home Landscape
+                </button>
+              </div>
+
               {/* Scale Selector */}
               <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
                 <label className="block text-sm font-medium text-sage-700 mb-2">
@@ -1587,8 +2390,8 @@ export default function StudioPage() {
                 </div>
               </div>
 
-              {/* Bundle Cards */}
-              {BED_BUNDLES.map(bundle => {
+              {/* Bundle Cards - Disney Bundles */}
+              {(bundleTypeFilter || 'disney') === 'disney' && BED_BUNDLES.map(bundle => {
                 // Handle both old flat array format and new object format
                 const plantsList = Array.isArray(bundle.plants)
                   ? bundle.plants
@@ -1675,6 +2478,110 @@ export default function StudioPage() {
                   </div>
                 );
               })}
+
+              {/* Bundle Cards - Residential Bundles */}
+              {bundleTypeFilter === 'residential' && RESIDENTIAL_BUNDLES.map(bundle => {
+                const plantsList = getBundlePlants(bundle);
+                const totalPlants = plantsList.reduce((sum, p) => sum + Math.round((p.quantity || 1) * bundleScale), 0);
+                const zoneInfo = YARD_ZONES[bundle.yardZone];
+
+                return (
+                  <div
+                    key={bundle.id}
+                    className="bg-white rounded-xl overflow-hidden border border-olive-200 hover:border-olive-300 hover:shadow-md transition-all"
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-3xl">{bundle.preview}</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-sage-900">{bundle.name}</h3>
+                          {bundle.subtitle && (
+                            <p className="text-xs text-sage-600">{bundle.subtitle}</p>
+                          )}
+                          <p className="text-xs text-olive-600">{bundle.theme}</p>
+                        </div>
+                        <span className="text-xs bg-olive-100 text-olive-700 px-2 py-1 rounded-full">
+                          Home
+                        </span>
+                      </div>
+                      <p className="text-sm text-sage-600 mb-3 line-clamp-2">{bundle.description}</p>
+
+                      {/* Yard Zone Badge */}
+                      {zoneInfo && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs text-sage-500">Best for:</span>
+                          <span className="text-xs bg-olive-50 text-olive-700 px-2 py-0.5 rounded">
+                            {zoneInfo.name}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Color Scheme Preview */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-sage-500">Colors:</span>
+                        <div className="flex gap-1">
+                          {bundle.colorScheme.map((color, i) => (
+                            <div
+                              key={i}
+                              className="w-5 h-5 rounded-full ring-2 ring-sage-100"
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Package Info */}
+                      <div className="flex items-center gap-3 text-xs text-sage-500 mb-2">
+                        <span>{totalPlants} plants at {bundleScale}x</span>
+                        {bundle.baseSize && <span>• {bundle.baseSize}</span>}
+                        {bundle.defaultZone && <span>• Zone {bundle.defaultZone}</span>}
+                      </div>
+
+                      {/* Filters/Conditions */}
+                      {bundle.filters && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {bundle.filters.light && (
+                            <span className="text-[10px] bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.light}
+                            </span>
+                          )}
+                          {bundle.filters.moisture && (
+                            <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.moisture}
+                            </span>
+                          )}
+                          {bundle.filters.maintenance && (
+                            <span className="text-[10px] bg-sage-50 text-sage-700 px-1.5 py-0.5 rounded">
+                              {bundle.filters.maintenance}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Finish Notes */}
+                      {bundle.finishNotes && (
+                        <div className="text-[10px] bg-cream-50 text-sage-600 px-2 py-1 rounded mb-2 italic">
+                          💡 {bundle.finishNotes}
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          applyBundle(bundle);
+                          // Auto-set yard zone when applying residential bundle
+                          if (bundle.yardZone) {
+                            setSelectedYardZone(bundle.yardZone);
+                          }
+                        }}
+                        className="w-full bg-olive-500 hover:bg-olive-600 text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Home className="w-4 h-4" />
+                        Apply Bundle
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </aside>
@@ -1741,6 +2648,198 @@ export default function StudioPage() {
                   <Square className="w-4 h-4" />
                 </button>
               )}
+              {/* Bed Orientation Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setSelectedEdge(selectedEdge ? null : 'menu')}
+                  className={`px-3 py-2 rounded-lg transition-all flex items-center gap-2 font-medium text-sm ${
+                    selectedEdge
+                      ? 'bg-gradient-to-r from-olive-500 to-forest-500 text-white shadow-md'
+                      : 'bg-white text-sage-700 hover:bg-sage-50 border border-sage-200 shadow-sm'
+                  }`}
+                  title="Set Bed Orientation"
+                >
+                  <Layers className="w-4 h-4" />
+                  <span className="hidden sm:inline">Bed Sides</span>
+                </button>
+                {selectedEdge === 'menu' && (
+                  <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-sage-200 z-50 overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-sage-50 to-olive-50 px-4 py-3 border-b border-sage-200">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-sage-800">Bed Orientation</h4>
+                        <button
+                          onClick={() => setShowBedLabels(!showBedLabels)}
+                          className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
+                            showBedLabels
+                              ? 'bg-olive-500 text-white shadow-sm'
+                              : 'bg-white text-sage-600 border border-sage-200'
+                          }`}
+                        >
+                          {showBedLabels ? '👁️ Visible' : '👁️ Hidden'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      {/* Visual Bed Diagram */}
+                      <div className="relative w-48 h-32 mx-auto mb-4 bg-gradient-to-b from-wood-100 to-wood-200 rounded-lg border-2 border-wood-300">
+                        {/* Top Edge Button */}
+                        <button
+                          onClick={() => {
+                            const opts = BED_EDGE_OPTIONS.map(o => o.id);
+                            const current = opts.indexOf(bedOrientation.top);
+                            const next = opts[(current + 1) % opts.length];
+                            setBedOrientation(prev => ({ ...prev, top: next }));
+                          }}
+                          className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-white text-xs font-medium shadow-lg hover:scale-110 transition-transform cursor-pointer flex items-center gap-1"
+                          style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top)?.color }}
+                          title="Click to change"
+                        >
+                          <span>{BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top)?.icon}</span>
+                          <span>{bedOrientation.top === 'front' ? 'FRONT' : bedOrientation.top.toUpperCase()}</span>
+                        </button>
+                        {/* Bottom Edge Button */}
+                        <button
+                          onClick={() => {
+                            const opts = BED_EDGE_OPTIONS.map(o => o.id);
+                            const current = opts.indexOf(bedOrientation.bottom);
+                            const next = opts[(current + 1) % opts.length];
+                            setBedOrientation(prev => ({ ...prev, bottom: next }));
+                          }}
+                          className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-white text-xs font-medium shadow-lg hover:scale-110 transition-transform cursor-pointer flex items-center gap-1"
+                          style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom)?.color }}
+                          title="Click to change"
+                        >
+                          <span>{BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom)?.icon}</span>
+                          <span>{bedOrientation.bottom === 'front' ? 'FRONT' : bedOrientation.bottom.toUpperCase()}</span>
+                        </button>
+                        {/* Left Edge Button */}
+                        <button
+                          onClick={() => {
+                            const opts = BED_EDGE_OPTIONS.map(o => o.id);
+                            const current = opts.indexOf(bedOrientation.left);
+                            const next = opts[(current + 1) % opts.length];
+                            setBedOrientation(prev => ({ ...prev, left: next }));
+                          }}
+                          className="absolute -left-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                          style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left)?.color }}
+                          title="Click to change"
+                        >
+                          <span>{BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left)?.icon}</span>
+                        </button>
+                        {/* Right Edge Button */}
+                        <button
+                          onClick={() => {
+                            const opts = BED_EDGE_OPTIONS.map(o => o.id);
+                            const current = opts.indexOf(bedOrientation.right);
+                            const next = opts[(current + 1) % opts.length];
+                            setBedOrientation(prev => ({ ...prev, right: next }));
+                          }}
+                          className="absolute -right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                          style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right)?.color }}
+                          title="Click to change"
+                        >
+                          <span>{BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right)?.icon}</span>
+                        </button>
+                        {/* Center Label */}
+                        <div className="absolute inset-0 flex items-center justify-center text-wood-600 text-xs">
+                          Click edges to change
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex gap-2 mb-4">
+                        <button
+                          onClick={() => {
+                            setBedOrientation(prev => ({
+                              ...prev,
+                              top: prev.bottom,
+                              bottom: prev.top
+                            }));
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+                        >
+                          <FlipHorizontal className="w-4 h-4 rotate-90" />
+                          Swap Front/Back
+                        </button>
+                        <button
+                          onClick={() => {
+                            setBedOrientation(prev => ({
+                              ...prev,
+                              left: prev.right,
+                              right: prev.left
+                            }));
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all"
+                        >
+                          <FlipHorizontal className="w-4 h-4" />
+                          Swap Left/Right
+                        </button>
+                      </div>
+
+                      {/* Make Viewable Buttons */}
+                      <div className="mb-4">
+                        <div className="text-xs text-sage-500 mb-2 font-medium">Quick Set Viewable (Front)</div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {['top', 'bottom', 'left', 'right'].map(edge => (
+                            <button
+                              key={edge}
+                              onClick={() => setBedOrientation(prev => ({ ...prev, [edge]: 'front' }))}
+                              className={`py-2 px-2 rounded-lg text-xs font-medium transition-all ${
+                                bedOrientation[edge] === 'front'
+                                  ? 'bg-green-500 text-white shadow-md'
+                                  : 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                              }`}
+                            >
+                              {edge.charAt(0).toUpperCase() + edge.slice(1)}
+                              {bedOrientation[edge] === 'front' && ' 👁️'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Presets */}
+                      <div className="border-t border-sage-200 pt-3">
+                        <div className="text-xs text-sage-500 mb-2 font-medium">Quick Presets</div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {BED_ORIENTATION_PRESETS.slice(0, 6).map(preset => (
+                            <button
+                              key={preset.id}
+                              onClick={() => setBedOrientation(preset.orientation)}
+                              className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-sage-50 transition-all hover:shadow-md border border-transparent hover:border-sage-200"
+                            >
+                              <span className="text-2xl">{preset.icon}</span>
+                              <span className="text-[10px] text-sage-600 font-medium text-center leading-tight">{preset.name.split(' ')[0]}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-4 py-3 bg-sage-50 border-t border-sage-200">
+                      <button
+                        onClick={() => setSelectedEdge(null)}
+                        className="w-full py-2.5 bg-gradient-to-r from-sage-600 to-olive-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setShowBedLabels(!showBedLabels)}
+                className={`px-3 py-2 rounded-lg transition-all flex items-center gap-1 font-medium text-sm ${
+                  showBedLabels
+                    ? 'bg-gradient-to-r from-olive-500 to-forest-500 text-white shadow-md'
+                    : 'bg-white text-sage-600 hover:bg-sage-50 border border-sage-200 shadow-sm'
+                }`}
+                title={showBedLabels ? 'Hide Edge Labels' : 'Show Edge Labels'}
+              >
+                <Eye className="w-4 h-4" />
+              </button>
               <div className="w-px h-6 bg-sage-200 mx-2" />
               <button
                 onClick={clearCanvas}
@@ -1832,6 +2931,33 @@ export default function StudioPage() {
 
           {/* Canvas */}
           <div className="flex-1 overflow-auto bg-cream-100 p-8">
+            {/* Placement Warnings - Residential Rules Violations */}
+            {placementWarnings.length > 0 && (
+              <div className="max-w-2xl mx-auto mb-4 space-y-2">
+                {placementWarnings.map((warning, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-2 p-3 rounded-lg text-sm shadow-md animate-pulse ${
+                      warning.type === 'error'
+                        ? 'bg-red-50 border border-red-200 text-red-800'
+                        : 'bg-amber-50 border border-amber-200 text-amber-800'
+                    }`}
+                  >
+                    <span className="flex-shrink-0">
+                      {warning.type === 'error' ? '🚫' : '⚠️'}
+                    </span>
+                    <span>{warning.message}</span>
+                    <button
+                      onClick={() => setPlacementWarnings(prev => prev.filter((_, i) => i !== idx))}
+                      className="ml-auto text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div
               className="relative mx-auto bg-gradient-to-b from-wood-200 to-wood-300 rounded-lg overflow-hidden shadow-xl border border-wood-400"
               style={{
@@ -1922,6 +3048,79 @@ export default function StudioPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
+              )}
+
+              {/* Bed Edge Labels - Visual orientation indicators */}
+              {showBedLabels && bedType === 'rectangle' && (
+                <>
+                  {/* Top Edge Label */}
+                  {(() => {
+                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top);
+                    return opt && (
+                      <div
+                        className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                        style={{ backgroundColor: opt.color }}
+                      >
+                        <span>{opt.icon}</span>
+                        <span className="hidden sm:inline">{opt.label.split(' ')[0]}</span>
+                      </div>
+                    );
+                  })()}
+                  {/* Bottom Edge Label */}
+                  {(() => {
+                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom);
+                    return opt && (
+                      <div
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                        style={{ backgroundColor: opt.color }}
+                      >
+                        <span>{opt.icon}</span>
+                        <span className="hidden sm:inline">{opt.label.split(' ')[0]}</span>
+                      </div>
+                    );
+                  })()}
+                  {/* Left Edge Label */}
+                  {(() => {
+                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left);
+                    return opt && (
+                      <div
+                        className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                        style={{ backgroundColor: opt.color, writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+                      >
+                        <span style={{ writingMode: 'horizontal-tb' }}>{opt.icon}</span>
+                      </div>
+                    );
+                  })()}
+                  {/* Right Edge Label */}
+                  {(() => {
+                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right);
+                    return opt && (
+                      <div
+                        className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                        style={{ backgroundColor: opt.color, writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+                      >
+                        <span style={{ writingMode: 'horizontal-tb' }}>{opt.icon}</span>
+                      </div>
+                    );
+                  })()}
+                  {/* Edge Color Bars */}
+                  <div
+                    className="absolute top-0 left-4 right-4 h-1 rounded-full pointer-events-none"
+                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top)?.color || '#9E9E9E' }}
+                  />
+                  <div
+                    className="absolute bottom-0 left-4 right-4 h-1 rounded-full pointer-events-none"
+                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom)?.color || '#9E9E9E' }}
+                  />
+                  <div
+                    className="absolute left-0 top-4 bottom-4 w-1 rounded-full pointer-events-none"
+                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left)?.color || '#9E9E9E' }}
+                  />
+                  <div
+                    className="absolute right-0 top-4 bottom-4 w-1 rounded-full pointer-events-none"
+                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right)?.color || '#9E9E9E' }}
+                  />
+                </>
               )}
 
               {/* Placed Plants */}
@@ -2041,6 +3240,62 @@ export default function StudioPage() {
               </div>
             </div>
 
+            {/* Design Mode Toggle - Home Plant Trainer */}
+            <div className="bg-gradient-to-br from-olive-50 to-sage-50 rounded-xl p-4 border border-sage-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Home className="w-5 h-5 text-olive-600" />
+                <h3 className="font-bold text-sage-800">Design Mode</h3>
+              </div>
+              <div className="flex gap-1 mb-3">
+                {[
+                  { id: 'disney', label: 'Disney', icon: Crown },
+                  { id: 'residential', label: 'Home', icon: Home },
+                  { id: 'hybrid', label: 'Both', icon: Star },
+                ].map(mode => (
+                  <button
+                    key={mode.id}
+                    onClick={() => setDesignMode(mode.id)}
+                    className={`flex-1 flex items-center justify-center gap-1 py-2 px-2 rounded-lg text-xs font-medium transition-all ${
+                      designMode === mode.id
+                        ? 'bg-olive-600 text-white shadow-sm'
+                        : 'bg-white text-sage-600 hover:bg-sage-100 border border-sage-200'
+                    }`}
+                  >
+                    <mode.icon className="w-3 h-3" />
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Yard Zone Selector - Residential Context */}
+              {(designMode === 'residential' || designMode === 'hybrid') && (
+                <div>
+                  <label className="text-xs font-medium text-sage-600 block mb-1">Yard Zone</label>
+                  <select
+                    value={selectedYardZone}
+                    onChange={(e) => setSelectedYardZone(e.target.value)}
+                    className="w-full p-2 text-xs border border-sage-200 rounded-lg bg-white text-sage-800 focus:ring-2 focus:ring-olive-400 focus:border-olive-400"
+                  >
+                    {Object.entries(YARD_ZONES).map(([key, zone]) => (
+                      <option key={key} value={key}>{zone.name}</option>
+                    ))}
+                  </select>
+                  {YARD_ZONES[selectedYardZone] && (
+                    <div className="mt-2 p-2 bg-white rounded-lg border border-sage-100">
+                      <div className="text-xs text-sage-600">{YARD_ZONES[selectedYardZone].description}</div>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {YARD_ZONES[selectedYardZone].goals?.map((goal, i) => (
+                          <span key={i} className="text-xs bg-olive-100 text-olive-700 px-2 py-0.5 rounded-full">
+                            {goal}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Design Stats */}
             <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
               <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
@@ -2136,37 +3391,269 @@ export default function StudioPage() {
               </div>
             </div>
 
-            {/* Design Rules Checklist */}
-            <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
-              <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                Design Rules Check
-              </h3>
-              <div className="space-y-2 text-sm">
-                {[
-                  { rule: '95%+ Plant Coverage', met: coveragePercent >= 95 },
-                  { rule: 'Height Graduation', met: placedPlants.length >= 3 },
-                  { rule: 'Color Harmony (≤3 hues)', met: colorHarmonyStatus.valid },
-                  { rule: 'Edge Definition', met: placedPlants.some(p => ALL_PLANTS.find(pl => pl.id === p.plantId)?.category === 'groundcover') },
-                  { rule: 'Focal Point Present', met: placedPlants.some(p => ALL_PLANTS.find(pl => pl.id === p.plantId)?.category === 'focal') },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                      item.met ? 'bg-sage-500' : 'bg-sage-200'
-                    }`}>
-                      {item.met ? (
-                        <Check className="w-3 h-3 text-white" />
-                      ) : (
-                        <CircleDot className="w-3 h-3 text-sage-400" />
-                      )}
-                    </div>
-                    <span className={item.met ? 'text-sage-700' : 'text-sage-400'}>
-                      {item.rule}
-                    </span>
+            {/* Show Ready Score - Disney Quality Check */}
+            {showReadyScore && (designMode === 'disney' || designMode === 'hybrid') && (
+              <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
+                <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
+                  <Crown className="w-4 h-4" />
+                  Show Ready Score
+                </h3>
+
+                {/* Overall Score */}
+                <div className="text-center mb-4">
+                  <div
+                    className="inline-flex items-center justify-center w-20 h-20 rounded-full text-white text-2xl font-bold"
+                    style={{ backgroundColor: showReadyScore.ratingColor }}
+                  >
+                    {showReadyScore.totalScore}
                   </div>
-                ))}
+                  <div
+                    className="mt-2 font-semibold"
+                    style={{ color: showReadyScore.ratingColor }}
+                  >
+                    {showReadyScore.rating}
+                  </div>
+                </div>
+
+                {/* Individual Scores */}
+                <div className="space-y-2 text-xs">
+                  {[
+                    { label: 'Coverage', score: showReadyScore.scores.coverage, weight: 20 },
+                    { label: 'Bloom Sequence', score: showReadyScore.scores.bloomSequence, weight: 20 },
+                    { label: 'Height Layers', score: showReadyScore.scores.heightLayering, weight: 15 },
+                    { label: 'Form Variety', score: showReadyScore.scores.formVariety, weight: 15 },
+                    { label: 'Texture Mix', score: showReadyScore.scores.textureVariety, weight: 10 },
+                    { label: 'Mass Planting', score: showReadyScore.scores.massPlanting, weight: 10 },
+                    { label: 'Color Harmony', score: showReadyScore.scores.colorHarmony, weight: 10 },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">{item.label}</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${item.score}%`,
+                            backgroundColor: item.score >= 80 ? '#4CAF50' : item.score >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(item.score)}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Residential Score - Home Plant Trainer */}
+            {residentialScore && (designMode === 'residential' || designMode === 'hybrid') && (
+              <div className="bg-gradient-to-br from-olive-50 to-cream-50 rounded-xl p-4 border border-olive-200">
+                <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
+                  <Home className="w-4 h-4 text-olive-600" />
+                  Home Landscape Score
+                </h3>
+
+                {/* Overall Score */}
+                <div className="text-center mb-4">
+                  <div
+                    className="inline-flex items-center justify-center w-20 h-20 rounded-full text-white text-2xl font-bold"
+                    style={{ backgroundColor: residentialScore.ratingColor }}
+                  >
+                    {residentialScore.totalScore}
+                  </div>
+                  <div
+                    className="mt-2 font-semibold"
+                    style={{ color: residentialScore.ratingColor }}
+                  >
+                    {residentialScore.rating}
+                  </div>
+                </div>
+
+                {/* Individual Scores */}
+                <div className="space-y-2 text-xs">
+                  {[
+                    { label: 'Layering', score: residentialScore.scores.layering, weight: 20 },
+                    { label: 'Spacing', score: residentialScore.scores.spacing, weight: 20 },
+                    { label: 'Odd Groups', score: residentialScore.scores.oddGroupings, weight: 15 },
+                    { label: 'Zone Fit', score: residentialScore.scores.zoneCompliance, weight: 15 },
+                    { label: '4-Season', score: residentialScore.scores.fourSeason, weight: 15 },
+                    { label: 'Curb Appeal', score: residentialScore.scores.curbAppeal, weight: 15 },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-20 text-sage-600">{item.label}</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${item.score}%`,
+                            backgroundColor: item.score >= 80 ? '#4CAF50' : item.score >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(item.score)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Recommendations */}
+                {residentialScore.recommendations && residentialScore.recommendations.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-olive-200">
+                    <div className="text-xs font-medium text-sage-700 mb-2">Tips:</div>
+                    <ul className="space-y-1">
+                      {residentialScore.recommendations.slice(0, 3).map((rec, i) => (
+                        <li key={i} className="text-xs text-sage-600 flex items-start gap-1">
+                          <span className="text-olive-500 mt-0.5">•</span>
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bloom Calendar */}
+            {bloomAnalysis && (
+              <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
+                <button
+                  onClick={() => setShowBloomCalendar(!showBloomCalendar)}
+                  className="w-full flex items-center justify-between font-bold text-sage-800 mb-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <Flower2 className="w-4 h-4" />
+                    Bloom Calendar
+                  </span>
+                  {showBloomCalendar ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+
+                {/* Seasonal Summary - Always Visible */}
+                <div className="grid grid-cols-4 gap-1 mb-2">
+                  {Object.entries(SEASONS).map(([key, season]) => {
+                    const coverage = bloomAnalysis.seasonalCoverage[season.id];
+                    const percent = coverage ? Math.round(coverage.interestCoverage * 100) : 0;
+                    return (
+                      <div
+                        key={key}
+                        className="text-center p-1 rounded text-xs"
+                        style={{
+                          backgroundColor: `${season.color}40`,
+                          borderLeft: `3px solid ${season.color}`
+                        }}
+                      >
+                        <div className="font-medium text-sage-700">{season.name.slice(0, 2)}</div>
+                        <div className={percent >= 100 ? 'text-sage-700 font-bold' : 'text-sage-500'}>
+                          {percent}%
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Expanded Month-by-Month Calendar */}
+                {showBloomCalendar && (
+                  <div className="mt-3 space-y-1">
+                    {MONTHS.map(month => {
+                      const blooms = bloomAnalysis.monthlyBloom[month.id] || [];
+                      const interest = bloomAnalysis.monthlyInterest[month.id] || [];
+                      const hasBloom = blooms.length > 0;
+                      const hasInterest = interest.length > 0;
+
+                      return (
+                        <div key={month.id} className="flex items-center gap-2 text-xs">
+                          <div className="w-8 text-sage-600 font-medium">{month.abbr}</div>
+                          <div className="flex-1 flex gap-1">
+                            {hasBloom ? (
+                              blooms.slice(0, 5).map((b, i) => (
+                                <div
+                                  key={i}
+                                  className="w-4 h-4 rounded-full ring-1 ring-white"
+                                  style={{ backgroundColor: b.color }}
+                                  title={b.plant.name}
+                                />
+                              ))
+                            ) : hasInterest ? (
+                              <div className="flex items-center gap-1 text-sage-500">
+                                <Leaf className="w-3 h-3" />
+                                <span>Foliage</span>
+                              </div>
+                            ) : (
+                              <div className="text-red-400 italic">Gap</div>
+                            )}
+                          </div>
+                          {!hasBloom && !hasInterest && (
+                            <div className="w-4 h-4 rounded-full bg-red-200 flex items-center justify-center">
+                              <X className="w-3 h-3 text-red-500" />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Recommendations */}
+                    {bloomAnalysis.recommendations.length > 0 && (
+                      <div className="mt-3 p-2 bg-olive-50 rounded-lg text-xs">
+                        <div className="font-medium text-olive-700 mb-1">Suggestions:</div>
+                        {bloomAnalysis.recommendations.slice(0, 2).map((rec, i) => (
+                          <div key={i} className="text-olive-600">• {rec}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Height Tiers */}
+            {heightAnalysis && (
+              <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
+                <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  Height Layers
+                </h3>
+                <div className="space-y-1">
+                  {Object.values(HEIGHT_TIERS).reverse().map(tier => {
+                    const count = heightAnalysis.tierCounts[tier.id]?.count || 0;
+                    const isActive = count > 0;
+                    return (
+                      <div key={tier.id} className="flex items-center gap-2 text-xs">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: isActive ? tier.color : '#E0E0E0' }}
+                        />
+                        <div className={`flex-1 ${isActive ? 'text-sage-700' : 'text-sage-400'}`}>
+                          {tier.name}
+                        </div>
+                        <div className={`font-medium ${isActive ? 'text-sage-800' : 'text-sage-300'}`}>
+                          {count}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {heightAnalysis.issues.length > 0 && (
+                  <div className="mt-2 p-2 bg-olive-50 rounded text-xs text-olive-600">
+                    {heightAnalysis.issues[0]}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mass Planting Analysis */}
+            {massPlantingAnalysis && massPlantingAnalysis.issues.length > 0 && (
+              <div className="bg-cream-50 rounded-xl p-4 border border-sage-200">
+                <h3 className="font-bold text-sage-800 mb-3 flex items-center gap-2">
+                  <Copy className="w-4 h-4" />
+                  Mass Planting
+                </h3>
+                <div className="space-y-1 text-xs">
+                  {massPlantingAnalysis.issues.slice(0, 3).map((issue, i) => (
+                    <div key={i} className="flex items-start gap-2 text-olive-600">
+                      <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                      <span>{issue.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Plant Schedule */}
             {placedPlants.length > 0 && (
