@@ -494,19 +494,20 @@ export default function AnimatedDemo() {
         }`}>
           {showRendered ? (
             <div className="absolute inset-0">
-              {/* Real garden photo */}
+              {/* Real garden photo - elevated angle view matching AI output style */}
+              {/* Shows colorful garden bed with flowering shrubs, similar to AI render output */}
               <img
-                src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80"
+                src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80"
                 alt="AI Generated Garden Render"
                 className="w-full h-full object-cover"
               />
               {/* Overlay gradient for polish */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               {/* Sparkle effects */}
               <Sparkles className="absolute top-3 right-3 w-5 h-5 text-yellow-300 animate-pulse drop-shadow-lg" />
               <Sparkles className="absolute bottom-3 left-3 w-4 h-4 text-yellow-300 animate-pulse drop-shadow-lg" style={{ animationDelay: '500ms' }} />
               {/* AI badge */}
-              <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1">
+              <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1">
                 <Wand2 className="w-2.5 h-2.5" />
                 AI Generated
               </div>
