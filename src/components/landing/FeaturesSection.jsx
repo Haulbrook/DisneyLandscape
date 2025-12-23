@@ -11,7 +11,7 @@ const features = [
   {
     icon: Palette,
     title: 'Curated Plant Database',
-    description: '30+ professionally-selected plants organized by category: focal points, topiary, back row, middle row, front row, and ground cover.'
+    description: '200+ professionally-selected plants organized by category: focal points, topiary, back row, middle row, front row, and ground cover.'
   },
   {
     icon: Layers,

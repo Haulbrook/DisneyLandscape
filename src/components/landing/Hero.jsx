@@ -156,11 +156,11 @@ export default function Hero() {
         {/* Stats */}
         <div className="mt-20 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           <div className="text-center">
-            <div className="text-3xl font-bold text-sage-900">30+</div>
+            <div className="text-3xl font-bold text-sage-900">200+</div>
             <div className="text-sage-600">Curated Plants</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-sage-900">5</div>
+            <div className="text-3xl font-bold text-sage-900">25</div>
             <div className="text-sage-600">Theme Bundles</div>
           </div>
           <div className="text-center">
