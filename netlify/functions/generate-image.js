@@ -133,19 +133,19 @@ function createPrediction(apiKey, prompt) {
     const data = JSON.stringify({
       input: {
         prompt: prompt,
+        size: "2K",
         aspect_ratio: "16:9",
-        output_format: "webp",
-        output_quality: 90,
-        guidance_scale: 9,
-        num_inference_steps: 30
+        max_images: 1,
+        image_input: [],
+        sequential_image_generation: "disabled"
       }
     });
 
-    // Use the models endpoint with model name (not version hash)
+    // Use Seedream 4.5 - better spatial understanding for landscapes
     const options = {
       hostname: 'api.replicate.com',
       port: 443,
-      path: '/v1/models/bytedance/seedream-3/predictions',
+      path: '/v1/models/bytedance/seedream-4.5/predictions',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
