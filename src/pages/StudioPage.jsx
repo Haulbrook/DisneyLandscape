@@ -1417,98 +1417,188 @@ export default function StudioPage() {
       }
     });
 
-    // PHASE 5: Fill edges with groundcover - CARPET THE EDGES
+    // PHASE 5: ORGANIC GROUNDCOVER - Flowing streams & drifts (not grid!)
     const groundcoverPlants = processedPlants.filter(p => p.role === 'groundcover');
+
+    // Helper: Create organic bezier curve points
+    const createFlowingPath = (startX, startY, endX, endY, waviness = 30) => {
+      const points = [];
+      const segments = 8 + Math.floor(Math.random() * 4);
+      const dx = (endX - startX) / segments;
+      const dy = (endY - startY) / segments;
+
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        // Add organic waviness perpendicular to path direction
+        const perpX = -dy * 0.3;
+        const perpY = dx * 0.3;
+        const wave = Math.sin(t * Math.PI * (2 + Math.random())) * waviness * (1 - Math.abs(t - 0.5) * 1.5);
+
+        points.push({
+          x: startX + dx * i + perpX * wave / Math.abs(perpX || 1),
+          y: startY + dy * i + perpY * wave / Math.abs(perpY || 1)
+        });
+      }
+      return points;
+    };
+
+    // Helper: Create drift around a focal point (like water around a rock)
+    const createDriftAroundPlant = (centerX, centerY, innerRadius, outerRadius, arcStart, arcEnd) => {
+      const points = [];
+      const arcLength = arcEnd - arcStart;
+      const numPoints = Math.floor(arcLength / 0.3);
+
+      for (let i = 0; i < numPoints; i++) {
+        const angle = arcStart + (arcLength * i / numPoints);
+        // Vary the radius organically
+        const radiusVariation = innerRadius + (outerRadius - innerRadius) * (0.3 + Math.random() * 0.7);
+        const wobble = (Math.random() - 0.5) * 10;
+
+        points.push({
+          x: centerX + Math.cos(angle) * (radiusVariation + wobble),
+          y: centerY + Math.sin(angle) * (radiusVariation + wobble)
+        });
+      }
+      return points;
+    };
+
     groundcoverPlants.forEach(bundlePlant => {
-      const spacing = bundlePlant.radius * 1.8; // Groundcover can overlap slightly
-
-      // Generate edge points for systematic filling
-      const edgePoints = [];
-      const edgeInset = bundlePlant.radius + 4; // Get right to the edge
-
-      // All four edges
-      for (let x = bedBounds.minX + edgeInset; x <= bedBounds.maxX - edgeInset; x += spacing) {
-        edgePoints.push({ x, y: bedBounds.minY + edgeInset });
-        edgePoints.push({ x, y: bedBounds.maxY - edgeInset });
-      }
-      for (let y = bedBounds.minY + edgeInset + spacing; y <= bedBounds.maxY - edgeInset - spacing; y += spacing) {
-        edgePoints.push({ x: bedBounds.minX + edgeInset, y });
-        edgePoints.push({ x: bedBounds.maxX - edgeInset, y });
-      }
-
-      // Second row from edge
-      const innerInset = edgeInset + spacing;
-      for (let x = bedBounds.minX + innerInset; x <= bedBounds.maxX - innerInset; x += spacing) {
-        edgePoints.push({ x, y: bedBounds.minY + innerInset });
-        edgePoints.push({ x, y: bedBounds.maxY - innerInset });
-      }
-      for (let y = bedBounds.minY + innerInset + spacing; y <= bedBounds.maxY - innerInset - spacing; y += spacing) {
-        edgePoints.push({ x: bedBounds.minX + innerInset, y });
-        edgePoints.push({ x: bedBounds.maxX - innerInset, y });
-      }
-
-      shuffle(edgePoints);
-
+      const spacing = bundlePlant.radius * 2.2;
       let placedCount = 0;
-      const maxToPlace = Math.min(bundlePlant.quantity, edgePoints.length);
+      const targetQuantity = bundlePlant.quantity;
+      const allFlowPoints = [];
 
-      for (const point of edgePoints) {
-        if (placedCount >= maxToPlace) break;
+      // PATTERN 1: Flowing streams along front edge (like a river border)
+      const frontY = bedBounds.maxY - 25;
+      const streamWidth = 40;
+      for (let stream = 0; stream < 2; stream++) {
+        const streamY = frontY - stream * spacing * 1.5;
+        const pathPoints = createFlowingPath(
+          bedBounds.minX + 20,
+          streamY + (Math.random() - 0.5) * 15,
+          bedBounds.maxX - 20,
+          streamY + (Math.random() - 0.5) * 15,
+          25
+        );
+        allFlowPoints.push(...pathPoints);
+      }
+
+      // PATTERN 2: Drifts wrapping around focal/large plants
+      const focalPlants = newPlants.filter(p => {
+        const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
+        return plantData && (plantData.category === 'focal' || plantData.category === 'back');
+      });
+
+      focalPlants.slice(0, 5).forEach(focal => {
+        const plantData = ALL_PLANTS.find(pl => pl.id === focal.plantId);
+        if (!plantData) return;
+
+        const plantRadius = (plantData.spread || 36) / 2;
+        // Create partial arc drift around plant (not full circle - more natural)
+        const arcStart = Math.random() * Math.PI;
+        const arcLength = Math.PI * (0.5 + Math.random() * 0.8);
+
+        const driftPoints = createDriftAroundPlant(
+          focal.x,
+          focal.y,
+          plantRadius + 15,
+          plantRadius + 35,
+          arcStart,
+          arcStart + arcLength
+        );
+        allFlowPoints.push(...driftPoints);
+      });
+
+      // PATTERN 3: Organic veins through middle areas (like marble veins)
+      const midY = (bedBounds.minY + bedBounds.maxY) / 2;
+      const veinCount = Math.floor((bedBounds.maxX - bedBounds.minX) / 150);
+
+      for (let v = 0; v < veinCount; v++) {
+        const startX = bedBounds.minX + 50 + (v * 150) + (Math.random() - 0.5) * 40;
+        const veinPoints = createFlowingPath(
+          startX,
+          bedBounds.maxY - 40,
+          startX + (Math.random() - 0.5) * 80,
+          midY + (Math.random() - 0.5) * 40,
+          35
+        );
+        allFlowPoints.push(...veinPoints);
+      }
+
+      // PATTERN 4: Side edge flows (organic, not straight lines)
+      const leftFlow = createFlowingPath(
+        bedBounds.minX + 15,
+        bedBounds.maxY - 30,
+        bedBounds.minX + 20,
+        bedBounds.minY + 50,
+        20
+      );
+      const rightFlow = createFlowingPath(
+        bedBounds.maxX - 15,
+        bedBounds.maxY - 30,
+        bedBounds.maxX - 20,
+        bedBounds.minY + 50,
+        20
+      );
+      allFlowPoints.push(...leftFlow, ...rightFlow);
+
+      // Shuffle and place along flow points
+      shuffle(allFlowPoints);
+
+      for (const point of allFlowPoints) {
+        if (placedCount >= targetQuantity) break;
 
         if (useCustomPath && !isPointInPath(point.x, point.y, customBedPath)) continue;
+        if (point.x < bedBounds.minX + 5 || point.x > bedBounds.maxX - 5) continue;
+        if (point.y < bedBounds.minY + 5 || point.y > bedBounds.maxY - 5) continue;
 
-        // Check if there's already a plant very close
+        // Check spacing from other plants (allow closer to non-groundcover)
         const tooClose = newPlants.some(p => {
           const dist = Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
-          return dist < spacing * 0.6;
+          const otherPlant = ALL_PLANTS.find(pl => pl.id === p.plantId);
+          const isOtherGroundcover = otherPlant?.category === 'groundcover' || otherPlant?.category === 'front';
+          return dist < (isOtherGroundcover ? spacing * 0.7 : spacing * 0.4);
         });
 
         if (!tooClose) {
-          const pos = findValidPositionInBed(point.x, point.y, bundlePlant.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
-          if (pos) {
-            newPlants.push({
-              id: `bundle-${Date.now()}-gc-${placedCount}`,
-              plantId: bundlePlant.plantId,
-              x: pos.x,
-              y: pos.y,
-              rotation: (Math.random() - 0.5) * 30,
-              scale: 0.8 + Math.random() * 0.25
-            });
-            placedCount++;
-          }
+          newPlants.push({
+            id: `bundle-${Date.now()}-gc-${placedCount}`,
+            plantId: bundlePlant.plantId,
+            x: point.x + (Math.random() - 0.5) * 8,
+            y: point.y + (Math.random() - 0.5) * 8,
+            rotation: (Math.random() - 0.5) * 40,
+            scale: 0.75 + Math.random() * 0.3
+          });
+          placedCount++;
         }
       }
     });
 
-    // PHASE 6: Gap-fill with groundcover in any remaining spaces
+    // PHASE 6: Minimal gap-fill - only fill very obvious holes, maintain organic feel
     const primaryGroundcover = groundcoverPlants[0];
     if (primaryGroundcover) {
-      const gcSpacing = primaryGroundcover.radius * 2;
+      const gcSpacing = primaryGroundcover.radius * 3; // Larger spacing = less gap-fill
 
-      // Scan for gaps
-      for (let x = bedBounds.minX + 20; x < bedBounds.maxX - 20; x += gcSpacing) {
-        for (let y = bedBounds.minY + 20; y < bedBounds.maxY - 20; y += gcSpacing) {
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+      // Only fill major gaps in front half of bed
+      for (let x = bedBounds.minX + 40; x < bedBounds.maxX - 40; x += gcSpacing) {
+        const y = bedBounds.maxY - 30 - Math.random() * 20; // Focus on front
 
-          // Check if this area is empty
-          const nearestDist = newPlants.reduce((min, p) => {
-            return Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2)));
-          }, Infinity);
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
 
-          // If there's a gap bigger than groundcover spread, fill it
-          if (nearestDist > gcSpacing * 1.5) {
-            const pos = findValidPositionInBed(x, y, primaryGroundcover.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
-            if (pos) {
-              newPlants.push({
-                id: `bundle-${Date.now()}-fill-${x}-${y}`,
-                plantId: primaryGroundcover.plantId,
-                x: pos.x,
-                y: pos.y,
-                rotation: (Math.random() - 0.5) * 30,
-                scale: 0.8 + Math.random() * 0.2
-              });
-            }
-          }
+        const nearestDist = newPlants.reduce((min, p) => {
+          return Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2)));
+        }, Infinity);
+
+        // Only fill really big gaps
+        if (nearestDist > gcSpacing * 2) {
+          newPlants.push({
+            id: `bundle-${Date.now()}-fill-${x}`,
+            plantId: primaryGroundcover.plantId,
+            x: x + (Math.random() - 0.5) * 15,
+            y: y + (Math.random() - 0.5) * 15,
+            rotation: (Math.random() - 0.5) * 40,
+            scale: 0.7 + Math.random() * 0.25
+          });
         }
       }
     }
