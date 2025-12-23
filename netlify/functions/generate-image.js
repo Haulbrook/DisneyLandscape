@@ -90,7 +90,13 @@ STYLE: Professional landscaping portfolio photo, sharp focus, natural ${seasonIn
 
     if (useImg2Img && sketchImage) {
       console.log('Calling Replicate SDXL img2img with sketch for accurate placement...');
-      prediction = await createImg2ImgPrediction(apiKey, fullPrompt, sketchImage);
+      try {
+        prediction = await createImg2ImgPrediction(apiKey, fullPrompt, sketchImage);
+      } catch (img2imgError) {
+        console.log('Img2img failed, falling back to text-only generation:', img2imgError.message);
+        // Fall back to text-only generation
+        prediction = await createPrediction(apiKey, fullPrompt);
+      }
     } else {
       console.log('Calling Replicate Seedream-3 (text only)...');
       prediction = await createPrediction(apiKey, fullPrompt);
