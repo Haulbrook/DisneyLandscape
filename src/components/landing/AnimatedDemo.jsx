@@ -5,13 +5,13 @@ import {
   TreeDeciduous, Sun, Droplets, Ruler
 } from 'lucide-react'
 
-// Demo plants with more variety
+// Demo plants matching realistic landscape designs
 const DEMO_PLANTS = [
-  { id: 1, icon: '🌸', name: 'Crape Myrtle', color: '#E91E63', category: 'focal', size: 'Large' },
-  { id: 2, icon: '🌹', name: 'Knockout Rose', color: '#D32F2F', category: 'middle', size: 'Medium' },
-  { id: 3, icon: '💜', name: 'Blue Salvia', color: '#1565C0', category: 'middle', size: 'Medium' },
-  { id: 4, icon: '🌺', name: 'Petunia', color: '#9C27B0', category: 'front', size: 'Small' },
-  { id: 5, icon: '🌿', name: 'Liriope', color: '#4CAF50', category: 'ground', size: 'Ground' },
+  { id: 1, icon: '🌲', name: 'Arborvitae', color: '#2E7D32', category: 'focal', size: 'Large' },
+  { id: 2, icon: '🍁', name: 'Japanese Maple', color: '#C62828', category: 'focal', size: 'Medium' },
+  { id: 3, icon: '💮', name: 'Hydrangea', color: '#AED581', category: 'middle', size: 'Medium' },
+  { id: 4, icon: '🌲', name: 'Juniper', color: '#546E7A', category: 'front', size: 'Small' },
+  { id: 5, icon: '🌿', name: 'Liriope', color: '#388E3C', category: 'ground', size: 'Ground' },
 ]
 
 // Theme bundles to showcase (showing 6 of 25 available)
@@ -495,9 +495,9 @@ export default function AnimatedDemo() {
           {showRendered ? (
             <div className="absolute inset-0">
               {/* Real garden photo - elevated angle view matching AI output style */}
-              {/* Shows colorful garden bed with flowering shrubs, similar to AI render output */}
+              {/* Shows foundation planting with evergreens, hydrangeas, and layered shrubs */}
               <img
-                src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80"
+                src="https://images.unsplash.com/photo-1598902108854-10e335adac99?w=800&q=80"
                 alt="AI Generated Garden Render"
                 className="w-full h-full object-cover"
               />
