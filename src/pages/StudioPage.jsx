@@ -1332,6 +1332,107 @@ export default function StudioPage() {
     const EDGE_OFFSET_MAX = 18; // 18 inches for larger plants
     const CANOPY_HEIGHT_THRESHOLD = 120; // 10 feet - only plants this tall or taller can spill over edges
 
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // SHAPE-AWARE SAMPLING: Sample valid positions across the entire custom bed shape
+    // This ensures plants are distributed to ALL lobes/regions, not just the center
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const sampleValidBedPositions = (gridSpacing, plantRadius = 0) => {
+      const validPositions = [];
+      const checkRadius = plantRadius > 0;
+
+      // Sample a grid across the bed bounds
+      for (let x = bedBounds.minX + EDGE_OFFSET_MIN; x <= bedBounds.maxX - EDGE_OFFSET_MIN; x += gridSpacing) {
+        for (let y = bedBounds.minY + EDGE_OFFSET_MIN; y <= bedBounds.maxY - EDGE_OFFSET_MIN; y += gridSpacing) {
+          // For custom paths, check if point (and optionally its radius) fits inside
+          if (useCustomPath) {
+            if (checkRadius) {
+              if (!isCircleInsidePath(x, y, plantRadius, customBedPath)) continue;
+            } else {
+              if (!isPointInPath(x, y, customBedPath)) continue;
+            }
+          }
+          validPositions.push({ x, y });
+        }
+      }
+
+      return validPositions;
+    };
+
+    // Group sampled positions by height zone (back/middle/front)
+    const groupPositionsByZone = (positions) => {
+      const bedHeight = bedBounds.maxY - bedBounds.minY;
+      const zones = {
+        back: [],    // Top 45% of bed (furthest from viewer)
+        middle: [],  // Middle 50% (overlaps)
+        front: []    // Bottom 40% (closest to viewer)
+      };
+
+      positions.forEach(pos => {
+        const relativeY = (pos.y - bedBounds.minY) / bedHeight;
+
+        // Back zone: 0-45%
+        if (relativeY <= 0.45) {
+          zones.back.push(pos);
+        }
+        // Middle zone: 25-75%
+        if (relativeY >= 0.25 && relativeY <= 0.75) {
+          zones.middle.push(pos);
+        }
+        // Front zone: 60-100%
+        if (relativeY >= 0.60) {
+          zones.front.push(pos);
+        }
+      });
+
+      return zones;
+    };
+
+    // Select evenly distributed cluster centers from sampled positions
+    const selectDistributedCenters = (positions, numCenters, minSpacing) => {
+      if (positions.length === 0) return [];
+      if (positions.length <= numCenters) return [...positions];
+
+      const centers = [];
+      const availablePositions = [...positions];
+
+      // Shuffle to randomize starting point
+      for (let i = availablePositions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [availablePositions[i], availablePositions[j]] = [availablePositions[j], availablePositions[i]];
+      }
+
+      // Greedy selection: pick positions that maximize distance from already selected
+      while (centers.length < numCenters && availablePositions.length > 0) {
+        let bestIdx = 0;
+        let bestMinDist = 0;
+
+        // Find position with greatest minimum distance to existing centers
+        for (let i = 0; i < availablePositions.length; i++) {
+          const pos = availablePositions[i];
+          let minDistToCenters = Infinity;
+
+          for (const center of centers) {
+            const dist = Math.sqrt(Math.pow(pos.x - center.x, 2) + Math.pow(pos.y - center.y, 2));
+            minDistToCenters = Math.min(minDistToCenters, dist);
+          }
+
+          // First point or better spread
+          if (centers.length === 0 || minDistToCenters > bestMinDist) {
+            bestMinDist = minDistToCenters;
+            bestIdx = i;
+          }
+        }
+
+        // Only add if meets minimum spacing (or first point)
+        if (centers.length === 0 || bestMinDist >= minSpacing) {
+          centers.push(availablePositions[bestIdx]);
+        }
+        availablePositions.splice(bestIdx, 1);
+      }
+
+      return centers;
+    };
+
     // Process plants with quantity scaling for small plants
     const processedPlants = plantsList.map(bp => {
       const plantData = ALL_PLANTS.find(p => p.id === bp.plantId);
@@ -1546,80 +1647,69 @@ export default function StudioPage() {
     };
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 2: Place structure/back plants in ORGANIC SPLATTER MASSES
-    // Like paint splashes - dense centers with irregular bleeding edges
+    // PHASE 2: Place structure/back plants using SHAPE-AWARE distribution
+    // Samples valid positions across the ENTIRE custom bed shape, including all lobes
     // ═══════════════════════════════════════════════════════════════════════════════
     const structurePlants = processedPlants.filter(p => p.role === 'back' || p.role === 'topiary');
     const usedClusterAreas = []; // Track cluster areas for bleeding overlap
 
+    // Pre-sample valid positions for back zone plants (with room for their radius)
+    const backZoneSampleSpacing = 30; // Sample every 30 inches
+    const allBackZonePositions = useCustomPath
+      ? sampleValidBedPositions(backZoneSampleSpacing, 0).filter(pos => {
+          const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
+          return relY <= 0.5; // Back half of bed
+        })
+      : [];
+
     structurePlants.forEach(bundlePlant => {
       const zone = heightZones[bundlePlant.role] || heightZones.back;
-      // Use height-based edge offset: 10'+ trees can spill, others stay inside
       const plantEdgeOffset = getPlantEdgeOffset(bundlePlant.height, bundlePlant.radius);
+      const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
 
-      // IMPROVED: Distribute cluster centers more evenly across the bed
-      // Instead of random placement, use a grid-influenced approach
+      // Calculate number of clusters based on quantity
       const numClusters = Math.max(1, Math.ceil(bundlePlant.quantity / 5));
       const plantsPerCluster = Math.ceil(bundlePlant.quantity / numClusters);
 
-      for (let clusterIdx = 0; clusterIdx < numClusters; clusterIdx++) {
-        // Distribute cluster centers across horizontal zones
-        const zoneWidth = (bedBounds.width - plantEdgeOffset * 2) / numClusters;
-        const baseX = bedBounds.minX + plantEdgeOffset + zoneWidth * clusterIdx + zoneWidth * 0.5;
-
-        // Find splatter center within this zone - ensure it's far enough inside for plants to fit
-        let clusterCenter = null;
-        const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
-
-        for (let attempt = 0; attempt < 30 && !clusterCenter; attempt++) {
-          const x = baseX + (Math.random() - 0.5) * zoneWidth * 0.8;
-          const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
-
-          // Ensure cluster center is positioned where plants can fit inside custom path
-          if (useCustomPath) {
-            if (canSpillOver) {
-              if (!isPointInPath(x, y, customBedPath)) continue;
-            } else {
-              // Cluster center needs room for plants - check with larger radius
-              if (!isCircleInsidePath(x, y, bundlePlant.radius * 1.5, customBedPath)) continue;
-            }
-          }
-
-          // Check spacing from other clusters
-          const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
-            const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
-            return dist < nearest.dist ? { dist, area } : nearest;
-          }, { dist: Infinity, area: null });
-
-          if (nearestCluster.dist > bundlePlant.radius * 1.2) {
-            clusterCenter = { x, y };
+      // SHAPE-AWARE: Get valid positions for this plant's radius in the back zone
+      let validZonePositions;
+      if (useCustomPath) {
+        validZonePositions = allBackZonePositions.filter(pos =>
+          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius * 1.2, customBedPath)
+        );
+      } else {
+        // For rectangular beds, generate positions the old way
+        validZonePositions = [];
+        for (let x = bedBounds.minX + plantEdgeOffset; x <= bedBounds.maxX - plantEdgeOffset; x += 40) {
+          for (let y = zone.minY; y <= zone.maxY; y += 40) {
+            validZonePositions.push({ x, y });
           }
         }
+      }
 
-        if (!clusterCenter) {
-          // Fallback: find a point that's definitely inside the custom path
-          if (useCustomPath) {
-            for (let fallbackAttempt = 0; fallbackAttempt < 20; fallbackAttempt++) {
-              const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5;
-              const fy = (zone.minY + zone.maxY) / 2;
-              if (canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
-                clusterCenter = { x: fx, y: fy };
-                break;
-              }
-            }
-          }
-          if (!clusterCenter) {
-            clusterCenter = {
-              x: baseX,
-              y: (zone.minY + zone.maxY) / 2
-            };
-          }
+      // Select evenly distributed cluster centers from valid positions
+      const clusterCenters = selectDistributedCenters(
+        validZonePositions,
+        numClusters,
+        bundlePlant.radius * 2.5 // Minimum spacing between clusters
+      );
+
+      // If we didn't get enough centers, add some fallbacks
+      while (clusterCenters.length < numClusters) {
+        const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6;
+        const fy = (zone.minY + zone.maxY) / 2;
+        if (!useCustomPath || canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+          clusterCenters.push({ x: fx, y: fy });
+        } else {
+          break; // Can't find more valid positions
         }
+      }
 
+      clusterCenters.forEach((clusterCenter, clusterIdx) => {
         // Use SPLATTER placement with this cluster's portion of plants
-        const clusterPlantCount = clusterIdx < numClusters - 1 ? plantsPerCluster :
-          bundlePlant.quantity - (numClusters - 1) * plantsPerCluster;
-        const clusterSpacing = bundlePlant.radius * 1.8; // Increased spacing
+        const clusterPlantCount = clusterIdx < clusterCenters.length - 1 ? plantsPerCluster :
+          Math.max(1, bundlePlant.quantity - (clusterCenters.length - 1) * plantsPerCluster);
+        const clusterSpacing = bundlePlant.radius * 1.8;
         const positions = createSplatterPositions(
           clusterCenter.x, clusterCenter.y,
           clusterPlantCount, clusterSpacing, bundlePlant.role
@@ -1672,78 +1762,76 @@ export default function StudioPage() {
           y: clusterCenter.y,
           radius: clusterSpacing * Math.sqrt(clusterPlantCount)
         });
-      } // End of cluster loop
+      }); // End of cluster centers forEach
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 3: Place middle/seasonal plants with ORGANIC SPLATTER placement
-    // Bleeding, irregular masses that interweave with structure plants
+    // PHASE 3: Place middle/seasonal plants using SHAPE-AWARE distribution
+    // Samples valid positions across the ENTIRE custom bed shape middle zone
     // ═══════════════════════════════════════════════════════════════════════════════
     const middlePlants = processedPlants.filter(p => p.role === 'middle');
+
+    // Pre-sample valid positions for middle zone plants
+    const middleZoneSampleSpacing = 30;
+    const allMiddleZonePositions = useCustomPath
+      ? sampleValidBedPositions(middleZoneSampleSpacing, 0).filter(pos => {
+          const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
+          return relY >= 0.25 && relY <= 0.75; // Middle zone
+        })
+      : [];
+
     middlePlants.forEach(bundlePlant => {
       const zone = heightZones.middle;
-      // Use height-based edge offset: 10'+ trees can spill, others stay inside
       const plantEdgeOffset = getPlantEdgeOffset(bundlePlant.height, bundlePlant.radius);
+      const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
 
-      // IMPROVED: Distribute cluster centers more evenly across the bed
+      // Calculate number of clusters
       const numClusters = Math.max(1, Math.ceil(bundlePlant.quantity / 5));
       const plantsPerCluster = Math.ceil(bundlePlant.quantity / numClusters);
 
-      for (let clusterIdx = 0; clusterIdx < numClusters; clusterIdx++) {
-        // Distribute cluster centers across horizontal zones
-        const zoneWidth = (bedBounds.width - plantEdgeOffset * 2) / numClusters;
-        const baseX = bedBounds.minX + plantEdgeOffset + zoneWidth * clusterIdx + zoneWidth * 0.5;
-
-        // Find splatter center within this zone - ensure it's far enough inside for plants to fit
-        let clusterCenter = null;
-        const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
-
-        for (let attempt = 0; attempt < 30 && !clusterCenter; attempt++) {
-          const x = baseX + (Math.random() - 0.5) * zoneWidth * 0.8;
-          const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
-
-          // Ensure cluster center is positioned where plants can fit inside custom path
-          if (useCustomPath) {
-            if (canSpillOver) {
-              if (!isPointInPath(x, y, customBedPath)) continue;
-            } else {
-              if (!isCircleInsidePath(x, y, bundlePlant.radius * 1.5, customBedPath)) continue;
-            }
-          }
-
-          const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
-            const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
-            return dist < nearest.dist ? { dist, area } : nearest;
-          }, { dist: Infinity, area: null });
-
-          if (nearestCluster.dist > bundlePlant.radius * 1.0) {
-            clusterCenter = { x, y };
+      // SHAPE-AWARE: Get valid positions for this plant's radius in middle zone
+      let validZonePositions;
+      if (useCustomPath) {
+        validZonePositions = allMiddleZonePositions.filter(pos =>
+          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius * 1.2, customBedPath)
+        );
+      } else {
+        validZonePositions = [];
+        for (let x = bedBounds.minX + plantEdgeOffset; x <= bedBounds.maxX - plantEdgeOffset; x += 40) {
+          for (let y = zone.minY; y <= zone.maxY; y += 40) {
+            validZonePositions.push({ x, y });
           }
         }
+      }
 
-        if (!clusterCenter) {
-          // Fallback: find a point that's definitely inside the custom path
-          if (useCustomPath) {
-            for (let fallbackAttempt = 0; fallbackAttempt < 20; fallbackAttempt++) {
-              const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5;
-              const fy = (zone.minY + zone.maxY) / 2;
-              if (canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
-                clusterCenter = { x: fx, y: fy };
-                break;
-              }
-            }
-          }
-          if (!clusterCenter) {
-            clusterCenter = {
-              x: baseX,
-              y: (zone.minY + zone.maxY) / 2
-            };
-          }
+      // Select evenly distributed cluster centers, avoiding already used areas
+      const availablePositions = validZonePositions.filter(pos => {
+        return !usedClusterAreas.some(area => {
+          const dist = Math.sqrt(Math.pow(pos.x - area.x, 2) + Math.pow(pos.y - area.y, 2));
+          return dist < area.radius * 0.5;
+        });
+      });
+
+      const clusterCenters = selectDistributedCenters(
+        availablePositions.length > 0 ? availablePositions : validZonePositions,
+        numClusters,
+        bundlePlant.radius * 2
+      );
+
+      // Fallback if needed
+      while (clusterCenters.length < numClusters) {
+        const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6;
+        const fy = (zone.minY + zone.maxY) / 2;
+        if (!useCustomPath || canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+          clusterCenters.push({ x: fx, y: fy });
+        } else {
+          break;
         }
+      }
 
-        // Use SPLATTER placement with this cluster's portion
-        const clusterPlantCount = clusterIdx < numClusters - 1 ? plantsPerCluster :
-          bundlePlant.quantity - (numClusters - 1) * plantsPerCluster;
+      clusterCenters.forEach((clusterCenter, clusterIdx) => {
+        const clusterPlantCount = clusterIdx < clusterCenters.length - 1 ? plantsPerCluster :
+          Math.max(1, bundlePlant.quantity - (clusterCenters.length - 1) * plantsPerCluster);
         const clusterSpacing = bundlePlant.radius * 1.7;
         const positions = createSplatterPositions(
           clusterCenter.x, clusterCenter.y,
@@ -1751,13 +1839,11 @@ export default function StudioPage() {
         );
 
         positions.forEach((pos, i) => {
-          // Use height-based edge offset for boundary clamping
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
+          // For custom paths: ensure ENTIRE maturity circle stays inside
           if (useCustomPath) {
-            const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
             if (canSpillOver) {
               if (!isPointInPath(x, y, customBedPath)) return;
             } else {
@@ -1768,7 +1854,6 @@ export default function StudioPage() {
           const tooClose = newPlants.some(p => {
             const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
             const isSameType = p.plantId === bundlePlant.plantId;
-
             if (!isSameType) {
               const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.65;
               return d < minDist;
@@ -1793,74 +1878,112 @@ export default function StudioPage() {
           y: clusterCenter.y,
           radius: clusterSpacing * Math.sqrt(clusterPlantCount)
         });
-      } // End of cluster loop
+      }); // End of middle cluster centers forEach
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 4: Place front/edge plants with DRIFT/RIVER style placement
-    // Front plants flow along the edge like water, not in tight clusters
+    // PHASE 4: Place front/edge plants using SHAPE-AWARE distribution
+    // Front plants are placed across the entire front zone of the custom shape
     // ═══════════════════════════════════════════════════════════════════════════════
     const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
+
+    // Pre-sample valid positions for front zone
+    const frontZoneSampleSpacing = 25;
+    const allFrontZonePositions = useCustomPath
+      ? sampleValidBedPositions(frontZoneSampleSpacing, 0).filter(pos => {
+          const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
+          return relY >= 0.55; // Front zone (bottom 45%)
+        })
+      : [];
+
     frontPlants.forEach(bundlePlant => {
       const zone = heightZones.front;
-      // Use height-based edge offset: 10'+ trees can spill, others stay inside
       const plantEdgeOffset = getPlantEdgeOffset(bundlePlant.height, bundlePlant.radius);
+      const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
 
-      // For front plants, create a flowing drift along the front edge
-      const driftStartX = bedBounds.minX + plantEdgeOffset + Math.random() * bedBounds.width * 0.2;
-      const driftEndX = bedBounds.maxX - plantEdgeOffset - Math.random() * bedBounds.width * 0.2;
-      const driftY = (zone.minY + zone.maxY) / 2 + (Math.random() - 0.5) * (zone.maxY - zone.minY) * 0.5;
-
-      // Use DRIFT placement - flowing river of plants
-      const driftWidth = bundlePlant.radius * 2.5;
-      const positions = createDriftPositions(
-        driftStartX, driftY,
-        driftEndX, driftY + (Math.random() - 0.5) * 30,
-        bundlePlant.quantity, driftWidth
-      );
-
-      positions.forEach((pos, i) => {
-        // Keep maturity circle inside bed - use full plantEdgeOffset
-        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
-        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
-
-        // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
-        if (useCustomPath) {
-          const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
-          if (canSpillOver) {
-            if (!isPointInPath(x, y, customBedPath)) return;
-          } else {
-            if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+      // SHAPE-AWARE: Get valid positions for this plant in front zone
+      let validFrontPositions;
+      if (useCustomPath) {
+        validFrontPositions = allFrontZonePositions.filter(pos =>
+          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius, customBedPath)
+        );
+      } else {
+        validFrontPositions = [];
+        for (let x = bedBounds.minX + plantEdgeOffset; x <= bedBounds.maxX - plantEdgeOffset; x += 30) {
+          for (let y = zone.minY; y <= zone.maxY; y += 30) {
+            validFrontPositions.push({ x, y });
           }
         }
+      }
 
-        const tooClose = newPlants.some(p => {
-          const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
-          const isSameType = p.plantId === bundlePlant.plantId;
+      // Calculate how many drift lines we need (one per ~7 plants)
+      const numDrifts = Math.max(1, Math.ceil(bundlePlant.quantity / 7));
+      const plantsPerDrift = Math.ceil(bundlePlant.quantity / numDrifts);
 
-          if (!isSameType) {
-            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.6;
-            return d < minDist;
-          }
-          return d < bundlePlant.radius * 0.6;
+      // Select distributed start points for drifts across the front zone
+      const driftStarts = selectDistributedCenters(validFrontPositions, numDrifts, bundlePlant.radius * 3);
+
+      driftStarts.forEach((startPos, driftIdx) => {
+        // Find an end point in the same general area
+        const nearbyPositions = validFrontPositions.filter(pos => {
+          const dist = Math.sqrt(Math.pow(pos.x - startPos.x, 2) + Math.pow(pos.y - startPos.y, 2));
+          return dist > bundlePlant.radius * 2 && dist < bundlePlant.radius * 8;
         });
 
-        if (!tooClose) {
-          newPlants.push({
-            id: `bundle-${Date.now()}-front-${i}-${Math.random().toString(36).substr(2, 5)}`,
-            plantId: bundlePlant.plantId,
-            x, y,
-            rotation: (Math.random() - 0.5) * 30,
-            scale: 0.8 + Math.random() * 0.25,
-            isClusterCenter: i === 0
-          });
-        }
-      });
+        const endPos = nearbyPositions.length > 0
+          ? nearbyPositions[Math.floor(Math.random() * nearbyPositions.length)]
+          : { x: startPos.x + (Math.random() - 0.5) * 60, y: startPos.y + (Math.random() - 0.5) * 30 };
 
-      usedClusterAreas.push({
-        x: (driftStartX + driftEndX) / 2,
-        y: driftY,
-        radius: driftWidth
+        const driftPlantCount = driftIdx < numDrifts - 1 ? plantsPerDrift :
+          Math.max(1, bundlePlant.quantity - (numDrifts - 1) * plantsPerDrift);
+
+        const driftWidth = bundlePlant.radius * 2.5;
+        const positions = createDriftPositions(
+          startPos.x, startPos.y,
+          endPos.x, endPos.y,
+          driftPlantCount, driftWidth
+        );
+
+        positions.forEach((pos, i) => {
+          let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+          let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
+
+          // For custom paths: ensure ENTIRE maturity circle stays inside
+          if (useCustomPath) {
+            if (canSpillOver) {
+              if (!isPointInPath(x, y, customBedPath)) return;
+            } else {
+              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+            }
+          }
+
+          const tooClose = newPlants.some(p => {
+            const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+            const isSameType = p.plantId === bundlePlant.plantId;
+            if (!isSameType) {
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.6;
+              return d < minDist;
+            }
+            return d < bundlePlant.radius * 0.6;
+          });
+
+          if (!tooClose) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-front-${driftIdx}-${i}-${Math.random().toString(36).substr(2, 5)}`,
+              plantId: bundlePlant.plantId,
+              x, y,
+              rotation: (Math.random() - 0.5) * 30,
+              scale: 0.8 + Math.random() * 0.25,
+              isClusterCenter: i === 0
+            });
+          }
+        });
+
+        usedClusterAreas.push({
+          x: (startPos.x + endPos.x) / 2,
+          y: (startPos.y + endPos.y) / 2,
+          radius: driftWidth
+        });
       });
     });
 
