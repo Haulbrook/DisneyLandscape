@@ -6,7 +6,7 @@ import {
   X, ChevronRight, ChevronDown, ChevronUp, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
   Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home,
-  PenTool, Square, User, LogOut, Lock
+  PenTool, Square, User, LogOut, Lock, Undo2, Redo2, GripVertical
 } from 'lucide-react';
 
 // Import auth and subscription hooks
@@ -242,6 +242,17 @@ export default function StudioPage() {
   const [isDrawingBed, setIsDrawingBed] = useState(false);
   const [drawingPoints, setDrawingPoints] = useState([]);
   const [customBedPath, setCustomBedPath] = useState([]);
+
+  // Undo/Redo history
+  const [history, setHistory] = useState([[]]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const isUndoRedoAction = useRef(false);
+
+  // Resizable sidebar widths (in pixels)
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(320);
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(288);
+  const [isResizingLeft, setIsResizingLeft] = useState(false);
+  const [isResizingRight, setIsResizingRight] = useState(false);
 
   // Bed Orientation & Sides - defines what each edge faces
   const [bedOrientation, setBedOrientation] = useState({
@@ -841,12 +852,114 @@ export default function StudioPage() {
     }
   }, [selectedPlacedPlant]);
 
-  // Keyboard handler for Delete/Backspace to delete selected plant
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // UNDO/REDO FUNCTIONALITY
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  // Track plant changes in history
+  useEffect(() => {
+    if (isUndoRedoAction.current) {
+      isUndoRedoAction.current = false;
+      return;
+    }
+
+    // Only record if plants actually changed
+    const currentState = JSON.stringify(placedPlants);
+    const lastState = JSON.stringify(history[historyIndex]);
+
+    if (currentState !== lastState) {
+      // Truncate any future history if we're not at the end
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push([...placedPlants]);
+
+      // Limit history to 50 entries to save memory
+      if (newHistory.length > 50) {
+        newHistory.shift();
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+      } else {
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+      }
+    }
+  }, [placedPlants]);
+
+  // Undo function
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      isUndoRedoAction.current = true;
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setPlacedPlants([...history[newIndex]]);
+      setSelectedPlacedPlant(null);
+    }
+  }, [historyIndex, history]);
+
+  // Redo function
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      isUndoRedoAction.current = true;
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setPlacedPlants([...history[newIndex]]);
+      setSelectedPlacedPlant(null);
+    }
+  }, [historyIndex, history]);
+
+  // Check if undo/redo are available
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SIDEBAR RESIZE HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  const handleLeftResizeStart = useCallback((e) => {
+    e.preventDefault();
+    setIsResizingLeft(true);
+  }, []);
+
+  const handleRightResizeStart = useCallback((e) => {
+    e.preventDefault();
+    setIsResizingRight(true);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isResizingLeft) {
+        const newWidth = Math.min(500, Math.max(200, e.clientX));
+        setLeftSidebarWidth(newWidth);
+      }
+      if (isResizingRight) {
+        const newWidth = Math.min(500, Math.max(200, window.innerWidth - e.clientX));
+        setRightSidebarWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingLeft(false);
+      setIsResizingRight(false);
+    };
+
+    if (isResizingLeft || isResizingRight) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingLeft, isResizingRight]);
+
+  // Keyboard handler for Delete/Backspace/Undo/Redo
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Don't handle if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      // Delete selected plant
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedPlacedPlant) {
-        // Don't delete if user is typing in an input
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         e.preventDefault();
         deleteSelectedPlant();
       }
@@ -854,11 +967,20 @@ export default function StudioPage() {
       if (e.key === 'Escape' && selectedPlacedPlant) {
         setSelectedPlacedPlant(null);
       }
+      // Ctrl+Z = Undo, Ctrl+Shift+Z or Ctrl+Y = Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPlacedPlant, deleteSelectedPlant]);
+  }, [selectedPlacedPlant, deleteSelectedPlant, undo, redo]);
 
   // Change size of a placed plant
   const changePlacedPlantSize = (plantId, newSize) => {
@@ -2332,7 +2454,18 @@ export default function StudioPage() {
 
       <div className="relative z-10 flex max-w-[1800px] mx-auto">
         {/* Left Sidebar - Plant Library & Bundles */}
-        <aside className="w-80 border-r border-sage-200 bg-white h-[calc(100vh-73px)] overflow-hidden flex flex-col">
+        <aside
+          className="border-r border-sage-200 bg-white h-[calc(100vh-73px)] overflow-hidden flex flex-col relative"
+          style={{ width: leftSidebarWidth, minWidth: 200, maxWidth: 500 }}
+        >
+          {/* Resize Handle */}
+          <div
+            className={`absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-sage-400 transition-colors z-20 ${
+              isResizingLeft ? 'bg-sage-500' : 'bg-transparent hover:bg-sage-300'
+            }`}
+            onMouseDown={handleLeftResizeStart}
+            title="Drag to resize"
+          />
           {/* Tab Navigation */}
           <div className="flex border-b border-sage-200">
             <button
@@ -2973,6 +3106,32 @@ export default function StudioPage() {
                 <ZoomIn className="w-4 h-4" />
               </button>
               <div className="w-px h-6 bg-sage-200 mx-2" />
+              {/* Undo/Redo */}
+              <button
+                onClick={undo}
+                disabled={!canUndo}
+                className={`p-2 rounded-lg transition-colors ${
+                  canUndo
+                    ? 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                    : 'bg-sage-50 text-sage-300 cursor-not-allowed'
+                }`}
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={redo}
+                disabled={!canRedo}
+                className={`p-2 rounded-lg transition-colors ${
+                  canRedo
+                    ? 'bg-sage-100 text-sage-600 hover:bg-sage-200'
+                    : 'bg-sage-50 text-sage-300 cursor-not-allowed'
+                }`}
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <Redo2 className="w-4 h-4" />
+              </button>
+              <div className="w-px h-6 bg-sage-200 mx-2" />
               {/* Bed Shape Tools */}
               <button
                 onClick={() => {
@@ -3555,7 +3714,18 @@ export default function StudioPage() {
         </main>
 
         {/* Right Sidebar - Quality Rules & Stats */}
-        <aside className="w-72 border-l border-sage-200 bg-white h-[calc(100vh-73px)] overflow-y-auto">
+        <aside
+          className="border-l border-sage-200 bg-white h-[calc(100vh-73px)] overflow-y-auto relative"
+          style={{ width: rightSidebarWidth, minWidth: 200, maxWidth: 500 }}
+        >
+          {/* Resize Handle */}
+          <div
+            className={`absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-sage-400 transition-colors z-20 ${
+              isResizingRight ? 'bg-sage-500' : 'bg-transparent hover:bg-sage-300'
+            }`}
+            onMouseDown={handleRightResizeStart}
+            title="Drag to resize"
+          />
           <div className="p-4 space-y-4">
             {/* Quality Score */}
             <div className="bg-gradient-to-br from-sage-50 to-forest-50 rounded-xl p-4 border border-sage-200">
