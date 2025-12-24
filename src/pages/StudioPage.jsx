@@ -1458,9 +1458,15 @@ export default function StudioPage() {
         quantity = Math.max(quantity * 1.5, 5);
       }
 
-      // Groundcover needs lots of plants - but still grouped
+      // SHRUB BOOST: Middle and structure plants get more quantity for variety
+      if (role === 'middle' || role === 'structure' || role === 'seasonal') {
+        quantity = Math.max(quantity * 1.5, 5); // Boost shrub counts
+      }
+
+      // Groundcover REDUCED 50% - more space for shrub varieties
       if (role === 'groundcover' || role === 'front') {
-        quantity = Math.max(quantity, Math.floor(bedArea / (radius * radius * 5)));
+        const baseQty = Math.floor(bedArea / (radius * radius * 5));
+        quantity = Math.max(Math.floor(baseQty * 0.5), Math.ceil(quantity * 0.5)); // 50% reduction
       }
 
       // Trees/focal limited by spacing - odd numbers still
@@ -2050,7 +2056,8 @@ export default function StudioPage() {
       const allFlowPoints = [];
 
       // ─────────────────────────────────────────────────────────────────────────────
-      // PATTERN 1: MAIN RIVER - flowing stream along front edge (12-18" inside)
+      // PATTERN 1: SINGLE MAIN RIVER - one flowing stream along front edge
+      // REDUCED: Only one river instead of two parallel streams
       // ─────────────────────────────────────────────────────────────────────────────
       const frontRiverY = bedBounds.maxY - EDGE_OFFSET_MIN - 10;
       const riverPoints = createFlowingRiver(
@@ -2058,32 +2065,22 @@ export default function StudioPage() {
         frontRiverY,
         bedBounds.maxX - EDGE_OFFSET_MIN,
         frontRiverY + (Math.random() - 0.5) * 15,
-        spacing * 2,
+        spacing * 2.5, // Wider spacing = fewer plants
         30
       );
       allFlowPoints.push(...riverPoints);
-
-      // Second parallel stream slightly behind (layered river effect)
-      const secondRiverY = frontRiverY - spacing * 1.2;
-      const secondRiver = createFlowingRiver(
-        bedBounds.minX + EDGE_OFFSET_MIN + 20,
-        secondRiverY,
-        bedBounds.maxX - EDGE_OFFSET_MIN - 20,
-        secondRiverY + (Math.random() - 0.5) * 10,
-        spacing * 1.5,
-        20
-      );
-      allFlowPoints.push(...secondRiver);
+      // REMOVED: Second parallel river - more space for shrubs
 
       // ─────────────────────────────────────────────────────────────────────────────
-      // PATTERN 2: CRESCENT DRIFTS - wrapping around shrubs like moon shapes
+      // PATTERN 2: CRESCENT DRIFTS - wrapping around shrubs (REDUCED)
+      // Only wrap around 3 key shrubs instead of 6
       // ─────────────────────────────────────────────────────────────────────────────
       const shrubsToWrap = newPlants.filter(p => {
         const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
-        return plantData && ['focal', 'back', 'middle'].includes(plantData.category);
+        return plantData && ['focal', 'back'].includes(plantData.category); // Only focal/back, not middle
       });
 
-      shrubsToWrap.slice(0, 6).forEach((shrub, idx) => {
+      shrubsToWrap.slice(0, 3).forEach((shrub, idx) => { // REDUCED: 3 instead of 6
         const plantData = ALL_PLANTS.find(pl => pl.id === shrub.plantId);
         if (!plantData) return;
 
@@ -2104,39 +2101,23 @@ export default function StudioPage() {
       });
 
       // ─────────────────────────────────────────────────────────────────────────────
-      // PATTERN 3: SIDE RIBBONS - flowing along left and right edges
+      // PATTERN 3: SIDE RIBBONS - REMOVED to allow shrub placement near edges
       // ─────────────────────────────────────────────────────────────────────────────
-      const leftRibbon = createFlowingRiver(
-        bedBounds.minX + EDGE_OFFSET_MIN,
-        gcZone.maxY - 20,
-        bedBounds.minX + EDGE_OFFSET_MIN + 15,
-        gcZone.minY + 30,
-        spacing,
-        15
-      );
-      const rightRibbon = createFlowingRiver(
-        bedBounds.maxX - EDGE_OFFSET_MIN,
-        gcZone.maxY - 20,
-        bedBounds.maxX - EDGE_OFFSET_MIN - 15,
-        gcZone.minY + 30,
-        spacing,
-        15
-      );
-      allFlowPoints.push(...leftRibbon, ...rightRibbon);
+      // Side ribbons removed - shrubs now go closer to edges
 
       // ─────────────────────────────────────────────────────────────────────────────
-      // PATTERN 4: CONNECTING VEINS - organic links between main patterns
+      // PATTERN 4: CONNECTING VEINS - REDUCED: fewer and sparser veins
       // ─────────────────────────────────────────────────────────────────────────────
-      const veinCount = Math.max(2, Math.floor(bedBounds.width / 180));
+      const veinCount = Math.max(1, Math.floor(bedBounds.width / 300)); // Much fewer veins
       for (let v = 0; v < veinCount; v++) {
         const veinX = bedBounds.minX + EDGE_OFFSET_MIN + (v + 1) * (bedBounds.width - EDGE_OFFSET_MIN * 2) / (veinCount + 1);
         const veinPoints = createFlowingRiver(
           veinX + (Math.random() - 0.5) * 30,
           gcZone.maxY - 25,
           veinX + (Math.random() - 0.5) * 50,
-          gcZone.minY + 40,
-          spacing * 0.8,
-          25
+          gcZone.minY + 60, // Shorter veins
+          spacing * 1.2, // Wider spacing
+          20
         );
         allFlowPoints.push(...veinPoints);
       }
@@ -2176,17 +2157,17 @@ export default function StudioPage() {
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 6: MINIMAL gap-fill - only extend existing rivers, NEVER scatter
-    // If there are large gaps, extend nearby flow patterns into them
+    // PHASE 6: MINIMAL gap-fill - REDUCED to match 50% groundcover reduction
+    // Only fill critical gaps, more space left for shrub visibility
     // ═══════════════════════════════════════════════════════════════════════════════
     const primaryGroundcover = groundcoverPlants[0];
     if (primaryGroundcover) {
-      const gcSpacing = primaryGroundcover.radius * 3.5; // Very conservative
+      const gcSpacing = primaryGroundcover.radius * 5; // Much more conservative spacing
 
       // Only look for gaps along the front edge where groundcover rivers should be
       const frontFillY = gcZone.maxY - EDGE_OFFSET_MIN - 15;
 
-      for (let x = bedBounds.minX + EDGE_OFFSET_MIN + 30; x < bedBounds.maxX - EDGE_OFFSET_MIN - 30; x += gcSpacing) {
+      for (let x = bedBounds.minX + EDGE_OFFSET_MIN + 60; x < bedBounds.maxX - EDGE_OFFSET_MIN - 60; x += gcSpacing) {
         const y = frontFillY + (Math.random() - 0.5) * 10;
 
         // Groundcover gap-fill must also keep maturity circles inside custom path
@@ -2201,16 +2182,16 @@ export default function StudioPage() {
           })
           .reduce((min, p) => Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2))), Infinity);
 
-        // Only fill if there's a significant gap AND we're extending a river (nearby groundcover exists)
-        if (nearestGcDist > gcSpacing * 2.5 && nearestGcDist < gcSpacing * 5) {
-          // Add a small cluster of 3 to maintain grouped feel
-          for (let i = 0; i < 3; i++) {
-            const offsetX = (i - 1) * gcSpacing * 0.4;
-            const offsetY = (Math.random() - 0.5) * gcSpacing * 0.3;
+        // Only fill if there's a very large gap - much stricter threshold
+        if (nearestGcDist > gcSpacing * 3 && nearestGcDist < gcSpacing * 6) {
+          // Add just 2 plants to maintain grouped feel without over-filling
+          for (let i = 0; i < 2; i++) {
+            const offsetX = (i - 0.5) * gcSpacing * 0.3;
+            const offsetY = (Math.random() - 0.5) * gcSpacing * 0.2;
             newPlants.push({
               id: `bundle-${Date.now()}-fill-${x}-${i}`,
               plantId: primaryGroundcover.plantId,
-              x: x + offsetX + (Math.random() - 0.5) * 8,
+              x: x + offsetX + (Math.random() - 0.5) * 6,
               y: y + offsetY,
               rotation: (Math.random() - 0.5) * 40,
               scale: 0.7 + Math.random() * 0.25
