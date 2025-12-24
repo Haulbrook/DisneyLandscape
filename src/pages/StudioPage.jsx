@@ -837,6 +837,60 @@ export default function StudioPage() {
     return inside;
   };
 
+  // Check if a circle (plant with radius) stays ENTIRELY inside the custom bed path
+  // This ensures maturity circles don't extend outside curved bed edges
+  const isCircleInsidePath = (x, y, radius, path) => {
+    if (path.length < 3) return true;
+
+    // Check center point first
+    if (!isPointInPath(x, y, path)) return false;
+
+    // Check 12 points around the circle's edge (every 30 degrees)
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 6) {
+      const edgeX = x + Math.cos(angle) * radius;
+      const edgeY = y + Math.sin(angle) * radius;
+      if (!isPointInPath(edgeX, edgeY, path)) return false;
+    }
+
+    return true;
+  };
+
+  // Find the maximum safe radius at a given point inside the custom path
+  // Returns the distance to the nearest edge
+  const getDistanceToPathEdge = (x, y, path) => {
+    if (path.length < 3) return Infinity;
+
+    let minDist = Infinity;
+
+    // Check distance to each edge segment
+    for (let i = 0; i < path.length; i++) {
+      const j = (i + 1) % path.length;
+      const x1 = path[i].x, y1 = path[i].y;
+      const x2 = path[j].x, y2 = path[j].y;
+
+      // Distance from point to line segment
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len2 = dx * dx + dy * dy;
+
+      let dist;
+      if (len2 === 0) {
+        // Segment is a point
+        dist = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
+      } else {
+        // Project point onto line segment
+        const t = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / len2));
+        const projX = x1 + t * dx;
+        const projY = y1 + t * dy;
+        dist = Math.sqrt((x - projX) ** 2 + (y - projY) ** 2);
+      }
+
+      minDist = Math.min(minDist, dist);
+    }
+
+    return minDist;
+  };
+
   // Reset to rectangle bed
   const resetToRectangleBed = () => {
     setBedType('rectangle');
@@ -1357,8 +1411,14 @@ export default function StudioPage() {
           const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
           const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
 
-          // Check if in custom path
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+          // Check if in custom path - canopy trees (10'+) can spill, others must fit entirely
+          if (useCustomPath) {
+            if (bundlePlant.isCanopy) {
+              if (!isPointInPath(x, y, customBedPath)) continue;
+            } else {
+              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) continue;
+            }
+          }
 
           // Check minimum distance from other trees
           const minDistToOthers = newPlants
@@ -1507,13 +1567,23 @@ export default function StudioPage() {
         const zoneWidth = (bedBounds.width - plantEdgeOffset * 2) / numClusters;
         const baseX = bedBounds.minX + plantEdgeOffset + zoneWidth * clusterIdx + zoneWidth * 0.5;
 
-        // Find splatter center within this zone
+        // Find splatter center within this zone - ensure it's far enough inside for plants to fit
         let clusterCenter = null;
+        const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
+
         for (let attempt = 0; attempt < 30 && !clusterCenter; attempt++) {
           const x = baseX + (Math.random() - 0.5) * zoneWidth * 0.8;
           const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+          // Ensure cluster center is positioned where plants can fit inside custom path
+          if (useCustomPath) {
+            if (canSpillOver) {
+              if (!isPointInPath(x, y, customBedPath)) continue;
+            } else {
+              // Cluster center needs room for plants - check with larger radius
+              if (!isCircleInsidePath(x, y, bundlePlant.radius * 1.5, customBedPath)) continue;
+            }
+          }
 
           // Check spacing from other clusters
           const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
@@ -1527,10 +1597,23 @@ export default function StudioPage() {
         }
 
         if (!clusterCenter) {
-          clusterCenter = {
-            x: baseX,
-            y: (zone.minY + zone.maxY) / 2
-          };
+          // Fallback: find a point that's definitely inside the custom path
+          if (useCustomPath) {
+            for (let fallbackAttempt = 0; fallbackAttempt < 20; fallbackAttempt++) {
+              const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5;
+              const fy = (zone.minY + zone.maxY) / 2;
+              if (canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+                clusterCenter = { x: fx, y: fy };
+                break;
+              }
+            }
+          }
+          if (!clusterCenter) {
+            clusterCenter = {
+              x: baseX,
+              y: (zone.minY + zone.maxY) / 2
+            };
+          }
         }
 
         // Use SPLATTER placement with this cluster's portion of plants
@@ -1547,7 +1630,17 @@ export default function StudioPage() {
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
+          // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
+          if (useCustomPath) {
+            const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
+            if (canSpillOver) {
+              // Tall canopy trees: just check center is inside
+              if (!isPointInPath(x, y, customBedPath)) return;
+            } else {
+              // All other plants: full maturity circle must stay inside
+              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+            }
+          }
 
           // Looser collision - allow more overlap for organic feel
           const tooClose = newPlants.some(p => {
@@ -1601,13 +1694,22 @@ export default function StudioPage() {
         const zoneWidth = (bedBounds.width - plantEdgeOffset * 2) / numClusters;
         const baseX = bedBounds.minX + plantEdgeOffset + zoneWidth * clusterIdx + zoneWidth * 0.5;
 
-        // Find splatter center within this zone
+        // Find splatter center within this zone - ensure it's far enough inside for plants to fit
         let clusterCenter = null;
+        const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
+
         for (let attempt = 0; attempt < 30 && !clusterCenter; attempt++) {
           const x = baseX + (Math.random() - 0.5) * zoneWidth * 0.8;
           const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+          // Ensure cluster center is positioned where plants can fit inside custom path
+          if (useCustomPath) {
+            if (canSpillOver) {
+              if (!isPointInPath(x, y, customBedPath)) continue;
+            } else {
+              if (!isCircleInsidePath(x, y, bundlePlant.radius * 1.5, customBedPath)) continue;
+            }
+          }
 
           const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
             const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
@@ -1620,10 +1722,23 @@ export default function StudioPage() {
         }
 
         if (!clusterCenter) {
-          clusterCenter = {
-            x: baseX,
-            y: (zone.minY + zone.maxY) / 2
-          };
+          // Fallback: find a point that's definitely inside the custom path
+          if (useCustomPath) {
+            for (let fallbackAttempt = 0; fallbackAttempt < 20; fallbackAttempt++) {
+              const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5;
+              const fy = (zone.minY + zone.maxY) / 2;
+              if (canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+                clusterCenter = { x: fx, y: fy };
+                break;
+              }
+            }
+          }
+          if (!clusterCenter) {
+            clusterCenter = {
+              x: baseX,
+              y: (zone.minY + zone.maxY) / 2
+            };
+          }
         }
 
         // Use SPLATTER placement with this cluster's portion
@@ -1640,7 +1755,15 @@ export default function StudioPage() {
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
+          // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
+          if (useCustomPath) {
+            const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
+            if (canSpillOver) {
+              if (!isPointInPath(x, y, customBedPath)) return;
+            } else {
+              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+            }
+          }
 
           const tooClose = newPlants.some(p => {
             const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
@@ -1701,7 +1824,15 @@ export default function StudioPage() {
         let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
         let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-        if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
+        // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
+        if (useCustomPath) {
+          const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
+          if (canSpillOver) {
+            if (!isPointInPath(x, y, customBedPath)) return;
+          } else {
+            if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+          }
+        }
 
         const tooClose = newPlants.some(p => {
           const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
@@ -1893,8 +2024,8 @@ export default function StudioPage() {
       for (const point of allFlowPoints) {
         if (placedCount >= targetQuantity) break;
 
-        // Apply edge offsets
-        if (useCustomPath && !isPointInPath(point.x, point.y, customBedPath)) continue;
+        // Apply edge offsets - groundcover maturity circles must stay inside custom paths
+        if (useCustomPath && !isCircleInsidePath(point.x, point.y, bundlePlant.radius, customBedPath)) continue;
         if (point.x < bedBounds.minX + EDGE_OFFSET_MIN || point.x > bedBounds.maxX - EDGE_OFFSET_MIN) continue;
         if (point.y < gcZone.minY || point.y > gcZone.maxY) continue;
 
@@ -1935,7 +2066,8 @@ export default function StudioPage() {
       for (let x = bedBounds.minX + EDGE_OFFSET_MIN + 30; x < bedBounds.maxX - EDGE_OFFSET_MIN - 30; x += gcSpacing) {
         const y = frontFillY + (Math.random() - 0.5) * 10;
 
-        if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+        // Groundcover gap-fill must also keep maturity circles inside custom path
+        if (useCustomPath && !isCircleInsidePath(x, y, primaryGroundcover.radius, customBedPath)) continue;
         if (y < gcZone.minY || y > gcZone.maxY) continue;
 
         // Find nearest groundcover plant (not any plant)
