@@ -1114,6 +1114,26 @@ export default function StudioPage() {
     const baseArea = 150 * 144; // 150 sq ft in sq inches (bundle base size)
     const areaScale = Math.sqrt(bedArea / baseArea);
 
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PROFESSIONAL RULE: Odd-number groupings (3, 5, 7, 9) for natural look
+    // Favor odd numbers for informal/natural beds
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const roundToOddNumber = (n) => {
+      if (n <= 1) return 1;
+      if (n <= 2) return 3;
+      if (n <= 4) return 3;
+      if (n <= 6) return 5;
+      if (n <= 8) return 7;
+      if (n <= 10) return 9;
+      if (n <= 13) return 11;
+      // For larger numbers, round to nearest odd
+      return Math.floor(n / 2) * 2 + 1;
+    };
+
+    // PROFESSIONAL RULE: Edge offset - plants should be 12-18" inside bed edges
+    const EDGE_OFFSET_MIN = 12; // 12 inches minimum from edge
+    const EDGE_OFFSET_MAX = 18; // 18 inches for larger plants
+
     // Process plants with quantity scaling for small plants
     const processedPlants = plantsList.map(bp => {
       const plantData = ALL_PLANTS.find(p => p.id === bp.plantId);
@@ -1134,21 +1154,26 @@ export default function StudioPage() {
 
       // Small plants (1gal or less) get significantly more quantity
       if (isSmallPlant) {
-        quantity = Math.max(quantity * 2.5, 7); // At least 7, usually 2.5x more
+        quantity = Math.max(quantity * 2.5, 7);
       } else if (isMediumPlant) {
-        quantity = Math.max(quantity * 1.5, 5); // At least 5
+        quantity = Math.max(quantity * 1.5, 5);
       }
 
-      // Groundcover needs lots of plants
+      // Groundcover needs lots of plants - but still grouped
       if (role === 'groundcover' || role === 'front') {
-        quantity = Math.max(quantity, Math.floor(bedArea / (radius * radius * 4)));
+        quantity = Math.max(quantity, Math.floor(bedArea / (radius * radius * 5)));
       }
 
-      // Trees/focal limited by spacing
+      // Trees/focal limited by spacing - odd numbers still
       if (role === 'focal' || height > 120) {
         const minTreeSpacing = radius * 2.5;
         const maxTrees = Math.floor(bedBounds.width / minTreeSpacing) * Math.floor(bedBounds.height / minTreeSpacing);
         quantity = Math.min(quantity, Math.max(1, maxTrees));
+      }
+
+      // APPLY ODD-NUMBER RULE for non-groundcover plants
+      if (role !== 'groundcover') {
+        quantity = roundToOddNumber(quantity);
       }
 
       return {
@@ -1218,26 +1243,209 @@ export default function StudioPage() {
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 2: Place structure/back plants in TIGHT CLUSTERS
-    // Shrubs like loropetalum, hydrangea, camellias should be grouped, not spread
+    // PROFESSIONAL RULE: Height zones for layered depth
+    // Back = 60-100% of bed depth, Middle = 30-70%, Front = 0-40%
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const heightZones = {
+      focal: { minY: bedBounds.minY + bedBounds.height * 0.2, maxY: bedBounds.maxY - bedBounds.height * 0.3 },
+      back: { minY: bedBounds.minY + EDGE_OFFSET_MAX, maxY: bedBounds.minY + bedBounds.height * 0.45 },
+      topiary: { minY: bedBounds.minY + EDGE_OFFSET_MAX, maxY: bedBounds.minY + bedBounds.height * 0.5 },
+      middle: { minY: bedBounds.minY + bedBounds.height * 0.25, maxY: bedBounds.maxY - bedBounds.height * 0.25 },
+      front: { minY: bedBounds.maxY - bedBounds.height * 0.4, maxY: bedBounds.maxY - EDGE_OFFSET_MIN },
+      edge: { minY: bedBounds.maxY - bedBounds.height * 0.35, maxY: bedBounds.maxY - EDGE_OFFSET_MIN },
+      groundcover: { minY: bedBounds.maxY - bedBounds.height * 0.5, maxY: bedBounds.maxY - EDGE_OFFSET_MIN }
+    };
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PROFESSIONAL RULE: Staggered triangle placement (not grid)
+    // Plants should be offset in alternating rows like a zigzag pattern
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const createStaggeredTrianglePositions = (centerX, centerY, count, spacing, role) => {
+      const positions = [];
+
+      if (count === 1) {
+        positions.push({ x: centerX, y: centerY });
+        return positions;
+      }
+
+      if (count === 3) {
+        // Triangle formation - one front, two staggered back
+        positions.push({ x: centerX, y: centerY + spacing * 0.4 }); // Front center
+        positions.push({ x: centerX - spacing * 0.6, y: centerY - spacing * 0.35 }); // Back left
+        positions.push({ x: centerX + spacing * 0.6, y: centerY - spacing * 0.35 }); // Back right
+        return positions;
+      }
+
+      if (count === 5) {
+        // Pentagon-like: 2 front, 3 back staggered
+        positions.push({ x: centerX - spacing * 0.4, y: centerY + spacing * 0.5 }); // Front left
+        positions.push({ x: centerX + spacing * 0.4, y: centerY + spacing * 0.5 }); // Front right
+        positions.push({ x: centerX - spacing * 0.7, y: centerY - spacing * 0.25 }); // Mid left
+        positions.push({ x: centerX, y: centerY - spacing * 0.15 }); // Mid center
+        positions.push({ x: centerX + spacing * 0.7, y: centerY - spacing * 0.25 }); // Mid right
+        return positions;
+      }
+
+      if (count === 7) {
+        // 3-2-2 staggered rows
+        // Back row (3)
+        positions.push({ x: centerX - spacing * 0.8, y: centerY - spacing * 0.5 });
+        positions.push({ x: centerX, y: centerY - spacing * 0.45 });
+        positions.push({ x: centerX + spacing * 0.8, y: centerY - spacing * 0.5 });
+        // Middle row (2) - staggered
+        positions.push({ x: centerX - spacing * 0.5, y: centerY + spacing * 0.1 });
+        positions.push({ x: centerX + spacing * 0.5, y: centerY + spacing * 0.1 });
+        // Front row (2) - staggered
+        positions.push({ x: centerX - spacing * 0.3, y: centerY + spacing * 0.55 });
+        positions.push({ x: centerX + spacing * 0.3, y: centerY + spacing * 0.55 });
+        return positions;
+      }
+
+      // For 9+ plants, create staggered rows
+      const rows = Math.ceil(Math.sqrt(count * 1.5));
+      let plantsRemaining = count;
+      let currentRow = 0;
+
+      while (plantsRemaining > 0 && currentRow < rows + 2) {
+        const plantsInRow = Math.min(plantsRemaining, Math.ceil(count / rows) + (currentRow % 2 === 0 ? 1 : 0));
+        const rowY = centerY - spacing * (rows / 2 - currentRow) * 0.6;
+        const rowOffset = (currentRow % 2 === 0) ? 0 : spacing * 0.35; // Stagger offset
+
+        for (let i = 0; i < plantsInRow; i++) {
+          const startX = centerX - (plantsInRow - 1) * spacing * 0.35;
+          positions.push({
+            x: startX + i * spacing * 0.7 + rowOffset + (Math.random() - 0.5) * spacing * 0.15,
+            y: rowY + (Math.random() - 0.5) * spacing * 0.1
+          });
+          plantsRemaining--;
+        }
+        currentRow++;
+      }
+
+      return positions;
+    };
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 2: Place structure/back plants in INTERLOCKING MASSES
+    // Using staggered triangle placement within height zones
     // ═══════════════════════════════════════════════════════════════════════════════
     const structurePlants = processedPlants.filter(p => p.role === 'back' || p.role === 'topiary');
+    const usedClusterAreas = []; // Track cluster areas for interlocking
+
     structurePlants.forEach(bundlePlant => {
-      // Find a cluster center position
+      const zone = heightZones[bundlePlant.role] || heightZones.back;
+      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.6);
+
+      // Find cluster center within height zone, avoiding overlap with existing clusters
       let clusterCenter = null;
-      for (let attempt = 0; attempt < 50 && !clusterCenter; attempt++) {
-        const inset = bundlePlant.radius * 2 + 24;
-        const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
-        const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
+      for (let attempt = 0; attempt < 60 && !clusterCenter; attempt++) {
+        // Stay within height zone and edge offset
+        const x = bedBounds.minX + plantEdgeOffset + Math.random() * (bedBounds.width - plantEdgeOffset * 2);
+        const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
 
-        // Check distance from existing cluster centers (other plant types)
-        const existingCenters = newPlants.filter(p => p.isClusterCenter);
-        const minDist = existingCenters.reduce((min, p) =>
-          Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
+        // Check for interlocking - allow partial overlap with existing clusters (puzzle piece effect)
+        const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
+          const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
+          return dist < nearest.dist ? { dist, area } : nearest;
+        }, { dist: Infinity, area: null });
 
-        if (minDist > bundlePlant.radius * 3) {
+        // Allow interlocking: clusters can be close but not completely overlapping
+        const minInterlockDist = bundlePlant.radius * 1.2;
+        const maxInterlockDist = bundlePlant.radius * 4;
+
+        if (nearestCluster.dist > minInterlockDist && nearestCluster.dist < maxInterlockDist) {
+          // Good interlocking distance
+          clusterCenter = { x, y };
+        } else if (nearestCluster.dist >= maxInterlockDist) {
+          // Far enough to start new cluster area
+          clusterCenter = { x, y };
+        }
+      }
+
+      if (!clusterCenter) {
+        clusterCenter = {
+          x: bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.4,
+          y: (zone.minY + zone.maxY) / 2
+        };
+      }
+
+      // Use staggered triangle placement within cluster
+      const clusterSpacing = bundlePlant.radius * 1.8; // Based on mature spread
+      const positions = createStaggeredTrianglePositions(
+        clusterCenter.x, clusterCenter.y,
+        bundlePlant.quantity, clusterSpacing, bundlePlant.role
+      );
+
+      positions.forEach((pos, i) => {
+        // Apply edge offset check
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
+
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
+
+        // Check collision with height-based overlap rules
+        const tooClose = newPlants.some(p => {
+          const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+          const isSameType = p.plantId === bundlePlant.plantId;
+
+          if (!isSameType) {
+            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
+            return d < minDist;
+          }
+          // Same type: allow mature spread overlap (they grow together)
+          return d < bundlePlant.radius * 0.9;
+        });
+
+        if (!tooClose) {
+          newPlants.push({
+            id: `bundle-${Date.now()}-struct-${i}`,
+            plantId: bundlePlant.plantId,
+            x, y,
+            rotation: (Math.random() - 0.5) * 10,
+            scale: 0.95 + Math.random() * 0.1,
+            isClusterCenter: i === 0
+          });
+        }
+      });
+
+      // Record cluster area for interlocking
+      usedClusterAreas.push({
+        x: clusterCenter.x,
+        y: clusterCenter.y,
+        radius: clusterSpacing * Math.sqrt(bundlePlant.quantity)
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 3: Place middle/seasonal plants using STAGGERED TRIANGLE placement
+    // Perennial shrubs cluster with interlocking masses in middle height zone
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const middlePlants = processedPlants.filter(p => p.role === 'middle');
+    middlePlants.forEach(bundlePlant => {
+      const zone = heightZones.middle;
+      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.5);
+
+      // Find cluster center in middle zone, interlocking with existing masses
+      let clusterCenter = null;
+      for (let attempt = 0; attempt < 60 && !clusterCenter; attempt++) {
+        const x = bedBounds.minX + plantEdgeOffset + Math.random() * (bedBounds.width - plantEdgeOffset * 2);
+        const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
+
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+
+        // Check interlocking with existing clusters
+        const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
+          const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
+          return dist < nearest.dist ? { dist, area } : nearest;
+        }, { dist: Infinity, area: null });
+
+        const minInterlockDist = bundlePlant.radius * 1.0;
+        const maxInterlockDist = bundlePlant.radius * 3.5;
+
+        if ((nearestCluster.dist > minInterlockDist && nearestCluster.dist < maxInterlockDist) ||
+            nearestCluster.dist >= maxInterlockDist) {
           clusterCenter = { x, y };
         }
       }
@@ -1245,78 +1453,77 @@ export default function StudioPage() {
       if (!clusterCenter) {
         clusterCenter = {
           x: bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.5,
-          y: bedBounds.centerY + (Math.random() - 0.5) * bedBounds.height * 0.5
+          y: (zone.minY + zone.maxY) / 2
         };
       }
 
-      // Place all plants of this type in a cluster around center
-      // Cluster spacing = 40% of spread (close but not overly jammed)
-      const clusterSpacing = bundlePlant.radius * 0.8;
+      // Use staggered triangle placement
+      const clusterSpacing = bundlePlant.radius * 1.6;
+      const positions = createStaggeredTrianglePositions(
+        clusterCenter.x, clusterCenter.y,
+        bundlePlant.quantity, clusterSpacing, bundlePlant.role
+      );
 
-      for (let i = 0; i < bundlePlant.quantity; i++) {
-        let placed = false;
-        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
-          // Spiral outward from cluster center
-          const angle = (i * 137.5 + attempt * 45) * Math.PI / 180; // Golden angle spiral
-          const dist = clusterSpacing * (0.35 + Math.sqrt(i) * 0.55) + (attempt * clusterSpacing * 0.2);
-          const x = clusterCenter.x + Math.cos(angle) * dist;
-          const y = clusterCenter.y + Math.sin(angle) * dist;
+      positions.forEach((pos, i) => {
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
-          if (x < bedBounds.minX + 6 || x > bedBounds.maxX - 6) continue;
-          if (y < bedBounds.minY + 6 || y > bedBounds.maxY - 6) continue;
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
 
-          // Check collision - with HEIGHT-BASED OVERLAP rules
-          const tooClose = newPlants.some(p => {
-            const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
-            const isSameType = p.plantId === bundlePlant.plantId;
+        const tooClose = newPlants.some(p => {
+          const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+          const isSameType = p.plantId === bundlePlant.plantId;
 
-            // Use height-based spacing for different plant types
-            if (!isSameType) {
-              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
-              return d < minDist;
-            }
-
-            // Same type: cluster tightly
-            return d < clusterSpacing * 0.9;
-          });
-
-          if (!tooClose) {
-            newPlants.push({
-              id: `bundle-${Date.now()}-struct-${i}`,
-              plantId: bundlePlant.plantId,
-              x, y,
-              rotation: (Math.random() - 0.5) * 10,
-              scale: 0.95 + Math.random() * 0.1,
-              isClusterCenter: i === 0
-            });
-            placed = true;
+          if (!isSameType) {
+            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
+            return d < minDist;
           }
+          return d < bundlePlant.radius * 0.85;
+        });
+
+        if (!tooClose) {
+          newPlants.push({
+            id: `bundle-${Date.now()}-mid-${i}`,
+            plantId: bundlePlant.plantId,
+            x, y,
+            rotation: (Math.random() - 0.5) * 15,
+            scale: 0.9 + Math.random() * 0.15,
+            isClusterCenter: i === 0
+          });
         }
-      }
+      });
+
+      usedClusterAreas.push({
+        x: clusterCenter.x,
+        y: clusterCenter.y,
+        radius: clusterSpacing * Math.sqrt(bundlePlant.quantity)
+      });
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PHASE 3: Place middle/seasonal plants in TIGHT CLUSTERS
-    // Perennial shrubs should also cluster - hydrangeas together, azaleas together
+    // PHASE 4: Place front/edge plants in STAGGERED CLUSTERS within front height zone
+    // Front plants should be grouped in odd numbers, offset from edges
     // ═══════════════════════════════════════════════════════════════════════════════
-    const middlePlants = processedPlants.filter(p => p.role === 'middle');
-    middlePlants.forEach(bundlePlant => {
-      // Find cluster center - try to place between focal plants and edges
+    const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
+    frontPlants.forEach(bundlePlant => {
+      const zone = heightZones.front;
+      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.4);
+
+      // Find cluster center in front zone
       let clusterCenter = null;
       for (let attempt = 0; attempt < 50 && !clusterCenter; attempt++) {
-        const inset = bundlePlant.radius + 18;
-        const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
-        const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
+        const x = bedBounds.minX + plantEdgeOffset + Math.random() * (bedBounds.width - plantEdgeOffset * 2);
+        const y = zone.minY + Math.random() * (zone.maxY - zone.minY);
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
 
-        // Keep away from other cluster centers
-        const existingCenters = newPlants.filter(p => p.isClusterCenter);
-        const minDist = existingCenters.reduce((min, p) =>
-          Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
+        // Check interlocking
+        const nearestCluster = usedClusterAreas.reduce((nearest, area) => {
+          const dist = Math.sqrt(Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2));
+          return dist < nearest.dist ? { dist, area } : nearest;
+        }, { dist: Infinity, area: null });
 
-        if (minDist > bundlePlant.radius * 2.5) {
+        if (nearestCluster.dist > bundlePlant.radius * 0.8) {
           clusterCenter = { x, y };
         }
       }
@@ -1324,248 +1531,233 @@ export default function StudioPage() {
       if (!clusterCenter) {
         clusterCenter = {
           x: bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6,
-          y: bedBounds.centerY + (Math.random() - 0.5) * bedBounds.height * 0.6
+          y: (zone.minY + zone.maxY) / 2
         };
       }
 
-      // Cluster for mid-size plants - slightly looser than structure
-      const clusterSpacing = bundlePlant.radius * 0.7;
+      // Use staggered triangle placement for front plants
+      const clusterSpacing = bundlePlant.radius * 1.4;
+      const positions = createStaggeredTrianglePositions(
+        clusterCenter.x, clusterCenter.y,
+        bundlePlant.quantity, clusterSpacing, bundlePlant.role
+      );
 
-      for (let i = 0; i < bundlePlant.quantity; i++) {
-        let placed = false;
-        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
-          const angle = (i * 137.5 + attempt * 30) * Math.PI / 180;
-          const dist = clusterSpacing * (0.25 + Math.sqrt(i) * 0.45) + (attempt * clusterSpacing * 0.15);
-          const x = clusterCenter.x + Math.cos(angle) * dist;
-          const y = clusterCenter.y + Math.sin(angle) * dist;
+      positions.forEach((pos, i) => {
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
-          if (x < bedBounds.minX + 4 || x > bedBounds.maxX - 4) continue;
-          if (y < bedBounds.minY + 4 || y > bedBounds.maxY - 4) continue;
+        if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
 
-          // Check collision - with HEIGHT-BASED OVERLAP rules
-          const tooClose = newPlants.some(p => {
-            const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
-            const isSameType = p.plantId === bundlePlant.plantId;
+        const tooClose = newPlants.some(p => {
+          const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+          const isSameType = p.plantId === bundlePlant.plantId;
 
-            // Use height-based spacing for different plant types
-            if (!isSameType) {
-              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
-              return d < minDist;
-            }
+          if (!isSameType) {
+            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId);
+            return d < minDist;
+          }
+          return d < bundlePlant.radius * 0.75;
+        });
 
-            // Same type: cluster tightly
-            return d < clusterSpacing * 0.8;
+        if (!tooClose) {
+          newPlants.push({
+            id: `bundle-${Date.now()}-front-${i}`,
+            plantId: bundlePlant.plantId,
+            x, y,
+            rotation: (Math.random() - 0.5) * 20,
+            scale: 0.85 + Math.random() * 0.2,
+            isClusterCenter: i === 0
           });
-
-          if (!tooClose) {
-            newPlants.push({
-              id: `bundle-${Date.now()}-mid-${i}`,
-              plantId: bundlePlant.plantId,
-              x, y,
-              rotation: (Math.random() - 0.5) * 15,
-              scale: 0.9 + Math.random() * 0.15,
-              isClusterCenter: i === 0
-            });
-            placed = true;
-          }
         }
-      }
+      });
+
+      usedClusterAreas.push({
+        x: clusterCenter.x,
+        y: clusterCenter.y,
+        radius: clusterSpacing * Math.sqrt(bundlePlant.quantity)
+      });
     });
 
-    // PHASE 4: Place front/edge plants - prioritize edges
-    const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
-    frontPlants.forEach(bundlePlant => {
-      for (let i = 0; i < bundlePlant.quantity; i++) {
-        let placed = false;
-        for (let attempt = 0; attempt < 40 && !placed; attempt++) {
-          // Bias toward edges
-          const edgeBias = Math.random() < 0.7;
-          let x, y;
-
-          if (edgeBias) {
-            // Place near an edge
-            const edge = Math.floor(Math.random() * 4);
-            const inset = bundlePlant.radius + 6;
-            switch (edge) {
-              case 0: x = bedBounds.minX + inset + Math.random() * 30; y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2); break;
-              case 1: x = bedBounds.maxX - inset - Math.random() * 30; y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2); break;
-              case 2: x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2); y = bedBounds.minY + inset + Math.random() * 30; break;
-              case 3: x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2); y = bedBounds.maxY - inset - Math.random() * 30; break;
-            }
-          } else {
-            const inset = bundlePlant.radius + 8;
-            x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
-            y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
-          }
-
-          if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
-
-          const pos = findValidPositionInBed(x, y, bundlePlant.plantId, newPlants, bedBounds, useCustomPath ? customBedPath : null, false);
-          if (pos) {
-            newPlants.push({
-              id: `bundle-${Date.now()}-front-${i}`,
-              plantId: bundlePlant.plantId,
-              x: pos.x,
-              y: pos.y,
-              rotation: (Math.random() - 0.5) * 20,
-              scale: 0.85 + Math.random() * 0.2
-            });
-            placed = true;
-          }
-        }
-      }
-    });
-
-    // PHASE 5: ORGANIC GROUNDCOVER - Flowing streams & drifts (not grid!)
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 5: ORGANIC GROUNDCOVER - Flowing rivers & drifts (NOT scattered!)
+    // Groundcover should flow like water: streams along edges, drifts around shrubs
+    // NEVER scatter individually - always place as connected masses
+    // ═══════════════════════════════════════════════════════════════════════════════
     const groundcoverPlants = processedPlants.filter(p => p.role === 'groundcover');
+    const gcZone = heightZones.groundcover;
 
-    // Helper: Create organic bezier curve points
-    const createFlowingPath = (startX, startY, endX, endY, waviness = 30) => {
+    // Helper: Create organic flowing river path with natural curves
+    const createFlowingRiver = (startX, startY, endX, endY, width, waviness = 25) => {
       const points = [];
-      const segments = 8 + Math.floor(Math.random() * 4);
+      const segments = 12 + Math.floor(Math.random() * 6);
       const dx = (endX - startX) / segments;
       const dy = (endY - startY) / segments;
 
       for (let i = 0; i <= segments; i++) {
         const t = i / segments;
-        // Add organic waviness perpendicular to path direction
-        const perpX = -dy * 0.3;
-        const perpY = dx * 0.3;
-        const wave = Math.sin(t * Math.PI * (2 + Math.random())) * waviness * (1 - Math.abs(t - 0.5) * 1.5);
+        // Organic sine wave perpendicular to path
+        const wave = Math.sin(t * Math.PI * (2 + Math.random())) * waviness;
+        const baseX = startX + dx * i;
+        const baseY = startY + dy * i;
 
-        points.push({
-          x: startX + dx * i + perpX * wave / Math.abs(perpX || 1),
-          y: startY + dy * i + perpY * wave / Math.abs(perpY || 1)
-        });
+        // Add multiple points across river width for density
+        for (let w = -1; w <= 1; w += 0.5) {
+          const offsetX = (dy !== 0) ? wave * (dy / Math.abs(dy)) : wave;
+          const offsetY = (dx !== 0) ? -wave * (dx / Math.abs(dx)) : 0;
+          points.push({
+            x: baseX + offsetX + w * width * 0.3 + (Math.random() - 0.5) * 6,
+            y: baseY + offsetY + (Math.random() - 0.5) * 8
+          });
+        }
       }
       return points;
     };
 
-    // Helper: Create drift around a focal point (like water around a rock)
-    const createDriftAroundPlant = (centerX, centerY, innerRadius, outerRadius, arcStart, arcEnd) => {
+    // Helper: Create crescent drift around a shrub (like moon shape)
+    const createCrescentDrift = (centerX, centerY, innerRadius, outerRadius, arcStart, arcLength) => {
       const points = [];
-      const arcLength = arcEnd - arcStart;
-      const numPoints = Math.floor(arcLength / 0.3);
+      const numArcs = 3; // Multiple arcs for density
 
-      for (let i = 0; i < numPoints; i++) {
-        const angle = arcStart + (arcLength * i / numPoints);
-        // Vary the radius organically
-        const radiusVariation = innerRadius + (outerRadius - innerRadius) * (0.3 + Math.random() * 0.7);
-        const wobble = (Math.random() - 0.5) * 10;
+      for (let arc = 0; arc < numArcs; arc++) {
+        const radius = innerRadius + (outerRadius - innerRadius) * (arc / numArcs);
+        const numPoints = Math.floor(arcLength / 0.25);
 
-        points.push({
-          x: centerX + Math.cos(angle) * (radiusVariation + wobble),
-          y: centerY + Math.sin(angle) * (radiusVariation + wobble)
-        });
+        for (let i = 0; i < numPoints; i++) {
+          const angle = arcStart + (arcLength * i / numPoints);
+          const wobble = (Math.random() - 0.5) * 8;
+          points.push({
+            x: centerX + Math.cos(angle) * (radius + wobble),
+            y: centerY + Math.sin(angle) * (radius + wobble)
+          });
+        }
       }
       return points;
     };
 
     groundcoverPlants.forEach(bundlePlant => {
-      const spacing = bundlePlant.radius * 2.2;
+      const spacing = bundlePlant.radius * 1.8; // Tighter spacing for flowing effect
       let placedCount = 0;
       const targetQuantity = bundlePlant.quantity;
       const allFlowPoints = [];
 
-      // PATTERN 1: Flowing streams along front edge (like a river border)
-      const frontY = bedBounds.maxY - 25;
-      const streamWidth = 40;
-      for (let stream = 0; stream < 2; stream++) {
-        const streamY = frontY - stream * spacing * 1.5;
-        const pathPoints = createFlowingPath(
-          bedBounds.minX + 20,
-          streamY + (Math.random() - 0.5) * 15,
-          bedBounds.maxX - 20,
-          streamY + (Math.random() - 0.5) * 15,
-          25
-        );
-        allFlowPoints.push(...pathPoints);
-      }
+      // ─────────────────────────────────────────────────────────────────────────────
+      // PATTERN 1: MAIN RIVER - flowing stream along front edge (12-18" inside)
+      // ─────────────────────────────────────────────────────────────────────────────
+      const frontRiverY = bedBounds.maxY - EDGE_OFFSET_MIN - 10;
+      const riverPoints = createFlowingRiver(
+        bedBounds.minX + EDGE_OFFSET_MIN,
+        frontRiverY,
+        bedBounds.maxX - EDGE_OFFSET_MIN,
+        frontRiverY + (Math.random() - 0.5) * 15,
+        spacing * 2,
+        30
+      );
+      allFlowPoints.push(...riverPoints);
 
-      // PATTERN 2: Drifts wrapping around focal/large plants
-      const focalPlants = newPlants.filter(p => {
+      // Second parallel stream slightly behind (layered river effect)
+      const secondRiverY = frontRiverY - spacing * 1.2;
+      const secondRiver = createFlowingRiver(
+        bedBounds.minX + EDGE_OFFSET_MIN + 20,
+        secondRiverY,
+        bedBounds.maxX - EDGE_OFFSET_MIN - 20,
+        secondRiverY + (Math.random() - 0.5) * 10,
+        spacing * 1.5,
+        20
+      );
+      allFlowPoints.push(...secondRiver);
+
+      // ─────────────────────────────────────────────────────────────────────────────
+      // PATTERN 2: CRESCENT DRIFTS - wrapping around shrubs like moon shapes
+      // ─────────────────────────────────────────────────────────────────────────────
+      const shrubsToWrap = newPlants.filter(p => {
         const plantData = ALL_PLANTS.find(pl => pl.id === p.plantId);
-        return plantData && (plantData.category === 'focal' || plantData.category === 'back');
+        return plantData && ['focal', 'back', 'middle'].includes(plantData.category);
       });
 
-      focalPlants.slice(0, 5).forEach(focal => {
-        const plantData = ALL_PLANTS.find(pl => pl.id === focal.plantId);
+      shrubsToWrap.slice(0, 6).forEach((shrub, idx) => {
+        const plantData = ALL_PLANTS.find(pl => pl.id === shrub.plantId);
         if (!plantData) return;
 
         const plantRadius = (plantData.spread || 36) / 2;
-        // Create partial arc drift around plant (not full circle - more natural)
-        const arcStart = Math.random() * Math.PI;
-        const arcLength = Math.PI * (0.5 + Math.random() * 0.8);
+        // Create crescent on the front side of shrub (viewer-facing)
+        const arcStart = Math.PI * 0.2 + (Math.random() - 0.5) * 0.3; // Bottom-facing arc
+        const arcLength = Math.PI * (0.6 + Math.random() * 0.4);
 
-        const driftPoints = createDriftAroundPlant(
-          focal.x,
-          focal.y,
-          plantRadius + 15,
-          plantRadius + 35,
+        const crescentPoints = createCrescentDrift(
+          shrub.x,
+          shrub.y,
+          plantRadius + 10,
+          plantRadius + 30,
           arcStart,
-          arcStart + arcLength
+          arcLength
         );
-        allFlowPoints.push(...driftPoints);
+        allFlowPoints.push(...crescentPoints);
       });
 
-      // PATTERN 3: Organic veins through middle areas (like marble veins)
-      const midY = (bedBounds.minY + bedBounds.maxY) / 2;
-      const veinCount = Math.floor((bedBounds.maxX - bedBounds.minX) / 150);
+      // ─────────────────────────────────────────────────────────────────────────────
+      // PATTERN 3: SIDE RIBBONS - flowing along left and right edges
+      // ─────────────────────────────────────────────────────────────────────────────
+      const leftRibbon = createFlowingRiver(
+        bedBounds.minX + EDGE_OFFSET_MIN,
+        gcZone.maxY - 20,
+        bedBounds.minX + EDGE_OFFSET_MIN + 15,
+        gcZone.minY + 30,
+        spacing,
+        15
+      );
+      const rightRibbon = createFlowingRiver(
+        bedBounds.maxX - EDGE_OFFSET_MIN,
+        gcZone.maxY - 20,
+        bedBounds.maxX - EDGE_OFFSET_MIN - 15,
+        gcZone.minY + 30,
+        spacing,
+        15
+      );
+      allFlowPoints.push(...leftRibbon, ...rightRibbon);
 
+      // ─────────────────────────────────────────────────────────────────────────────
+      // PATTERN 4: CONNECTING VEINS - organic links between main patterns
+      // ─────────────────────────────────────────────────────────────────────────────
+      const veinCount = Math.max(2, Math.floor(bedBounds.width / 180));
       for (let v = 0; v < veinCount; v++) {
-        const startX = bedBounds.minX + 50 + (v * 150) + (Math.random() - 0.5) * 40;
-        const veinPoints = createFlowingPath(
-          startX,
-          bedBounds.maxY - 40,
-          startX + (Math.random() - 0.5) * 80,
-          midY + (Math.random() - 0.5) * 40,
-          35
+        const veinX = bedBounds.minX + EDGE_OFFSET_MIN + (v + 1) * (bedBounds.width - EDGE_OFFSET_MIN * 2) / (veinCount + 1);
+        const veinPoints = createFlowingRiver(
+          veinX + (Math.random() - 0.5) * 30,
+          gcZone.maxY - 25,
+          veinX + (Math.random() - 0.5) * 50,
+          gcZone.minY + 40,
+          spacing * 0.8,
+          25
         );
         allFlowPoints.push(...veinPoints);
       }
 
-      // PATTERN 4: Side edge flows (organic, not straight lines)
-      const leftFlow = createFlowingPath(
-        bedBounds.minX + 15,
-        bedBounds.maxY - 30,
-        bedBounds.minX + 20,
-        bedBounds.minY + 50,
-        20
-      );
-      const rightFlow = createFlowingPath(
-        bedBounds.maxX - 15,
-        bedBounds.maxY - 30,
-        bedBounds.maxX - 20,
-        bedBounds.minY + 50,
-        20
-      );
-      allFlowPoints.push(...leftFlow, ...rightFlow);
-
-      // Shuffle and place along flow points
-      shuffle(allFlowPoints);
+      // DO NOT shuffle - maintain flow continuity for river effect
+      // Instead, place along paths in order
 
       for (const point of allFlowPoints) {
         if (placedCount >= targetQuantity) break;
 
+        // Apply edge offsets
         if (useCustomPath && !isPointInPath(point.x, point.y, customBedPath)) continue;
-        if (point.x < bedBounds.minX + 5 || point.x > bedBounds.maxX - 5) continue;
-        if (point.y < bedBounds.minY + 5 || point.y > bedBounds.maxY - 5) continue;
+        if (point.x < bedBounds.minX + EDGE_OFFSET_MIN || point.x > bedBounds.maxX - EDGE_OFFSET_MIN) continue;
+        if (point.y < gcZone.minY || point.y > gcZone.maxY) continue;
 
-        // Check spacing from other plants (allow closer to non-groundcover)
+        // Check spacing - groundcover can be close to other plants but not overlapping
         const tooClose = newPlants.some(p => {
           const dist = Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
           const otherPlant = ALL_PLANTS.find(pl => pl.id === p.plantId);
           const isOtherGroundcover = otherPlant?.category === 'groundcover' || otherPlant?.category === 'front';
-          return dist < (isOtherGroundcover ? spacing * 0.7 : spacing * 0.4);
+          // Groundcover can nestle close to larger plants
+          return dist < (isOtherGroundcover ? spacing * 0.65 : spacing * 0.3);
         });
 
         if (!tooClose) {
           newPlants.push({
             id: `bundle-${Date.now()}-gc-${placedCount}`,
             plantId: bundlePlant.plantId,
-            x: point.x + (Math.random() - 0.5) * 8,
-            y: point.y + (Math.random() - 0.5) * 8,
+            x: point.x + (Math.random() - 0.5) * 5,
+            y: point.y + (Math.random() - 0.5) * 5,
             rotation: (Math.random() - 0.5) * 40,
             scale: 0.75 + Math.random() * 0.3
           });
@@ -1574,31 +1766,46 @@ export default function StudioPage() {
       }
     });
 
-    // PHASE 6: Minimal gap-fill - only fill very obvious holes, maintain organic feel
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PHASE 6: MINIMAL gap-fill - only extend existing rivers, NEVER scatter
+    // If there are large gaps, extend nearby flow patterns into them
+    // ═══════════════════════════════════════════════════════════════════════════════
     const primaryGroundcover = groundcoverPlants[0];
     if (primaryGroundcover) {
-      const gcSpacing = primaryGroundcover.radius * 3; // Larger spacing = less gap-fill
+      const gcSpacing = primaryGroundcover.radius * 3.5; // Very conservative
 
-      // Only fill major gaps in front half of bed
-      for (let x = bedBounds.minX + 40; x < bedBounds.maxX - 40; x += gcSpacing) {
-        const y = bedBounds.maxY - 30 - Math.random() * 20; // Focus on front
+      // Only look for gaps along the front edge where groundcover rivers should be
+      const frontFillY = gcZone.maxY - EDGE_OFFSET_MIN - 15;
+
+      for (let x = bedBounds.minX + EDGE_OFFSET_MIN + 30; x < bedBounds.maxX - EDGE_OFFSET_MIN - 30; x += gcSpacing) {
+        const y = frontFillY + (Math.random() - 0.5) * 10;
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) continue;
+        if (y < gcZone.minY || y > gcZone.maxY) continue;
 
-        const nearestDist = newPlants.reduce((min, p) => {
-          return Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2)));
-        }, Infinity);
+        // Find nearest groundcover plant (not any plant)
+        const nearestGcDist = newPlants
+          .filter(p => {
+            const pd = ALL_PLANTS.find(pl => pl.id === p.plantId);
+            return pd && (pd.category === 'groundcover' || pd.category === 'front');
+          })
+          .reduce((min, p) => Math.min(min, Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2))), Infinity);
 
-        // Only fill really big gaps
-        if (nearestDist > gcSpacing * 2) {
-          newPlants.push({
-            id: `bundle-${Date.now()}-fill-${x}`,
-            plantId: primaryGroundcover.plantId,
-            x: x + (Math.random() - 0.5) * 15,
-            y: y + (Math.random() - 0.5) * 15,
-            rotation: (Math.random() - 0.5) * 40,
-            scale: 0.7 + Math.random() * 0.25
-          });
+        // Only fill if there's a significant gap AND we're extending a river (nearby groundcover exists)
+        if (nearestGcDist > gcSpacing * 2.5 && nearestGcDist < gcSpacing * 5) {
+          // Add a small cluster of 3 to maintain grouped feel
+          for (let i = 0; i < 3; i++) {
+            const offsetX = (i - 1) * gcSpacing * 0.4;
+            const offsetY = (Math.random() - 0.5) * gcSpacing * 0.3;
+            newPlants.push({
+              id: `bundle-${Date.now()}-fill-${x}-${i}`,
+              plantId: primaryGroundcover.plantId,
+              x: x + offsetX + (Math.random() - 0.5) * 8,
+              y: y + offsetY,
+              rotation: (Math.random() - 0.5) * 40,
+              scale: 0.7 + Math.random() * 0.25
+            });
+          }
         }
       }
     }
