@@ -539,8 +539,10 @@ export default function StudioPage() {
 
   // Handle plant selection on canvas
   const handlePlantClick = (e, plant) => {
+    e.preventDefault();
     e.stopPropagation();
-    setSelectedPlacedPlant(plant.id === selectedPlacedPlant ? null : plant.id);
+    // Use functional update to avoid any stale state issues
+    setSelectedPlacedPlant(prev => prev === plant.id ? null : plant.id);
   };
 
   // Handle drag start
@@ -832,12 +834,31 @@ export default function StudioPage() {
   };
 
   // Delete selected plant
-  const deleteSelectedPlant = () => {
+  const deleteSelectedPlant = useCallback(() => {
     if (selectedPlacedPlant) {
-      setPlacedPlants(placedPlants.filter(p => p.id !== selectedPlacedPlant));
+      setPlacedPlants(prev => prev.filter(p => p.id !== selectedPlacedPlant));
       setSelectedPlacedPlant(null);
     }
-  };
+  }, [selectedPlacedPlant]);
+
+  // Keyboard handler for Delete/Backspace to delete selected plant
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedPlacedPlant) {
+        // Don't delete if user is typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        e.preventDefault();
+        deleteSelectedPlant();
+      }
+      // Escape to deselect
+      if (e.key === 'Escape' && selectedPlacedPlant) {
+        setSelectedPlacedPlant(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPlacedPlant, deleteSelectedPlant]);
 
   // Change size of a placed plant
   const changePlacedPlantSize = (plantId, newSize) => {
@@ -1334,7 +1355,8 @@ export default function StudioPage() {
 
     structurePlants.forEach(bundlePlant => {
       const zone = heightZones[bundlePlant.role] || heightZones.back;
-      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.5);
+      // Edge offset = 12-18" PLUS plant radius so MATURITY CIRCLE stays inside bed
+      const plantEdgeOffset = EDGE_OFFSET_MIN + bundlePlant.radius;
 
       // Find splatter center - allow bleeding/overlap with other splatters
       let clusterCenter = null;
@@ -1371,9 +1393,9 @@ export default function StudioPage() {
       );
 
       positions.forEach((pos, i) => {
-        // Allow some bleeding outside strict zones
-        let x = Math.max(bedBounds.minX + plantEdgeOffset * 0.7, Math.min(bedBounds.maxX - plantEdgeOffset * 0.7, pos.x));
-        let y = Math.max(zone.minY - bundlePlant.radius * 0.3, Math.min(zone.maxY + bundlePlant.radius * 0.3, pos.y));
+        // Keep maturity circle inside bed - use full plantEdgeOffset
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
 
@@ -1383,10 +1405,10 @@ export default function StudioPage() {
           const isSameType = p.plantId === bundlePlant.plantId;
 
           if (!isSameType) {
-            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.7; // Allow more overlap
+            const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.7;
             return d < minDist;
           }
-          return d < bundlePlant.radius * 0.7; // Same type can be very close
+          return d < bundlePlant.radius * 0.7;
         });
 
         if (!tooClose) {
@@ -1415,7 +1437,8 @@ export default function StudioPage() {
     const middlePlants = processedPlants.filter(p => p.role === 'middle');
     middlePlants.forEach(bundlePlant => {
       const zone = heightZones.middle;
-      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.4);
+      // Edge offset = 12-18" PLUS plant radius so MATURITY CIRCLE stays inside bed
+      const plantEdgeOffset = EDGE_OFFSET_MIN + bundlePlant.radius;
 
       // Find splatter center - very permissive, allow bleeding everywhere
       let clusterCenter = null;
@@ -1451,9 +1474,9 @@ export default function StudioPage() {
       );
 
       positions.forEach((pos, i) => {
-        // Allow bleeding beyond zone boundaries
-        let x = Math.max(bedBounds.minX + plantEdgeOffset * 0.6, Math.min(bedBounds.maxX - plantEdgeOffset * 0.6, pos.x));
-        let y = Math.max(zone.minY - bundlePlant.radius * 0.4, Math.min(zone.maxY + bundlePlant.radius * 0.4, pos.y));
+        // Keep maturity circle inside bed - use full plantEdgeOffset
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
 
@@ -1494,7 +1517,8 @@ export default function StudioPage() {
     const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
     frontPlants.forEach(bundlePlant => {
       const zone = heightZones.front;
-      const plantEdgeOffset = Math.max(EDGE_OFFSET_MIN, bundlePlant.radius * 0.3);
+      // Edge offset = 12-18" PLUS plant radius so MATURITY CIRCLE stays inside bed
+      const plantEdgeOffset = EDGE_OFFSET_MIN + bundlePlant.radius;
 
       // For front plants, create a flowing drift along the front edge
       const driftStartX = bedBounds.minX + plantEdgeOffset + Math.random() * bedBounds.width * 0.2;
@@ -1510,8 +1534,9 @@ export default function StudioPage() {
       );
 
       positions.forEach((pos, i) => {
-        let x = Math.max(bedBounds.minX + plantEdgeOffset * 0.5, Math.min(bedBounds.maxX - plantEdgeOffset * 0.5, pos.x));
-        let y = Math.max(zone.minY - bundlePlant.radius * 0.2, Math.min(zone.maxY + bundlePlant.radius * 0.2, pos.y));
+        // Keep maturity circle inside bed - use full plantEdgeOffset
+        let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
+        let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
         if (useCustomPath && !isPointInPath(x, y, customBedPath)) return;
 
@@ -3515,8 +3540,8 @@ export default function StudioPage() {
                 );
               })}
 
-              {/* Empty State */}
-              {placedPlants.length === 0 && (
+              {/* Empty State - only show when no plants AND no custom bed drawn */}
+              {placedPlants.length === 0 && !(bedType === 'custom' && customBedPath.length > 2) && (
                 <div className="absolute inset-0 flex items-center justify-center text-sage-500">
                   <div className="text-center">
                     <Flower2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
