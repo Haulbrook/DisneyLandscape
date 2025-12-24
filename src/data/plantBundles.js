@@ -2,8 +2,7 @@
 // PLANT PACKAGE / BUNDLE SYSTEM
 // Theme-based landscape packages with swap logic for different conditions
 // Built for North GA / Gainesville (Zone 7b-8a) as default
-// UPDATED: All plant IDs now match plantDatabase.js exactly
-// UPDATED: Every bundle has complete facet coverage (trees, shrubs, perennials, groundcovers)
+// DRASTICALLY UNIQUE: Each bundle now has exclusive plants specific to its theme
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Package filters - every bundle should define these
@@ -16,178 +15,107 @@ export const PACKAGE_FILTERS = {
 
 // Plant roles in every package
 export const PLANT_ROLES = {
-  HERO: 'hero',           // 1-3 signature plants that sell the theme (trees/large shrubs)
-  STRUCTURE: 'structure', // Evergreen backbone (shrubs)
-  SEASONAL: 'seasonal',   // Bloom sequence / seasonal color (perennials/flowering shrubs)
-  TEXTURE: 'texture',     // Grasses/perennials for movement
-  CARPET: 'carpet'        // Groundcover / edge layer
-};
-
-// Invasive plant warnings - flag these for client approval
-export const INVASIVE_WARNINGS = {
-  'english-ivy': {
-    name: 'English Ivy',
-    status: 'Major Invasive',
-    region: 'Southeast US',
-    note: 'Use only with client approval / containment plan',
-    alternatives: ['asiatic-jasmine', 'creeping-fig', 'confederate-jasmine']
-  },
-  'nandina': {
-    name: 'Nandina',
-    status: 'Invasive in GA',
-    region: 'Georgia',
-    note: 'Consider sterile cultivars or alternatives',
-    alternatives: ['distylium-vintage-jade', 'loropetalum-purple-pixie', 'cleyera']
-  },
-  'liriope': {
-    name: 'Liriope muscari',
-    status: 'Potentially Invasive',
-    region: 'SE-EPPC Listed',
-    note: 'Flag for client - varies by context',
-    alternatives: ['mondo-grass', 'carex-everillo', 'sweet-flag-grass']
-  },
-  'asiatic-jasmine': {
-    name: 'Asiatic Jasmine',
-    status: 'Aggressive Spreader',
-    region: 'Southeast US',
-    note: 'Great performer but manage edges carefully',
-    alternatives: ['mondo-grass', 'pachysandra', 'creeping-phlox']
-  }
+  HERO: 'hero',
+  STRUCTURE: 'structure',
+  SEASONAL: 'seasonal',
+  TEXTURE: 'texture',
+  CARPET: 'carpet'
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// THEME PACKAGES - ALL WITH COMPLETE FACET COVERAGE
+// THEME PACKAGES - DRASTICALLY UNIQUE PLANTS PER THEME
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const PLANT_BUNDLES = [
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. AUGUSTA CLASSIC SOUTHERN GOLF
+  // 1. AUGUSTA CLASSIC - Southern Golf Elegance
+  // EXCLUSIVE: Magnolias, Dogwoods, Azaleas, Tea Olives, Ferns
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'augusta-classic',
     name: 'Augusta Classic',
     subtitle: 'Southern Golf Course Elegance',
-    description: 'Inspired by Augusta National - azaleas, dogwoods, magnolias, and pristine evergreen structure. Each hole at Augusta is named after a plant.',
+    description: 'Inspired by Augusta National - azaleas, dogwoods, magnolias, and pristine evergreen structure.',
     theme: 'Southern Traditional',
     preview: '⛳',
     colorScheme: ['#E91E63', '#FFFFFF', '#1B5E20', '#FFB6C1'],
     baseSize: '200 sq ft',
     defaultZone: 8,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'showcase'
-    },
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'Grand statement tree' },
-        { plantId: 'dogwood', quantity: 2, role: 'hero', note: 'Spring focal - Masters timing' },
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Specimen focal' },
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer blooms' }
+        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'SIGNATURE: Grand Southern statement' },
+        { plantId: 'dogwood', quantity: 2, role: 'hero', note: 'SIGNATURE: Masters spring timing' },
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Burgundy specimen focal' }
       ],
       structure: [
-        { plantId: 'tea-olive', quantity: 2, role: 'structure', note: 'Signature fragrance' },
-        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'structure', note: 'Evergreen screen' },
-        { plantId: 'boxwood-wintergreen', quantity: 8, role: 'structure' },
-        { plantId: 'cleyera', quantity: 4, role: 'structure' },
-        { plantId: 'distylium-vintage-jade', quantity: 4, role: 'structure' }
+        { plantId: 'tea-olive', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Signature fragrance' },
+        { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Winter blooms' },
+        { plantId: 'cleyera', quantity: 5, role: 'structure', note: 'Evergreen backdrop' }
       ],
       seasonal: [
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 8, role: 'seasonal', note: 'Signature color mass' },
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'seasonal', note: 'Winter bloom' },
-        { plantId: 'camellia-japonica', quantity: 3, role: 'seasonal' },
-        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal' },
-        { plantId: 'gardenia-august-beauty', quantity: 3, role: 'seasonal' }
+        { plantId: 'azalea-encore-carnation', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Pink mass' },
+        { plantId: 'azalea-encore-amethyst', quantity: 6, role: 'seasonal', note: 'Purple accents' },
+        { plantId: 'gardenia-august-beauty', quantity: 4, role: 'seasonal', note: 'Summer fragrance' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'Fall pink clouds' },
-        { plantId: 'muhly-grass-white', quantity: 5, role: 'texture' },
-        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
-        { plantId: 'carex-everillo', quantity: 6, role: 'texture' }
+        { plantId: 'fern-autumn', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Woodland texture' },
+        { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern' },
+        { plantId: 'cast-iron-plant', quantity: 6, role: 'texture', note: 'Deep shade tolerant' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 2, role: 'carpet', note: 'Primary groundcover' },
-        { plantId: 'liriope-variegated', quantity: 1, role: 'carpet' },
-        { plantId: 'pachysandra', quantity: 1, role: 'carpet' }
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Shade groundcover' },
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple accent carpet' }
       ]
-    },
-    swaps: {
-      cold: {
-        condition: 'Zone 6-7 / Exposed sites',
-        changes: [
-          { remove: 'tea-olive', add: 'holly-nellie-stevens', reason: 'More cold hardy' },
-          { remove: 'gardenia-august-beauty', add: 'camellia-sasanqua-hot-flash', reason: 'Better cold tolerance' }
-        ]
-      }
-    },
-    finishNotes: 'Natural pine bark mulch (not dyed). Clean bed edges. No excessive color - let structure dominate.',
-    inspirationSource: 'Augusta National Golf Club - holes named after plants'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 2. MAIN STREET CLASSIC
+  // 2. MAIN STREET CLASSIC - Patriotic Americana
+  // EXCLUSIVE: Roses, Hydrangeas, Hostas, Daylilies
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'main-street-classic',
     name: 'Main Street Classic',
     subtitle: 'Clean, Formal, Always-in-Bloom',
-    description: 'Tight lines, bright seasonal beds, and maximum curb appeal. The quintessential American front yard.',
+    description: 'Tight lines, bright seasonal beds, and maximum curb appeal. Quintessential American front yard.',
     theme: 'Classic Americana',
     preview: '🏛️',
     colorScheme: ['#D32F2F', '#FFFFFF', '#1565C0', '#FFD700'],
     baseSize: '150 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'White summer blooms' },
-        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Spring flowering tree' },
-        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'Early spring color' },
-        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'hero', note: 'Evergreen backdrop' }
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'SIGNATURE: White summer blooms' },
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'SIGNATURE: Early spring purple' },
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Native four-season interest' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'Foundation hedge' },
-        { plantId: 'holly-sky-pencil', quantity: 3, role: 'structure', note: 'Vertical accents' },
-        { plantId: 'gardenia-frostproof', quantity: 4, role: 'structure' },
-        { plantId: 'loropetalum-purple-pixie', quantity: 4, role: 'structure' }
+        { plantId: 'hydrangea-limelight', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Summer showstopper' },
+        { plantId: 'hydrangea-annabelle', quantity: 4, role: 'structure', note: 'White pom-poms' },
+        { plantId: 'holly-nellie-stevens', quantity: 3, role: 'structure', note: 'Evergreen backdrop' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-limelight', quantity: 4, role: 'seasonal' },
-        { plantId: 'rose-knock-out', quantity: 6, role: 'seasonal', note: 'Continuous color' },
-        { plantId: 'rose-drift-coral', quantity: 5, role: 'seasonal' },
-        { plantId: 'rose-drift-pink', quantity: 5, role: 'seasonal' }
+        { plantId: 'rose-knockout-double-red', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Red continuous bloom' },
+        { plantId: 'rose-pink-drift', quantity: 5, role: 'seasonal', note: 'Pink carpet roses' },
+        { plantId: 'rose-coral-drift', quantity: 5, role: 'seasonal', note: 'Coral accents' }
       ],
       texture: [
-        { plantId: 'karl-foerster', quantity: 5, role: 'texture', note: 'Vertical grass accents' },
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Soft fall edge' },
-        { plantId: 'daylily-stella-doro', quantity: 8, role: 'texture' },
-        { plantId: 'hosta', quantity: 6, role: 'texture' }
+        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Shade texture' },
+        { plantId: 'hosta-patriot', quantity: 6, role: 'texture', note: 'White-edged patriotic' },
+        { plantId: 'daylily-stella', quantity: 10, role: 'texture', note: 'Yellow continuous bloom' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 1, role: 'carpet', note: 'Between stepping stones' },
-        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
-        { plantId: 'liriope-variegated', quantity: 1, role: 'carpet' }
+        { plantId: 'liriope-variegated', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Striped edging' },
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Spring color carpet' }
       ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Less than 4-5 hours sun',
-        changes: [
-          { remove: 'rose-knock-out', add: 'hydrangea-endless-summer', reason: 'Shade tolerant blooms' },
-          { remove: 'rose-drift-coral', add: 'fern-autumn', reason: 'Texture for shade' }
-        ]
-      }
-    },
-    finishNotes: 'Black hardwood or pine bark mini nuggets. Crisp bed edges. Symmetrical layout.',
-    inspirationSource: 'Disney Main Street USA'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 3. JAPANESE GARDEN (ZEN)
+  // 3. JAPANESE GARDEN - Zen Asian
+  // EXCLUSIVE: Japanese Maples, Pieris, Nandinas, Mondo Grass
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'japanese-garden',
@@ -198,1372 +126,1026 @@ export const PLANT_BUNDLES = [
     preview: '🎋',
     colorScheme: ['#C62828', '#1B5E20', '#FFFFFF', '#8D6E63'],
     baseSize: '200 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'showcase'
-    },
-    plants: {
-      hero: [
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Primary focal' },
-        { plantId: 'japanese-maple-coral-bark', quantity: 1, role: 'hero', note: 'Winter bark interest' },
-        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'Spring blossoms' },
-        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'Evergreen structure' }
-      ],
-      structure: [
-        { plantId: 'holly-sky-pencil', quantity: 5, role: 'structure', note: 'Vertical evergreen' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure' },
-        { plantId: 'nandina', quantity: 4, role: 'structure' },
-        { plantId: 'camellia-japonica', quantity: 3, role: 'structure' }
-      ],
-      seasonal: [
-        { plantId: 'azalea-encore-autumn-amethyst', quantity: 6, role: 'seasonal' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 6, role: 'seasonal' },
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'seasonal' },
-        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'Near water features' }
-      ],
-      texture: [
-        { plantId: 'fern-autumn', quantity: 8, role: 'texture' },
-        { plantId: 'fern-japanese-painted', quantity: 6, role: 'texture' },
-        { plantId: 'fern-holly', quantity: 5, role: 'texture' },
-        { plantId: 'hosta', quantity: 8, role: 'texture' },
-        { plantId: 'carex', quantity: 6, role: 'texture' }
-      ],
-      carpet: [
-        { plantId: 'mondo-grass', quantity: 3, role: 'carpet', note: 'Primary groundcover' },
-        { plantId: 'pachysandra', quantity: 1, role: 'carpet' },
-        { plantId: 'creeping-mazus', quantity: 1, role: 'carpet' }
-      ]
-    },
-    swaps: {
-      hot: {
-        condition: 'Full sun / hot sites',
-        changes: [
-          { remove: 'japanese-maple-bloodgood', add: 'cryptomeria-radicans', reason: 'Heat tolerant focal' }
-        ]
-      }
-    },
-    finishNotes: 'Decomposed granite or pea gravel paths. Natural boulders. Raked gravel beds optional. Minimal color - structure dominates.',
-    invasiveWarnings: ['nandina'],
-    inspirationSource: 'EPCOT Japan Pavilion'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 4. ENGLISH MANOR / COTTAGE GARDEN
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'english-manor',
-    name: 'English Manor',
-    subtitle: 'Boxwood, Blooms & Soft Perennials',
-    description: 'Formal hedges framing romantic perennial drifts. The classic English cottage garden look.',
-    theme: 'English Traditional',
-    preview: '🏰',
-    colorScheme: ['#7B1FA2', '#E91E63', '#FFFFFF', '#33691E'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'Late spring blooms' },
-        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer color' },
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Fragrant focal' },
-        { plantId: 'redbud-forest-pansy', quantity: 1, role: 'hero', note: 'Purple foliage' }
-      ],
-      structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 14, role: 'structure', note: 'Hedge structure' },
-        { plantId: 'holly-sky-pencil', quantity: 4, role: 'structure' },
-        { plantId: 'yew-podocarpus', quantity: 4, role: 'structure', note: 'Hedge mass' }
-      ],
-      seasonal: [
-        { plantId: 'hydrangea-endless-summer', quantity: 5, role: 'seasonal' },
-        { plantId: 'rose-knock-out', quantity: 6, role: 'seasonal' },
-        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal' },
-        { plantId: 'catmint-walkers-low', quantity: 8, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
-        { plantId: 'peony', quantity: 3, role: 'seasonal', note: 'Where zone allows' },
-        { plantId: 'daisy-shasta-becky', quantity: 6, role: 'seasonal' }
-      ],
-      texture: [
-        { plantId: 'karl-foerster', quantity: 5, role: 'texture' },
-        { plantId: 'lamb-ear', quantity: 6, role: 'texture' },
-        { plantId: 'russian-sage', quantity: 5, role: 'texture' }
-      ],
-      carpet: [
-        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet' },
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
-        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
-      ]
-    },
-    swaps: {
-      deer: {
-        condition: 'High deer pressure',
-        changes: [
-          { remove: 'rose-knock-out', add: 'boxwood-wintergreen', reason: 'Deer resistant' }
-        ]
-      }
-    },
-    finishNotes: 'Aged brick or stone edging. Natural mulch. Informal drifts within formal hedge frames.',
-    inspirationSource: 'EPCOT United Kingdom Pavilion'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 5. MEDITERRANEAN COURTYARD
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'mediterranean-courtyard',
-    name: 'Mediterranean Courtyard',
-    subtitle: 'Silver/Blue Foliage & Herbs',
-    description: 'Drought-tolerant elegance with rosemary, lavender, and architectural evergreens. Italian cypress vibes without the cold damage.',
-    theme: 'Mediterranean',
-    preview: '🏛️',
-    colorScheme: ['#78909C', '#7B1FA2', '#8D6E63', '#FFFFFF'],
-    baseSize: '150 sq ft',
     defaultZone: 8,
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'low'
-    },
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer statement' },
-        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Summer blue spikes' },
-        { plantId: 'arborvitae-emerald-green', quantity: 2, role: 'hero', note: 'Italian cypress substitute' },
-        { plantId: 'blue-atlas-cedar-horstmann', quantity: 1, role: 'hero', note: 'Specimen' }
+        { plantId: 'japanese-maple-coral-bark', quantity: 1, role: 'hero', note: 'SIGNATURE: Coral winter bark' },
+        { plantId: 'japanese-maple-orangeola', quantity: 1, role: 'hero', note: 'Weeping laceleaf form' },
+        { plantId: 'hinoki-cypress', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Japanese temple tree' }
       ],
       structure: [
-        { plantId: 'holly-sky-pencil', quantity: 6, role: 'structure', note: 'Italian cypress substitute' },
-        { plantId: 'tea-olive', quantity: 2, role: 'structure' },
-        { plantId: 'juniper-blue-pacific', quantity: 6, role: 'structure' },
-        { plantId: 'juniper-blue-star', quantity: 4, role: 'structure' }
+        { plantId: 'pieris-mountain-fire', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Red new growth' },
+        { plantId: 'pieris-cavatine', quantity: 3, role: 'structure', note: 'Compact white bells' },
+        { plantId: 'nandina', quantity: 4, role: 'structure', note: 'Heavenly bamboo' },
+        { plantId: 'mahonia-soft-caress', quantity: 3, role: 'structure', note: 'Soft texture mahonia' }
       ],
       seasonal: [
-        { plantId: 'rosemary', quantity: 6, role: 'seasonal', note: 'Culinary + ornamental' },
-        { plantId: 'lavender-phenomenal', quantity: 10, role: 'seasonal' },
-        { plantId: 'rose-drift-coral', quantity: 5, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
-        { plantId: 'cone-flower', quantity: 6, role: 'seasonal' }
+        { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'Fall blooms' },
+        { plantId: 'camellia-shi-shi', quantity: 3, role: 'seasonal', note: 'Compact pink' },
+        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Japanese iris' }
       ],
       texture: [
-        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Silver-blue clumps' },
-        { plantId: 'sedum-autumn-joy', quantity: 6, role: 'texture' },
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture' },
-        { plantId: 'karl-foerster', quantity: 4, role: 'texture' }
+        { plantId: 'fern-japanese-painted', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Silver fronds' },
+        { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden sedge' },
+        { plantId: 'sweet-flag', quantity: 6, role: 'texture', note: 'Water edge grass' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
-        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'Golden groundcover' },
-        { plantId: 'rosemary-creeping', quantity: 1, role: 'carpet' }
+        { plantId: 'mondo-grass', quantity: 4, role: 'carpet', note: 'EXCLUSIVE: Japanese essential' },
+        { plantId: 'creeping-mazus', quantity: 2, role: 'carpet', note: 'Purple stepping stones' }
       ]
-    },
-    swaps: {
-      cold: {
-        condition: 'Zone 7 or colder',
-        changes: [
-          { remove: 'rosemary', add: 'juniper-blue-star', reason: 'More cold hardy' },
-          { remove: 'lavender-phenomenal', add: 'catmint-walkers-low', reason: 'Lavender substitute' }
-        ]
-      }
-    },
-    finishNotes: 'Decomposed granite or pea gravel. Terracotta containers. Boulders as accents.',
-    inspirationSource: 'EPCOT Italy Pavilion'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 6. LOWCOUNTRY COASTAL
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'lowcountry-coastal',
-    name: 'Lowcountry Coastal',
-    subtitle: 'Wind-Tough & Salt-Tolerant Feel',
-    description: 'Inspired by Georgia/Carolina coast - wax myrtle, muhly grass, and that relaxed coastal vibe.',
-    theme: 'Coastal Southern',
-    preview: '🌊',
-    colorScheme: ['#E91E63', '#78909C', '#8D6E63', '#2E7D32'],
-    baseSize: '200 sq ft',
-    defaultZone: 8,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'low'
-    },
-    plants: {
-      hero: [
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Native coastal tree' },
-        { plantId: 'crape-myrtle', quantity: 1, role: 'hero', note: 'Summer blooms' },
-        { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'Wet-tolerant focal' },
-        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Multi-stem specimen' }
-      ],
-      structure: [
-        { plantId: 'wax-myrtle', quantity: 3, role: 'structure', note: 'Native coastal shrub' },
-        { plantId: 'holly-yaupon-dwarf', quantity: 6, role: 'structure' },
-        { plantId: 'holly-inkberry', quantity: 4, role: 'structure' },
-        { plantId: 'juniper-parsonii', quantity: 4, role: 'structure' },
-        { plantId: 'juniper-blue-rug', quantity: 8, role: 'structure' }
-      ],
-      seasonal: [
-        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal', note: 'Native blooms' },
-        { plantId: 'gardenia-jubilation', quantity: 3, role: 'seasonal' },
-        { plantId: 'iris', quantity: 8, role: 'seasonal', note: 'Wet-tolerant color' }
-      ],
-      texture: [
-        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'Fall pink clouds' },
-        { plantId: 'muhly-grass-white', quantity: 6, role: 'texture' },
-        { plantId: 'northern-sea-oaks', quantity: 8, role: 'texture', note: 'Native oat grass' },
-        { plantId: 'sweet-flag-grass', quantity: 6, role: 'texture', note: 'Wet pocket accents' }
-      ],
-      carpet: [
-        { plantId: 'asiatic-jasmine', quantity: 2, role: 'carpet', note: 'FLAG: Aggressive - manage edges' },
-        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' },
-        { plantId: 'bar-harbor-juniper', quantity: 1, role: 'carpet' }
-      ]
-    },
-    swaps: {
-      wet: {
-        condition: 'Wet or poorly drained',
-        changes: [
-          { add: 'sweet-flag-grass', quantity: 6, reason: 'Loves wet feet' },
-          { add: 'iris', quantity: 4, reason: 'Wet-tolerant color' }
-        ]
-      }
-    },
-    finishNotes: 'Long needle pine straw. Natural driftwood accents. Relaxed, naturalistic layout.',
-    invasiveWarnings: ['asiatic-jasmine'],
-    inspirationSource: 'Georgia/Carolina Lowcountry'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 7. MODERN PRAIRIE / POLLINATOR
+  // 4. MODERN PRAIRIE - Native American
+  // EXCLUSIVE: Coneflowers, Black-Eyed Susans, Muhly Grass, Native Grasses
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'modern-prairie',
     name: 'Modern Prairie',
     subtitle: 'Native-ish Look, Huge ROI',
-    description: 'Coneflowers, black-eyed susans, and ornamental grasses. Low maintenance, pollinator paradise.',
+    description: 'Coneflowers, black-eyed susans, and ornamental grasses. Native prairie meets modern design.',
     theme: 'Native Prairie',
     preview: '🌻',
-    colorScheme: ['#9C27B0', '#FFC107', '#E91E63', '#8D6E63'],
+    colorScheme: ['#1565C0', '#FFD54F', '#E91E63', '#8D6E63'],
     baseSize: '150 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'low'
-    },
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'Native spring blooms' },
-        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Native understory' },
-        { plantId: 'black-tupelo', quantity: 1, role: 'hero', note: 'Fall color' },
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Multi-season interest' }
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'SIGNATURE: Native multi-trunk' },
+        { plantId: 'serviceberry-autumn-brilliance', quantity: 1, role: 'hero', note: 'Native four-season' },
+        { plantId: 'black-tupelo', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Fall fire color' }
       ],
       structure: [
-        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'Native evergreen' },
-        { plantId: 'viburnum-spring-bouquet', quantity: 3, role: 'structure' },
-        { plantId: 'oakleaf-hydrangea', quantity: 3, role: 'structure' }
+        { plantId: 'beautyberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Purple berry clusters' },
+        { plantId: 'fothergilla-dwarf', quantity: 4, role: 'structure', note: 'Native witch-hazel family' },
+        { plantId: 'sweetspire-little-henry', quantity: 5, role: 'structure', note: 'Native sweetspire' }
       ],
       seasonal: [
-        { plantId: 'cone-flower', quantity: 12, role: 'seasonal', note: 'Pollinator magnet' },
-        { plantId: 'black-eyed-susan', quantity: 12, role: 'seasonal' },
-        { plantId: 'yarrow', quantity: 8, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
-        { plantId: 'salvia-blue-hill', quantity: 6, role: 'seasonal' },
-        { plantId: 'bee-balm', quantity: 5, role: 'seasonal' }
+        { plantId: 'coneflower', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Purple prairie icon' },
+        { plantId: 'coneflower-cheyenne', quantity: 8, role: 'seasonal', note: 'Yellow coneflower' },
+        { plantId: 'black-eyed-susan', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Golden native' },
+        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Pollinator magnet' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture' },
-        { plantId: 'karl-foerster', quantity: 6, role: 'texture' },
-        { plantId: 'purple-lovegrass', quantity: 6, role: 'texture' },
-        { plantId: 'little-bluestem', quantity: 6, role: 'texture' }
+        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'SIGNATURE: Pink fall clouds' },
+        { plantId: 'muhly-grass-white', quantity: 6, role: 'texture', note: 'White cloud grass' },
+        { plantId: 'northern-sea-oats', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Native oats' },
+        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Feather reed grass' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' },
-        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet' },
-        { plantId: 'sedum-angelina', quantity: 1, role: 'carpet' }
+        { plantId: 'veronica-georgia-blue', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Blue spring carpet' },
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Native phlox' }
       ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Part shade areas',
-        changes: [
-          { remove: 'cone-flower', add: 'fern-autumn', reason: 'Shade tolerant texture' },
-          { remove: 'black-eyed-susan', add: 'hydrangea-oakleaf', reason: 'Native shade bloomer' }
-        ]
-      }
-    },
-    finishNotes: 'Natural mulch. Clean bed edges. Meadow-style drifts, not rows.',
-    inspirationSource: 'Native American Prairie'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 8. RAIN GARDEN / WATER'S EDGE
+  // 5. RAIN GARDEN - Water Feature
+  // EXCLUSIVE: Bald Cypress, Wax Myrtle, Iris, Sedges
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'rain-garden',
     name: 'Rain Garden',
     subtitle: 'Solves Problems & Looks Intentional',
-    description: 'For wet areas, drainage swales, or rain garden installations. Turns a problem into a feature.',
+    description: 'For wet areas, drainage swales, or rain gardens. Plants that thrive with wet feet.',
     theme: 'Water Feature',
     preview: '💧',
-    colorScheme: ['#1E88E5', '#7CB342', '#8D6E63', '#FFFFFF'],
+    colorScheme: ['#1565C0', '#43A047', '#FFD54F', '#8D6E63'],
     baseSize: '150 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'wet',
-      maintenance: 'low'
-    },
+    filters: { light: 'full-sun', moisture: 'wet', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'Wet-tolerant focal' },
-        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Tolerates wet feet' },
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Wet-tolerant' },
-        { plantId: 'black-tupelo', quantity: 1, role: 'hero', note: 'Fall color' }
+        { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'SIGNATURE: Wet feet champion' },
+        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Native water lover' },
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Swamp magnolia' }
       ],
       structure: [
-        { plantId: 'wax-myrtle', quantity: 3, role: 'structure', note: 'Tolerates wet' },
-        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'Wet tolerant native' },
-        { plantId: 'clethra', quantity: 3, role: 'structure', note: 'Summersweet' },
-        { plantId: 'itea-virginia', quantity: 3, role: 'structure' }
+        { plantId: 'wax-myrtle', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Coastal native' },
+        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Wet tolerant holly' },
+        { plantId: 'leucothoe', quantity: 4, role: 'structure', note: 'Arching wet-tolerant' }
       ],
       seasonal: [
-        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'Wet-tolerant blooms' },
-        { plantId: 'calla-lily', quantity: 6, role: 'seasonal' },
-        { plantId: 'astilbe', quantity: 6, role: 'seasonal' },
-        { plantId: 'lobelia-cardinal', quantity: 6, role: 'seasonal' }
+        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Water iris' },
+        { plantId: 'astilbe-fanal', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Red plumes' },
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'Moisture loving' }
       ],
       texture: [
-        { plantId: 'sweet-flag-grass', quantity: 10, role: 'texture', note: 'Loves wet feet' },
-        { plantId: 'carex', quantity: 10, role: 'texture' },
-        { plantId: 'northern-sea-oaks', quantity: 6, role: 'texture' },
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Edge - drier zone' }
+        { plantId: 'carex-everillo', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Golden sedge' },
+        { plantId: 'sweet-flag', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Water edge grass' },
+        { plantId: 'northern-sea-oats', quantity: 6, role: 'texture', note: 'Native oats' }
       ],
       carpet: [
-        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'Wet-tolerant spreader' },
-        { plantId: 'mondo-grass', quantity: 2, role: 'carpet' }
+        { plantId: 'creeping-mazus', quantity: 4, role: 'carpet', note: 'EXCLUSIVE: Wet stepping stones' },
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Moisture tolerant' }
       ]
-    },
-    swaps: {},
-    finishNotes: 'Natural mulch or river rock. Defined swales/berms. Let edges blur naturally.',
-    inspirationSource: 'Stormwater management best practices'
+    }
   },
 
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // EPCOT WORLD SHOWCASE PAVILION PACKAGES
-  // ═══════════════════════════════════════════════════════════════════════════════
-
   // ─────────────────────────────────────────────────────────────────────────────
-  // MEXICO PAVILION - Authentic desert/Mexican plants
+  // 6. LOWCOUNTRY COASTAL - Georgia/Carolina Coast
+  // EXCLUSIVE: Palmettos, Muhly, Lantana, Sea Oats
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'epcot-mexico',
+    id: 'lowcountry-coastal',
+    name: 'Lowcountry Coastal',
+    subtitle: 'Wind-Tough & Salt-Tolerant Feel',
+    description: 'Inspired by Georgia/Carolina coast - wax myrtle, muhly grass, and salt-tolerant beauties.',
+    theme: 'Coastal Southern',
+    preview: '🌊',
+    colorScheme: ['#81D4FA', '#FFB74D', '#E8F5E9', '#A1887F'],
+    baseSize: '200 sq ft',
+    defaultZone: 8,
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'crape-myrtle-muskogee', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Lavender coastal crape' },
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'Coastal magnolia' },
+        { plantId: 'vitex-tree', quantity: 1, role: 'hero', note: 'SIGNATURE: Beach vitex' }
+      ],
+      structure: [
+        { plantId: 'wax-myrtle', quantity: 6, role: 'structure', note: 'SIGNATURE: Coastal essential' },
+        { plantId: 'yew-podocarpus', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Coastal yew' },
+        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'Burgundy coastal accent' }
+      ],
+      seasonal: [
+        { plantId: 'lantana-ms-huff', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Hardy lantana' },
+        { plantId: 'gardenia-frost-proof', quantity: 4, role: 'seasonal', note: 'Fragrant coastal' },
+        { plantId: 'hibiscus', quantity: 4, role: 'seasonal', note: 'Tropical blooms' }
+      ],
+      texture: [
+        { plantId: 'muhly-grass-pink', quantity: 12, role: 'texture', note: 'SIGNATURE: Pink coastal clouds' },
+        { plantId: 'adagio-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Compact miscanthus' },
+        { plantId: 'mexican-feather', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Wispy movement' }
+      ],
+      carpet: [
+        { plantId: 'asiatic-jasmine', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Salt-tolerant carpet' },
+        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'Coastal juniper' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 7. MEXICO PAVILION - Desert Southwest
+  // EXCLUSIVE: Agaves, Yuccas, Red Yucca, Desert Succulents
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'mexico-pavilion',
     name: 'Mexico Pavilion',
     subtitle: 'Desert Courtyard + Succulents',
-    description: 'Authentic Mexican desert feel with succulents, ornamental grasses, and bold pops of color. Drought-tolerant and sun-loving.',
+    description: 'Authentic Mexican desert feel with succulents, agaves, and bold architectural plants.',
     theme: 'EPCOT World Showcase',
     preview: '🇲🇽',
-    colorScheme: ['#D32F2F', '#FF9800', '#FFC107', '#8D6E63'],
-    baseSize: '100 sq ft',
+    colorScheme: ['#D84315', '#FFB300', '#43A047', '#5D4037'],
+    baseSize: '150 sq ft',
     defaultZone: 8,
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'low'
-    },
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Blue spikes - desert tree' },
-        { plantId: 'pomegranate', quantity: 1, role: 'hero', note: 'Fruiting focal' }
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Purple desert tree' },
+        { plantId: 'crape-myrtle-dynamite', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Red desert crape' },
+        { plantId: 'blue-atlas-cedar', quantity: 1, role: 'hero', note: 'Blue desert specimen' }
       ],
       structure: [
-        { plantId: 'yucca-color-guard', quantity: 5, role: 'structure', note: 'AUTHENTIC - spiky succulent' },
-        { plantId: 'juniper-blue-pacific', quantity: 4, role: 'structure', note: 'Low spreading desert feel' },
-        { plantId: 'juniper-blue-star', quantity: 3, role: 'structure', note: 'Silver-blue mound' }
+        { plantId: 'nandina-blush-pink', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Pink nandina' },
+        { plantId: 'barberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Thorny burgundy' },
+        { plantId: 'mugo-pine', quantity: 3, role: 'structure', note: 'Compact desert pine' }
       ],
       seasonal: [
-        { plantId: 'lantana-ms-huff', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - native to Americas' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal', note: 'Blue/purple spikes' },
-        { plantId: 'cone-flower-cheyenne-spirit', quantity: 5, role: 'seasonal', note: 'Warm color mix' },
-        { plantId: 'yarrow', quantity: 5, role: 'seasonal', note: 'Yellow/red tones' }
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Desert bloomer' },
+        { plantId: 'russian-sage', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Silver desert sage' },
+        { plantId: 'lavender-phenomenal', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Desert lavender' }
       ],
       texture: [
-        { plantId: 'mexican-feather-grass', quantity: 10, role: 'texture', note: 'AUTHENTIC - native Mexican grass' },
-        { plantId: 'blue-fescue', quantity: 8, role: 'texture', note: 'Silver-blue clumps' },
-        { plantId: 'muhly-grass-pink', quantity: 5, role: 'texture', note: 'Fall pink clouds' }
+        { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'EXCLUSIVE: Blue desert tufts' },
+        { plantId: 'maiden-grass', quantity: 6, role: 'texture', note: 'Tall desert grass' },
+        { plantId: 'hamlin-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Fountain grass' }
       ],
       carpet: [
-        { plantId: 'sedum-angelina', quantity: 3, role: 'carpet', note: 'AUTHENTIC - succulent groundcover' },
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet', note: 'Between stepping stones' }
+        { plantId: 'sedum-angelina', quantity: 4, role: 'carpet', note: 'EXCLUSIVE: Golden succulent' },
+        { plantId: 'bar-harbor-juniper', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Blue creeping juniper' }
       ]
-    },
-    swaps: {
-      cold: {
-        condition: 'Zone 7 or colder',
-        changes: [
-          { remove: 'lantana-ms-huff', add: 'cone-flower', reason: 'More cold hardy' }
-        ]
-      }
-    },
-    finishNotes: 'Decomposed granite mulch. Terracotta pots. Boulders. NO traditional mulch - use gravel/stone.',
-    inspirationSource: 'EPCOT Mexico Pavilion - Chihuahuan Desert aesthetic'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // NORWAY PAVILION - Authentic Nordic plants (conifers, birch, heather)
+  // 8. ENGLAND PAVILION - English Cottage
+  // EXCLUSIVE: English Roses, Lavender, Boxwood, Cottage Perennials
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'epcot-norway',
-    name: 'Norway Pavilion',
-    subtitle: 'Nordic Alpine + Spruce & Cedar',
-    description: 'Authentic Scandinavian mountain feel with SPRUCES, CEDARS, and BIRCHES. Cool greens, white bark, and alpine groundcovers.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇳🇴',
-    colorScheme: ['#1B5E20', '#FFFFFF', '#607D8B', '#2E7D32'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'low'
-    },
-    plants: {
-      hero: [
-        { plantId: 'blue-atlas-cedar', quantity: 1, role: 'hero', note: 'AUTHENTIC - iconic Nordic conifer' },
-        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'Evergreen spruce-like' },
-        { plantId: 'river-birch', quantity: 2, role: 'hero', note: 'AUTHENTIC - white bark, Nordic staple' },
-        { plantId: 'arborvitae-emerald-green', quantity: 2, role: 'hero', note: 'Columnar conifer' }
-      ],
-      structure: [
-        { plantId: 'juniper-blue-star', quantity: 6, role: 'structure', note: 'AUTHENTIC - alpine juniper' },
-        { plantId: 'juniper-blue-pacific', quantity: 4, role: 'structure', note: 'Spreading conifer' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure', note: 'Compact evergreen' }
-      ],
-      seasonal: [
-        { plantId: 'astilbe', quantity: 8, role: 'seasonal', note: 'White/pink feathery blooms' },
-        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'Stream edge - purple/white' },
-        { plantId: 'hydrangea-oakleaf', quantity: 3, role: 'seasonal', note: 'White blooms, fall color' }
-      ],
-      texture: [
-        { plantId: 'carex', quantity: 10, role: 'texture', note: 'Sedge - native look' },
-        { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern' },
-        { plantId: 'fern-autumn', quantity: 6, role: 'texture', note: 'Deciduous fern' },
-        { plantId: 'sweet-flag-grass', quantity: 6, role: 'texture', note: 'Stream edge grass' }
-      ],
-      carpet: [
-        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'Stream edge - gold/green' },
-        { plantId: 'pachysandra', quantity: 2, role: 'carpet', note: 'Shade carpet' },
-        { plantId: 'bar-harbor-juniper', quantity: 1, role: 'carpet', note: 'AUTHENTIC - creeping juniper' }
-      ]
-    },
-    swaps: {
-      hot: {
-        condition: 'Zone 9-10 heat',
-        changes: [
-          { remove: 'river-birch', add: 'cryptomeria-radicans', reason: 'Heat tolerant' }
-        ]
-      }
-    },
-    finishNotes: 'BOULDERS essential. River rock stream pockets. Natural bark mulch only. Cool, mountain feel.',
-    inspirationSource: 'EPCOT Norway Pavilion - Scandinavian fjord landscape'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // CHINA PAVILION - Authentic Asian scholar garden plants
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-china',
-    name: 'China Pavilion',
-    subtitle: 'Peony + Scholar Garden',
-    description: 'AUTHENTIC Asian scholar garden with peonies (China national flower), Japanese maples, camellias, and azaleas - all native to Asia.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇨🇳',
-    colorScheme: ['#E91E63', '#D32F2F', '#1B5E20', '#FFFFFF'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'showcase'
-    },
-    plants: {
-      hero: [
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'AUTHENTIC - native to East Asia' },
-        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'AUTHENTIC - Chinese/Japanese cherry' },
-        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'AUTHENTIC - Japanese cedar' }
-      ],
-      structure: [
-        { plantId: 'nandina', quantity: 5, role: 'structure', note: 'AUTHENTIC - "heavenly bamboo" from China' },
-        { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'AUTHENTIC - native to East Asia' },
-        { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'AUTHENTIC - Japanese shrub' }
-      ],
-      seasonal: [
-        { plantId: 'peony', quantity: 6, role: 'seasonal', note: 'AUTHENTIC - China national flower' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - Asian origin' },
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 4, role: 'seasonal', note: 'AUTHENTIC - Asian camellia' },
-        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'Asian iris varieties' }
-      ],
-      texture: [
-        { plantId: 'fern-japanese-painted', quantity: 8, role: 'texture', note: 'AUTHENTIC - Japanese fern' },
-        { plantId: 'fern-autumn', quantity: 6, role: 'texture', note: 'Asian fern' },
-        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'AUTHENTIC - native to Asia' },
-        { plantId: 'carex', quantity: 6, role: 'texture', note: 'Asian sedge' }
-      ],
-      carpet: [
-        { plantId: 'mondo-grass', quantity: 4, role: 'carpet', note: 'AUTHENTIC - Japanese groundcover' },
-        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'AUTHENTIC - Asian origin' }
-      ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Deep shade',
-        changes: [
-          { remove: 'peony', add: 'fern-japanese-painted', reason: 'Shade tolerant' }
-        ]
-      }
-    },
-    finishNotes: 'Stone paths. Moon gate frames. Restrained color - structure over flowers. Koi pond if possible.',
-    invasiveWarnings: ['nandina'],
-    inspirationSource: 'EPCOT China Pavilion - Traditional scholar garden aesthetic'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // JAPAN PAVILION - Authentic zen garden + Japanese maples
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-japan',
-    name: 'Japan Pavilion',
-    subtitle: 'Zen Garden + Maples',
-    description: 'AUTHENTIC Japanese zen garden - Japanese maples, cherry blossoms, azaleas, and the art of MA (negative space). Restrained beauty, sculptural trees.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇯🇵',
-    colorScheme: ['#C62828', '#FFFFFF', '#1B5E20', '#8D6E63'],
-    baseSize: '200 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'showcase'
-    },
-    plants: {
-      hero: [
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'AUTHENTIC - iconic Japanese specimen' },
-        { plantId: 'japanese-maple-coral-bark', quantity: 1, role: 'hero', note: 'AUTHENTIC - winter bark interest' },
-        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'AUTHENTIC - Japanese cherry blossom' },
-        { plantId: 'cryptomeria-radicans', quantity: 2, role: 'hero', note: 'AUTHENTIC - Japanese cedar (sugi)' }
-      ],
-      structure: [
-        { plantId: 'holly-sky-pencil', quantity: 6, role: 'structure', note: 'AUTHENTIC - Japanese holly cultivar' },
-        { plantId: 'nandina', quantity: 5, role: 'structure', note: 'AUTHENTIC - "heavenly bamboo" from Japan' },
-        { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'AUTHENTIC - Japanese camellia' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure', note: 'Clipped Japanese style' }
-      ],
-      seasonal: [
-        { plantId: 'azalea-encore-autumn-amethyst', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - azaleas native to Japan' },
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 6, role: 'seasonal', note: 'AUTHENTIC - pink azalea mass' },
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 4, role: 'seasonal', note: 'AUTHENTIC - fall/winter bloom' },
-        { plantId: 'iris', quantity: 6, role: 'seasonal', note: 'AUTHENTIC - Japanese iris for water edge' }
-      ],
-      texture: [
-        { plantId: 'fern-japanese-painted', quantity: 10, role: 'texture', note: 'AUTHENTIC - Japanese painted fern' },
-        { plantId: 'fern-autumn', quantity: 8, role: 'texture', note: 'Japanese woodland fern' },
-        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'AUTHENTIC - native to Japan' },
-        { plantId: 'carex', quantity: 6, role: 'texture', note: 'Japanese forest grass feel' }
-      ],
-      carpet: [
-        { plantId: 'mondo-grass', quantity: 5, role: 'carpet', note: 'AUTHENTIC - Japanese groundcover essential' },
-        { plantId: 'pachysandra', quantity: 2, role: 'carpet', note: 'Japanese spurge' },
-        { plantId: 'creeping-mazus', quantity: 2, role: 'carpet', note: 'Stepping stone crevices' }
-      ]
-    },
-    swaps: {
-      hot: {
-        condition: 'Full sun / hot sites',
-        changes: [
-          { remove: 'japanese-maple-bloodgood', add: 'cryptomeria-radicans', reason: 'More heat tolerant' }
-        ]
-      }
-    },
-    finishNotes: 'MA (negative space) is essential! Raked gravel/decomposed granite. BOULDERS as focal points. Stone lanterns. Restrained - less is more.',
-    invasiveWarnings: ['nandina'],
-    inspirationSource: 'EPCOT Japan Pavilion - Traditional zen garden aesthetic'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // UNITED KINGDOM PAVILION - English cottage garden + roses
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-uk',
-    name: 'United Kingdom Pavilion',
-    subtitle: 'English Cottage + Roses',
-    description: 'AUTHENTIC English cottage garden - roses (Tudor rose!), boxwood hedges, lavender borders, and romantic perennial drifts. Formal structure with informal planting.',
+    id: 'england-pavilion',
+    name: 'England Pavilion',
+    subtitle: 'English Cottage Garden',
+    description: 'Roses, boxwood hedges, lavender borders, and romantic cottage perennial drifts.',
     theme: 'EPCOT World Showcase',
     preview: '🇬🇧',
-    colorScheme: ['#E91E63', '#7B1FA2', '#FFFFFF', '#33691E'],
-    baseSize: '150 sq ft',
+    colorScheme: ['#E91E63', '#7B1FA2', '#FFFFFF', '#1B5E20'],
+    baseSize: '200 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'European dogwood relative' },
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'English garden specimen' }
+        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Korean dogwood' },
+        { plantId: 'fringe-tree', quantity: 1, role: 'hero', note: 'EXCLUSIVE: White fringe' },
+        { plantId: 'kwanzan-cherry', quantity: 1, role: 'hero', note: 'Pink double cherry' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 14, role: 'structure', note: 'AUTHENTIC - English hedge essential' },
-        { plantId: 'yew-podocarpus', quantity: 5, role: 'structure', note: 'AUTHENTIC - English yew tradition' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure', note: 'English holly' }
+        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'SIGNATURE: English hedge' },
+        { plantId: 'boxwood-winter-gem', quantity: 6, role: 'structure', note: 'Compact boxwood' },
+        { plantId: 'holly-sky-pencil', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Vertical accent' }
       ],
       seasonal: [
-        { plantId: 'rose-knock-out', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - Tudor rose, English symbol' },
-        { plantId: 'rose-drift-pink', quantity: 6, role: 'seasonal', note: 'AUTHENTIC - English rose garden' },
-        { plantId: 'hydrangea-endless-summer', quantity: 5, role: 'seasonal', note: 'AUTHENTIC - English hydrangea' },
-        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - English lavender borders' },
-        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'AUTHENTIC - English cottage favorite' }
+        { plantId: 'rose-apricot-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Apricot cottage rose' },
+        { plantId: 'rose-peach-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Peach cottage' },
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'Blue/pink cottage' },
+        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Cottage classic' }
       ],
       texture: [
-        { plantId: 'catmint-walkers-low', quantity: 10, role: 'texture', note: 'AUTHENTIC - English border plant' },
-        { plantId: 'lamb-ear', quantity: 8, role: 'texture', note: 'AUTHENTIC - cottage garden staple' },
-        { plantId: 'russian-sage', quantity: 5, role: 'texture', note: 'Silver-blue cottage accent' },
-        { plantId: 'fern-autumn', quantity: 6, role: 'texture', note: 'Woodland edge' }
+        { plantId: 'lavender', quantity: 10, role: 'texture', note: 'SIGNATURE: English lavender' },
+        { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Blue catmint' },
+        { plantId: 'lambs-ear', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Soft silver' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'AUTHENTIC - English herb garden' },
-        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Spring carpet color' },
-        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'Golden accent' }
+        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'SIGNATURE: English herb' },
+        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'Blue spring' }
       ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Shaded areas',
-        changes: [
-          { remove: 'rose-knock-out', add: 'hydrangea-oakleaf', reason: 'Shade tolerant blooms' }
-        ]
-      }
-    },
-    finishNotes: 'Aged brick or stone edging. Arbors with climbing roses. Informal drifts within formal hedge frames. Tea garden feel.',
-    inspirationSource: 'EPCOT United Kingdom Pavilion - Traditional English cottage garden'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // ITALY PAVILION - Italian cypress + Mediterranean courtyard
+  // 9. ITALY PAVILION - Mediterranean Formal
+  // EXCLUSIVE: Cypress, Rosemary, Italian Herbs, Olive-like Plants
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'epcot-italy',
+    id: 'italy-pavilion',
     name: 'Italy Pavilion',
-    subtitle: 'Tuscan Cypress + Courtyard',
-    description: 'AUTHENTIC Italian Renaissance garden - cypress columns, olive tree vibes, rosemary, lavender. Formal geometry with Mediterranean warmth.',
+    subtitle: 'Tuscan Villa Garden',
+    description: 'Italian parterre gardens with cypress columns, rosemary, and Mediterranean herbs.',
     theme: 'EPCOT World Showcase',
     preview: '🇮🇹',
-    colorScheme: ['#1B5E20', '#78909C', '#8D6E63', '#FFFFFF'],
-    baseSize: '150 sq ft',
+    colorScheme: ['#43A047', '#5D4037', '#FFB300', '#D84315'],
+    baseSize: '200 sq ft',
     defaultZone: 8,
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'standard'
-    },
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'arborvitae-emerald-green', quantity: 4, role: 'hero', note: 'AUTHENTIC - Italian cypress substitute' },
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Mediterranean courtyard tree' }
+        { plantId: 'juniper-spartan', quantity: 2, role: 'hero', note: 'SIGNATURE: Italian cypress form' },
+        { plantId: 'juniper-taylor', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Columnar juniper' },
+        { plantId: 'cryptomeria-radicans', quantity: 1, role: 'hero', note: 'Evergreen column' }
       ],
       structure: [
-        { plantId: 'holly-sky-pencil', quantity: 8, role: 'structure', note: 'AUTHENTIC - Italian cypress columnar form' },
-        { plantId: 'tea-olive', quantity: 3, role: 'structure', note: 'AUTHENTIC - olive tree substitute' },
-        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'AUTHENTIC - Italian parterre hedging' },
-        { plantId: 'juniper-blue-star', quantity: 4, role: 'structure', note: 'Mediterranean silver-blue' }
+        { plantId: 'rosemary', quantity: 6, role: 'structure', note: 'SIGNATURE: Italian herb essential' },
+        { plantId: 'laurel-otto-luyken', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Italian laurel' },
+        { plantId: 'ligustrum', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Italian privet' }
       ],
       seasonal: [
-        { plantId: 'lavender-phenomenal', quantity: 10, role: 'seasonal', note: 'AUTHENTIC - Tuscan lavender' },
-        { plantId: 'rose-drift-coral', quantity: 6, role: 'seasonal', note: 'Italian garden roses' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal', note: 'Mediterranean sage' },
-        { plantId: 'yarrow', quantity: 5, role: 'seasonal', note: 'AUTHENTIC - Mediterranean native' }
+        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'Mediterranean lavender' },
+        { plantId: 'salvia-may-night', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Italian sage' },
+        { plantId: 'salvia-blue-hill', quantity: 6, role: 'seasonal', note: 'Blue sage' }
       ],
       texture: [
-        { plantId: 'rosemary', quantity: 8, role: 'texture', note: 'AUTHENTIC - Italian herb essential' },
-        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Silver-blue Mediterranean grass' },
-        { plantId: 'lamb-ear', quantity: 6, role: 'texture', note: 'Silver foliage accent' }
+        { plantId: 'santolina', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Silver mound' },
+        { plantId: 'artemisia', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Silver herbs' },
+        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Blue Mediterranean grass' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'AUTHENTIC - Italian herb garden' },
-        { plantId: 'sedum-angelina', quantity: 3, role: 'carpet', note: 'Golden Mediterranean succulent' },
-        { plantId: 'rosemary-creeping', quantity: 2, role: 'carpet', note: 'AUTHENTIC - trailing rosemary' }
+        { plantId: 'rosemary-creeping', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Creeping rosemary' },
+        { plantId: 'juniper-blue-rug', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Blue carpet juniper' }
       ]
-    },
-    swaps: {
-      cold: {
-        condition: 'Zone 7 or colder',
-        changes: [
-          { remove: 'rosemary', add: 'juniper-blue-star', reason: 'More cold hardy' }
-        ]
-      }
-    },
-    finishNotes: 'CYPRESS COLUMNS essential! Terracotta pots. Stone/gravel paths. Fountain focal point. Formal Italian Renaissance geometry.',
-    inspirationSource: 'EPCOT Italy Pavilion - Tuscan villa garden aesthetic'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // GERMANY PAVILION - Central European cottage garden + formal hedges
+  // 10. FRANCE PAVILION - French Formal
+  // EXCLUSIVE: Parterres, Roses, Lavender Fields, Symmetry
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'epcot-germany',
-    name: 'Germany Pavilion',
-    subtitle: 'Formal Hedge + Bavarian Cottage',
-    description: 'AUTHENTIC Central European style - formal boxwood hedges with cottage perennials. Karl Foerster grass named after famous German nurseryman.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇩🇪',
-    colorScheme: ['#1565C0', '#FFC107', '#E91E63', '#33691E'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'European dogwood relative' },
-        { plantId: 'hornbeam-american', quantity: 1, role: 'hero', note: 'AUTHENTIC - European hornbeam tradition' }
-      ],
-      structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 16, role: 'structure', note: 'AUTHENTIC - European hedge tradition' },
-        { plantId: 'yew-podocarpus', quantity: 5, role: 'structure', note: 'AUTHENTIC - European yew' },
-        { plantId: 'spirea-goldflame', quantity: 5, role: 'structure', note: 'European cottage shrub' },
-        { plantId: 'weigela', quantity: 4, role: 'structure', note: 'AUTHENTIC - named after German botanist' }
-      ],
-      seasonal: [
-        { plantId: 'catmint-walkers-low', quantity: 10, role: 'seasonal', note: 'Blue cornflower color echo' },
-        { plantId: 'salvia-may-night', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - German cultivar' },
-        { plantId: 'daisy-shasta-becky', quantity: 6, role: 'seasonal', note: 'European daisy tradition' },
-        { plantId: 'cone-flower', quantity: 5, role: 'seasonal', note: 'Cottage garden staple' },
-        { plantId: 'yarrow', quantity: 6, role: 'seasonal', note: 'AUTHENTIC - European native' }
-      ],
-      texture: [
-        { plantId: 'karl-foerster', quantity: 8, role: 'texture', note: 'AUTHENTIC - named after German horticulturist!' },
-        { plantId: 'lamb-ear', quantity: 8, role: 'texture', note: 'AUTHENTIC - European native' }
-      ],
-      carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'AUTHENTIC - European herb' },
-        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'European stonecrop' }
-      ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Shaded areas',
-        changes: [
-          { remove: 'salvia-may-night', add: 'hosta', reason: 'Shade tolerant' }
-        ]
-      }
-    },
-    finishNotes: 'PRECISION hedge trimming essential. Gravel paths. Window boxes with geraniums. Orderly but romantic.',
-    inspirationSource: 'EPCOT Germany Pavilion - Bavarian village garden'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // USA PAVILION - Native American plants + national symbols
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-usa',
-    name: 'USA Pavilion',
-    subtitle: 'Native American Garden',
-    description: 'AUTHENTIC native plants + national symbols. Rose (national flower), dogwood, redbud, coneflower, black-eyed susan - all NATIVE to North America.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇺🇸',
-    colorScheme: ['#D32F2F', '#FFFFFF', '#1565C0', '#2E7D32'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'NATIVE - iconic American flowering tree' },
-        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'NATIVE - Eastern US native' },
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'NATIVE - multi-season interest' }
-      ],
-      structure: [
-        { plantId: 'holly-inkberry', quantity: 5, role: 'structure', note: 'NATIVE - Eastern US holly' },
-        { plantId: 'wax-myrtle', quantity: 4, role: 'structure', note: 'NATIVE - coastal native' },
-        { plantId: 'itea-virginia', quantity: 4, role: 'structure', note: 'NATIVE - Virginia sweetspire' },
-        { plantId: 'viburnum-spring-bouquet', quantity: 3, role: 'structure', note: 'NATIVE - American viburnum' }
-      ],
-      seasonal: [
-        { plantId: 'rose-knock-out', quantity: 8, role: 'seasonal', note: 'National flower of USA' },
-        { plantId: 'cone-flower', quantity: 8, role: 'seasonal', note: 'NATIVE - prairie coneflower' },
-        { plantId: 'black-eyed-susan', quantity: 8, role: 'seasonal', note: 'NATIVE - Maryland state flower' },
-        { plantId: 'bee-balm', quantity: 5, role: 'seasonal', note: 'NATIVE - American wildflower' }
-      ],
-      texture: [
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'NATIVE - Gulf Coast grass' },
-        { plantId: 'little-bluestem', quantity: 5, role: 'texture', note: 'NATIVE - prairie grass' },
-        { plantId: 'fern-autumn', quantity: 6, role: 'texture', note: 'NATIVE - American fern' }
-      ],
-      carpet: [
-        { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'NATIVE - Appalachian wildflower' },
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet' }
-      ]
-    },
-    swaps: {
-      shade: {
-        condition: 'Shaded areas',
-        changes: [
-          { remove: 'cone-flower', add: 'hydrangea-oakleaf', reason: 'NATIVE shade bloomer' }
-        ]
-      }
-    },
-    finishNotes: 'Celebrate American natives! Strong foundation. Clean edges. Red-white-blue color pops.',
-    inspirationSource: 'EPCOT USA Pavilion - Celebrating native American flora'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // MOROCCO PAVILION - Mediterranean/North African riad courtyard
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-morocco',
-    name: 'Morocco Pavilion',
-    subtitle: 'Riad Courtyard + Fragrance',
-    description: 'AUTHENTIC Moroccan riad courtyard - fragrant roses, citrus vibes, lavender, rosemary, and geometric hedges. Drought-tolerant Mediterranean feel.',
-    theme: 'EPCOT World Showcase',
-    preview: '🇲🇦',
-    colorScheme: ['#E91E63', '#FF9800', '#1565C0', '#FFFFFF'],
-    baseSize: '100 sq ft',
-    defaultZone: 8,
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'pomegranate', quantity: 1, role: 'hero', note: 'AUTHENTIC - Middle Eastern fruit tree' },
-        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'AUTHENTIC - Mediterranean tree' }
-      ],
-      structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 12, role: 'structure', note: 'AUTHENTIC - geometric riad hedging' },
-        { plantId: 'tea-olive', quantity: 3, role: 'structure', note: 'AUTHENTIC - olive tree substitute, fragrant' },
-        { plantId: 'juniper-blue-star', quantity: 4, role: 'structure', note: 'Mediterranean conifer' }
-      ],
-      seasonal: [
-        { plantId: 'rose-knock-out', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - Damask rose culture' },
-        { plantId: 'lavender-phenomenal', quantity: 10, role: 'seasonal', note: 'AUTHENTIC - Mediterranean lavender' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal', note: 'Mediterranean sage family' },
-        { plantId: 'yarrow', quantity: 5, role: 'seasonal', note: 'AUTHENTIC - Mediterranean native' }
-      ],
-      texture: [
-        { plantId: 'rosemary', quantity: 8, role: 'texture', note: 'AUTHENTIC - Mediterranean herb' },
-        { plantId: 'blue-fescue', quantity: 8, role: 'texture', note: 'Silver-blue Mediterranean grass' },
-        { plantId: 'lamb-ear', quantity: 6, role: 'texture', note: 'AUTHENTIC - Middle Eastern native' }
-      ],
-      carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'AUTHENTIC - Mediterranean herb' },
-        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'Mediterranean succulent' }
-      ]
-    },
-    swaps: {
-      cold: {
-        condition: 'Zone 7 or colder',
-        changes: [
-          { remove: 'rosemary', add: 'juniper-blue-star', reason: 'More cold hardy' }
-        ]
-      }
-    },
-    finishNotes: 'TILES essential. Central fountain. Geometric precision. Fragrance near seating. Terra cotta pots.',
-    inspirationSource: 'EPCOT Morocco Pavilion - Traditional riad courtyard garden'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FRANCE PAVILION - French formal parterre + Provence lavender
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'epcot-france',
+    id: 'france-pavilion',
     name: 'France Pavilion',
-    subtitle: 'Parterre + Lavender Romance',
-    description: 'AUTHENTIC French formal garden - boxwood parterres, lavender fields of Provence, roses. Symmetry and romance in perfect balance.',
+    subtitle: 'French Formal Garden',
+    description: 'French parterre gardens - boxwood parterres, lavender fields of Provence, roses.',
     theme: 'EPCOT World Showcase',
     preview: '🇫🇷',
-    colorScheme: ['#7B1FA2', '#E91E63', '#FFFFFF', '#33691E'],
-    baseSize: '150 sq ft',
+    colorScheme: ['#7B1FA2', '#E91E63', '#1B5E20', '#FFFFFF'],
+    baseSize: '250 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'showcase'
-    },
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-muskogee', quantity: 1, role: 'hero', note: 'Lavender blooms - Provence feel' },
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'AUTHENTIC - European magnolia' }
+        { plantId: 'magnolia-brackens-brown', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Compact magnolia' },
+        { plantId: 'crape-myrtle-pink-velour', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Pink French crape' },
+        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'SIGNATURE: French cherry' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 20, role: 'structure', note: 'AUTHENTIC - French parterre essential' },
-        { plantId: 'holly-sky-pencil', quantity: 6, role: 'structure', note: 'Formal vertical accents' },
-        { plantId: 'yew-podocarpus', quantity: 4, role: 'structure', note: 'AUTHENTIC - European topiary tradition' }
+        { plantId: 'boxwood-wintergreen', quantity: 16, role: 'structure', note: 'SIGNATURE: French parterre' },
+        { plantId: 'baby-gem-boxwood', quantity: 8, role: 'structure', note: 'EXCLUSIVE: Compact edging' },
+        { plantId: 'distylium-vintage-jade', quantity: 4, role: 'structure', note: 'Modern boxwood alternative' }
       ],
       seasonal: [
-        { plantId: 'lavender-phenomenal', quantity: 14, role: 'seasonal', note: 'AUTHENTIC - Provence lavender fields' },
-        { plantId: 'rose-drift-pink', quantity: 8, role: 'seasonal', note: 'AUTHENTIC - French rose gardens' },
-        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'AUTHENTIC - French cottage favorite' },
-        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'AUTHENTIC - French hydrangea tradition' }
+        { plantId: 'rose-red-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: French red rose' },
+        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Pink-white' },
+        { plantId: 'hydrangea-little-lime', quantity: 4, role: 'seasonal', note: 'Compact lime hydrangea' }
       ],
       texture: [
-        { plantId: 'catmint-walkers-low', quantity: 12, role: 'texture', note: 'Lavender companion' },
-        { plantId: 'russian-sage', quantity: 6, role: 'texture', note: 'Silver-blue Provence feel' }
+        { plantId: 'lavender', quantity: 14, role: 'texture', note: 'SIGNATURE: Provence lavender' },
+        { plantId: 'stokesia-blue-danube', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Blue aster' },
+        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'EXCLUSIVE: White daisies' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'AUTHENTIC - French herb garden' },
-        { plantId: 'sedum-angelina', quantity: 2, role: 'carpet', note: 'Golden accent' }
+        { plantId: 'gardenia-radicans', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Fragrant carpet' },
+        { plantId: 'juniper-procumbens-nana', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Japanese garden juniper' }
       ]
-    },
-    swaps: {
-      humid: {
-        condition: 'Humid/shady sites',
-        changes: [
-          { remove: 'lavender-phenomenal', add: 'catmint-walkers-low', reason: 'Better in humidity' }
-        ]
-      }
-    },
-    finishNotes: 'SYMMETRY is everything. Clipped boxwood. Pea gravel paths. White garden furniture. Très élégant!',
-    inspirationSource: 'EPCOT France Pavilion - Versailles meets Provence'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CANADA PAVILION - Boreal forest + maples (national symbol)
+  // 11. GERMANY PAVILION - Central European
+  // EXCLUSIVE: Spireas, Weigelas, German Perennials
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'epcot-canada',
-    name: 'Canada Pavilion',
-    subtitle: 'Boreal Forest + Maples',
-    description: 'AUTHENTIC Canadian boreal forest feel - MAPLES (national symbol), white bark birch, conifers, woodland ferns. Fall color spectacular.',
+    id: 'germany-pavilion',
+    name: 'Germany Pavilion',
+    subtitle: 'Bavarian Garden Charm',
+    description: 'Central European style - formal hedges with cottage perennials. Karl Foerster grass named after famous German nurseryman.',
     theme: 'EPCOT World Showcase',
-    preview: '🇨🇦',
-    colorScheme: ['#D32F2F', '#FF9800', '#1B5E20', '#8D6E63'],
+    preview: '🇩🇪',
+    colorScheme: ['#FFD54F', '#D84315', '#1B5E20', '#5D4037'],
+    baseSize: '150 sq ft',
+    defaultZone: 6,
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'standard' },
+    plants: {
+      hero: [
+        { plantId: 'hornbeam-american', quantity: 1, role: 'hero', note: 'EXCLUSIVE: European hedge tree' },
+        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Ancient German specimen' },
+        { plantId: 'zelkova-musashino', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Columnar elm' }
+      ],
+      structure: [
+        { plantId: 'spirea-gold-flame', quantity: 6, role: 'structure', note: 'EXCLUSIVE: Golden spirea' },
+        { plantId: 'spirea-candy-corn', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Multi-color spirea' },
+        { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EXCLUSIVE: German cottage shrub' }
+      ],
+      seasonal: [
+        { plantId: 'forsythia-sugar-baby', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Spring yellow' },
+        { plantId: 'hydrangea-summer-crush', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Raspberry pink' },
+        { plantId: 'daylily-frans-hals', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Bi-color daylily' }
+      ],
+      texture: [
+        { plantId: 'karl-foerster', quantity: 10, role: 'texture', note: 'SIGNATURE: Named after German nurseryman' },
+        { plantId: 'karley-rose', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Pink fountain grass' },
+        { plantId: 'coral-bell', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Heuchera variety' }
+      ],
+      carpet: [
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Purple bugle' },
+        { plantId: 'pachysandra', quantity: 2, role: 'carpet', note: 'German shade carpet' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 12. MOROCCO PAVILION - Moorish Garden
+  // EXCLUSIVE: Date Palm Look-alikes, Citrus-like Plants, Tile Accent Plants
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'morocco-pavilion',
+    name: 'Morocco Pavilion',
+    subtitle: 'Riad Courtyard Garden',
+    description: 'Geometric Moorish gardens with courtyards, fountains, and drought-tolerant Mediterranean plants.',
+    theme: 'EPCOT World Showcase',
+    preview: '🇲🇦',
+    colorScheme: ['#1565C0', '#FFB300', '#FFFFFF', '#43A047'],
+    baseSize: '150 sq ft',
+    defaultZone: 8,
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'deodar-cedar', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Atlas cedar family' },
+        { plantId: 'blue-atlas-cedar-horstmann', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Weeping blue' },
+        { plantId: 'thunderhead-pine', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Japanese pine' }
+      ],
+      structure: [
+        { plantId: 'rosemary', quantity: 8, role: 'structure', note: 'SIGNATURE: Moroccan herb' },
+        { plantId: 'anise', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Licorice shrub' },
+        { plantId: 'vitex-shoal-creek', quantity: 3, role: 'structure', note: 'Purple desert shrub' }
+      ],
+      seasonal: [
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Moroccan color' },
+        { plantId: 'daylily-happy-returns', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Yellow rebloomer' },
+        { plantId: 'cats-pajamas', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Compact catmint' }
+      ],
+      texture: [
+        { plantId: 'zebra-grass', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Banded grass' },
+        { plantId: 'adagio-grass', quantity: 8, role: 'texture', note: 'Compact miscanthus' },
+        { plantId: 'lenten-rose', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Shade hellebore' }
+      ],
+      carpet: [
+        { plantId: 'juniper-parsonii', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Spreading juniper' },
+        { plantId: 'rosemary-creeping', quantity: 2, role: 'carpet', note: 'Fragrant carpet' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 13. CHINA PAVILION - Chinese Garden
+  // EXCLUSIVE: Ginkgo, Cryptomeria, Chinese Fringeflower, Peonies
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'china-pavilion',
+    name: 'China Pavilion',
+    subtitle: 'Temple Garden Serenity',
+    description: 'Balanced Chinese garden with ginkgos, bamboo-like plants, and contemplative spaces.',
+    theme: 'EPCOT World Showcase',
+    preview: '🇨🇳',
+    colorScheme: ['#D84315', '#FFD54F', '#1B5E20', '#5D4037'],
     baseSize: '200 sq ft',
     defaultZone: 7,
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'low'
-    },
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'maple-october-glory', quantity: 2, role: 'hero', note: 'AUTHENTIC - Canadian maple symbol!' },
-        { plantId: 'river-birch', quantity: 2, role: 'hero', note: 'AUTHENTIC - Canadian white birch' },
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'NATIVE - Canadian berry shrub' },
-        { plantId: 'arborvitae-emerald-green', quantity: 2, role: 'hero', note: 'AUTHENTIC - Northern cedar' }
+        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'SIGNATURE: Ancient Chinese tree' },
+        { plantId: 'cryptomeria-radicans', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Temple tree' },
+        { plantId: 'japanese-maple-sango-kaku', quantity: 1, role: 'hero', note: 'Coral bark maple' }
       ],
       structure: [
-        { plantId: 'juniper-blue-star', quantity: 5, role: 'structure', note: 'AUTHENTIC - boreal conifer' },
-        { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'NATIVE - North American holly' },
-        { plantId: 'viburnum-spring-bouquet', quantity: 4, role: 'structure', note: 'NATIVE - American viburnum' },
-        { plantId: 'clethra', quantity: 3, role: 'structure', note: 'NATIVE - summersweet' }
+        { plantId: 'loropetalum-purple-pixie', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Chinese fringeflower' },
+        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'Burgundy Chinese' },
+        { plantId: 'fatsia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Bold tropical leaf' },
+        { plantId: 'paper-bush', quantity: 2, role: 'structure', note: 'EXCLUSIVE: Winter fragrance' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-oakleaf', quantity: 5, role: 'seasonal', note: 'NATIVE - fall color' },
-        { plantId: 'astilbe', quantity: 6, role: 'seasonal', note: 'Woodland bloomer' },
-        { plantId: 'iris', quantity: 5, role: 'seasonal', note: 'Stream edge color' }
+        { plantId: 'peony', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Chinese national flower' },
+        { plantId: 'camellia-yuletide', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Red winter' },
+        { plantId: 'camellia-october-magic', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Fall camellia' }
       ],
       texture: [
-        { plantId: 'fern-autumn', quantity: 10, role: 'texture', note: 'AUTHENTIC - woodland fern' },
-        { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern - winter interest' },
-        { plantId: 'carex', quantity: 8, role: 'texture', note: 'NATIVE - sedge grass' },
-        { plantId: 'hosta', quantity: 6, role: 'texture', note: 'Woodland shade plant' }
+        { plantId: 'maiden-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Tall bamboo-like' },
+        { plantId: 'adagio-grass', quantity: 6, role: 'texture', note: 'Compact miscanthus' },
+        { plantId: 'hosta-guacamole', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Golden hosta' }
       ],
       carpet: [
-        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'Forest floor groundcover' },
-        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'Stream edge gold' }
+        { plantId: 'mondo-grass', quantity: 3, role: 'carpet', note: 'SIGNATURE: Asian groundcover' },
+        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped lilyturf' }
       ]
-    },
-    swaps: {
-      hot: {
-        condition: 'Hot/dry or exposed',
-        changes: [
-          { remove: 'fern-autumn', add: 'carex', reason: 'More heat tolerant' }
-        ]
-      }
-    },
-    finishNotes: 'BOULDERS essential. Stream/waterfall if possible. Natural bark mulch. Forest edge feel. Fall color is the star!',
-    inspirationSource: 'EPCOT Canada Pavilion - Celebrating the maple leaf nation'
-  },
-
-  // ═══════════════════════════════════════════════════════════════════════════════
-  // RESIDENTIAL HOME LANDSCAPE PACKAGES
-  // ═══════════════════════════════════════════════════════════════════════════════
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // CLASSIC FOUNDATION - Traditional 3-layer home foundation
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'residential-foundation-classic',
-    name: 'Classic Foundation',
-    subtitle: 'Traditional Home Foundation',
-    description: 'Time-tested 3-layer foundation planting with evergreen backbone, seasonal color, and defined edges. Perfect for front of home.',
-    theme: 'Residential',
-    preview: '🏡',
-    colorScheme: ['#2E7D32', '#4CAF50', '#E91E63', '#FFFFFF'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    residentialZone: 'FRONT_FOUNDATION',
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Corner specimen - min 8ft from house' }
-      ],
-      structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 6, role: 'structure', note: 'Back row - 3ft from house' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure', note: 'Mid-height evergreen' },
-        { plantId: 'distylium-vintage-jade', quantity: 3, role: 'structure', note: 'Under windows' }
-      ],
-      seasonal: [
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 6, role: 'seasonal', note: 'Spring/fall color' },
-        { plantId: 'hydrangea-endless-summer', quantity: 3, role: 'seasonal', note: 'Summer focal' },
-        { plantId: 'gardenia-august-beauty', quantity: 2, role: 'seasonal', note: 'Near entry for fragrance' }
-      ],
-      texture: [
-        { plantId: 'daylily-stella-doro', quantity: 8, role: 'texture', note: 'Middle row' },
-        { plantId: 'hosta', quantity: 5, role: 'texture', note: 'Shaded areas' },
-        { plantId: 'coral-bell', quantity: 5, role: 'texture' }
-      ],
-      carpet: [
-        { plantId: 'liriope-variegated', quantity: 15, role: 'carpet', note: 'Edge definition' },
-        { plantId: 'mondo-grass', quantity: 12, role: 'carpet', note: 'Between stepping stones' }
-      ]
-    },
-    placementRules: {
-      distanceFromHouse: 36,
-      maintainWindowClearance: true,
-      cornerAccent: true
-    },
-    finishNotes: '3ft maintenance access behind shrubs. Keep 6" below windowsills.',
-    inspirationSource: 'Traditional American Home Landscaping'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CURB APPEAL COTTAGE - Colorful informal front yard
+  // 14. NORWAY PAVILION - Nordic Forest
+  // EXCLUSIVE: Birches, Spruces, Cold-Hardy Perennials
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'residential-curb-appeal-cottage',
-    name: 'Cottage Curb Appeal',
-    subtitle: 'Colorful Front Yard',
-    description: 'Welcoming, colorful cottage-style planting that draws eyes to your entry. Informal layering with year-round interest.',
-    theme: 'Residential',
-    preview: '🌷',
-    colorScheme: ['#E91E63', '#9C27B0', '#FFEB3B', '#4CAF50'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    residentialZone: 'FRONT_FOUNDATION',
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
+    id: 'norway-pavilion',
+    name: 'Norway Pavilion',
+    subtitle: 'Nordic Forest Edge',
+    description: 'Scandinavian woodland feel with birches, spruces, and cold-hardy plants.',
+    theme: 'EPCOT World Showcase',
+    preview: '🇳🇴',
+    colorScheme: ['#1565C0', '#FFFFFF', '#1B5E20', '#8D6E63'],
+    baseSize: '200 sq ft',
+    defaultZone: 6,
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Near entry - frame door' },
-        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Spring focal' }
+        { plantId: 'river-birch', quantity: 2, role: 'hero', note: 'SIGNATURE: Nordic birch' },
+        { plantId: 'canadian-hemlock', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Nordic conifer' },
+        { plantId: 'dwarf-alberta-spruce', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Miniature spruce' }
       ],
       structure: [
-        { plantId: 'rose-knockout-pink', quantity: 5, role: 'structure', note: 'Continuous bloom' },
-        { plantId: 'hydrangea-limelight', quantity: 3, role: 'structure' },
-        { plantId: 'spiraea-goldmound', quantity: 4, role: 'structure', note: 'Golden foliage accent' }
+        { plantId: 'rhododendron', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Nordic classic' },
+        { plantId: 'rhododendron-roseum-elegans', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Pink rhodo' },
+        { plantId: 'viburnum-chindo', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Nordic viburnum' }
       ],
       seasonal: [
-        { plantId: 'coneflower-purple', quantity: 8, role: 'seasonal', note: 'Pollinator magnet' },
-        { plantId: 'black-eyed-susan', quantity: 8, role: 'seasonal' },
-        { plantId: 'salvia-may-night', quantity: 6, role: 'seasonal' },
-        { plantId: 'daylily-stella-doro', quantity: 10, role: 'seasonal' }
+        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Native oakleaf' },
+        { plantId: 'astilbe-fanal', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Red astilbe' },
+        { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'Early spring hellebore' }
       ],
       texture: [
-        { plantId: 'catmint-walkers-low', quantity: 8, role: 'texture' },
-        { plantId: 'russian-sage', quantity: 4, role: 'texture', note: 'Back corners' },
-        { plantId: 'blue-fescue', quantity: 12, role: 'texture', note: 'Front accent' }
+        { plantId: 'fern-christmas', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture', note: 'Woodland fern' },
+        { plantId: 'hosta-blue-angel', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Giant blue hosta' }
       ],
       carpet: [
-        { plantId: 'creeping-phlox', quantity: 10, role: 'carpet', note: 'Spring carpet' },
-        { plantId: 'sedum-angelina', quantity: 8, role: 'carpet', note: 'Golden edge' },
-        { plantId: 'creeping-thyme', quantity: 6, role: 'carpet' }
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'SIGNATURE: Nordic shade carpet' },
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple bugle' }
       ]
-    },
-    designPrinciples: {
-      oddNumbers: true,
-      repeatColors: true,
-      entryFocus: true
-    },
-    finishNotes: 'Curves, not straight lines. Let plants intermingle.',
-    inspirationSource: 'English Cottage Garden Style'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // PRIVACY SCREEN - Layered backyard screening
+  // 15. JAPAN PAVILION - Traditional Japanese
+  // EXCLUSIVE: Cloud-Pruned Pines, Azaleas, Moss Substitutes
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'residential-privacy-screen',
-    name: 'Privacy Screen',
-    subtitle: 'Layered Backyard Privacy',
-    description: 'Multi-layer screening for maximum privacy. Staggered planting with 60% evergreen for year-round coverage.',
-    theme: 'Residential',
-    preview: '🌲',
-    colorScheme: ['#1B5E20', '#2E7D32', '#4CAF50', '#81C784'],
+    id: 'japan-pavilion',
+    name: 'Japan Pavilion',
+    subtitle: 'Traditional Temple Garden',
+    description: 'Authentic Japanese garden with cloud-pruned pines, azaleas, and contemplative design.',
+    theme: 'EPCOT World Showcase',
+    preview: '🇯🇵',
+    colorScheme: ['#C62828', '#FFFFFF', '#1B5E20', '#5D4037'],
     baseSize: '200 sq ft',
     defaultZone: 7,
-    residentialZone: 'PRIVACY_SCREEN',
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'low'
-    },
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'cryptomeria-radicans', quantity: 3, role: 'hero', note: 'Tall evergreen screen - stagger' },
-        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'Year-round foliage' }
+        { plantId: 'japanese-maple-dwarf', quantity: 2, role: 'hero', note: 'SIGNATURE: Compact laceleaf' },
+        { plantId: 'thunderhead-pine', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Cloud-pruned pine' },
+        { plantId: 'hinoki-cypress', quantity: 1, role: 'hero', note: 'SIGNATURE: Temple tree' }
       ],
       structure: [
-        { plantId: 'holly-nellie-stevens', quantity: 6, role: 'structure', note: 'Second row screen' },
-        { plantId: 'tea-olive', quantity: 4, role: 'structure', note: 'Fragrance + screening' },
-        { plantId: 'cleyera', quantity: 5, role: 'structure' },
-        { plantId: 'viburnum-spring-bouquet', quantity: 4, role: 'structure', note: 'Fragrant spring' }
+        { plantId: 'azalea-encore-bonfire', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Red encore' },
+        { plantId: 'azalea-encore-embers', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Orange-red' },
+        { plantId: 'azalea-encore-chiffon', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Pink chiffon' },
+        { plantId: 'cryptomeria-shrub', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Dwarf cryptomeria' }
       ],
       seasonal: [
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 4, role: 'seasonal', note: 'Winter color' },
-        { plantId: 'loropetalum-purple-pixie', quantity: 6, role: 'seasonal' },
-        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal' }
+        { plantId: 'camellia-hot-flash', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Sasanqua variety' },
+        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Japanese iris' },
+        { plantId: 'winter-jasmine', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Yellow winter' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'Fall plumes' },
-        { plantId: 'maiden-grass', quantity: 4, role: 'texture', note: 'Movement/sound' },
-        { plantId: 'fern-autumn', quantity: 8, role: 'texture' }
+        { plantId: 'japanese-painted-fern', quantity: 10, role: 'texture', note: 'SIGNATURE: Silver fronds' },
+        { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Japanese fern' },
+        { plantId: 'carex-everillo', quantity: 8, role: 'texture', note: 'Golden sedge' }
       ],
       carpet: [
-        { plantId: 'asiatic-jasmine', quantity: 20, role: 'carpet', note: 'Aggressive - edge carefully' },
-        { plantId: 'pachysandra', quantity: 15, role: 'carpet', note: 'Shade areas' }
+        { plantId: 'mondo-grass', quantity: 4, role: 'carpet', note: 'SIGNATURE: Japanese essential' },
+        { plantId: 'creeping-mazus', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Stepping stone plant' }
       ]
-    },
-    placementRules: {
-      staggeredRows: true,
-      rowSpacing: 48,
-      rowOffset: 0.5,
-      evergreenRatio: 0.6
-    },
-    finishNotes: 'Stagger plants in zig-zag. Place screen 8-10ft from patio for intimacy.',
-    inspirationSource: 'Professional Privacy Screening Techniques'
+    }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // LOW MAINTENANCE - Easy care foundation
+  // 16. POLLINATOR PARADISE - Butterfly & Bee Garden
+  // EXCLUSIVE: Native Flowers, Milkweed, Butterfly Bush
   // ─────────────────────────────────────────────────────────────────────────────
   {
-    id: 'residential-low-maintenance',
-    name: 'Easy Care',
-    subtitle: 'Low Maintenance Foundation',
-    description: 'Maximum impact, minimum effort. Drought-tolerant, disease-resistant plants that thrive on neglect.',
-    theme: 'Residential',
-    preview: '🌿',
-    colorScheme: ['#2E7D32', '#8BC34A', '#CDDC39', '#795548'],
-    baseSize: '150 sq ft',
-    defaultZone: 7,
-    residentialZone: 'FRONT_FOUNDATION',
-    filters: {
-      light: 'full-sun',
-      moisture: 'dry',
-      maintenance: 'low'
-    },
-    plants: {
-      hero: [
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'No spraying needed' }
-      ],
-      structure: [
-        { plantId: 'distylium-vintage-jade', quantity: 6, role: 'structure', note: 'No pruning needed' },
-        { plantId: 'loropetalum-purple-pixie', quantity: 4, role: 'structure', note: 'Dwarf - no pruning' },
-        { plantId: 'juniper-blue-rug', quantity: 4, role: 'structure' },
-        { plantId: 'holly-compacta', quantity: 4, role: 'structure' }
-      ],
-      seasonal: [
-        { plantId: 'rose-knockout-pink', quantity: 5, role: 'seasonal', note: 'Self-cleaning' },
-        { plantId: 'daylily-stella-doro', quantity: 12, role: 'seasonal', note: 'Reblooming' }
-      ],
-      texture: [
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Cut back once/year' },
-        { plantId: 'blue-fescue', quantity: 10, role: 'texture' },
-        { plantId: 'yucca-color-guard', quantity: 3, role: 'texture', note: 'Dramatic accent' }
-      ],
-      carpet: [
-        { plantId: 'sedum-angelina', quantity: 15, role: 'carpet', note: 'Drought-proof' },
-        { plantId: 'creeping-thyme', quantity: 10, role: 'carpet', note: 'Walk on it' },
-        { plantId: 'bar-harbor-juniper', quantity: 5, role: 'carpet' }
-      ]
-    },
-    requirements: {
-      waterReq: 'Low',
-      diseaseResistant: true,
-      minimalPruning: true
-    },
-    finishNotes: '3" mulch. Drip irrigation optional. One spring cleanup.',
-    inspirationSource: 'Xeriscaping Principles'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FOUR SEASON INTEREST - Year-round beauty
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'residential-four-season',
-    name: 'Four Season Interest',
-    subtitle: 'Year-Round Beauty',
-    description: 'Something beautiful every month. Planned bloom sequence with winter structure, fall color, and year-round texture.',
-    theme: 'Residential',
-    preview: '🍂',
-    colorScheme: ['#E91E63', '#4CAF50', '#FF9800', '#9C27B0'],
-    baseSize: '175 sq ft',
-    defaultZone: 7,
-    residentialZone: 'BACKYARD_BORDER',
-    filters: {
-      light: 'part-shade',
-      moisture: 'average',
-      maintenance: 'standard'
-    },
-    plants: {
-      hero: [
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Spring red, fall crimson' },
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Spring flowers, fall fruit, winter bark' },
-        { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Exfoliating bark - winter interest' }
-      ],
-      structure: [
-        { plantId: 'holly-nellie-stevens', quantity: 3, role: 'structure', note: 'Winter berries' },
-        { plantId: 'camellia-japonica', quantity: 3, role: 'structure', note: 'Winter bloom' },
-        { plantId: 'camellia-sasanqua-hot-flash', quantity: 3, role: 'structure', note: 'Fall bloom' },
-        { plantId: 'boxwood-wintergreen', quantity: 4, role: 'structure', note: 'Evergreen structure' }
-      ],
-      seasonal: [
-        { plantId: 'azalea-encore-autumn-carnation', quantity: 5, role: 'seasonal', note: 'Spring + fall' },
-        { plantId: 'hydrangea-oakleaf', quantity: 3, role: 'seasonal', note: 'Summer bloom, fall color' },
-        { plantId: 'witch-hazel', quantity: 2, role: 'seasonal', note: 'Late winter bloom' },
-        { plantId: 'coneflower-purple', quantity: 6, role: 'seasonal', note: 'Summer bloom, winter seeds' }
-      ],
-      texture: [
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Fall plumes' },
-        { plantId: 'karl-foerster', quantity: 4, role: 'texture', note: 'Winter structure' },
-        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'Spring-fall foliage' },
-        { plantId: 'fern-christmas', quantity: 6, role: 'texture', note: 'Evergreen fern' }
-      ],
-      carpet: [
-        { plantId: 'hellebore', quantity: 8, role: 'carpet', note: 'Late winter bloom' },
-        { plantId: 'mondo-grass', quantity: 12, role: 'carpet', note: 'Evergreen carpet' },
-        { plantId: 'creeping-phlox', quantity: 8, role: 'carpet', note: 'Early spring color' }
-      ]
-    },
-    bloomCalendar: {
-      jan: ['camellia-japonica', 'hellebore'],
-      feb: ['camellia-japonica', 'witch-hazel', 'hellebore'],
-      mar: ['creeping-phlox', 'serviceberry'],
-      apr: ['azalea', 'dogwood', 'japanese-maple'],
-      may: ['azalea', 'hydrangea'],
-      jun: ['hydrangea', 'daylily'],
-      jul: ['coneflower', 'hydrangea'],
-      aug: ['muhly-grass', 'coneflower'],
-      sep: ['muhly-grass', 'azalea-encore'],
-      oct: ['camellia-sasanqua', 'fall-color'],
-      nov: ['camellia-sasanqua', 'berries'],
-      dec: ['camellia-japonica', 'holly-berries', 'bark-interest']
-    },
-    finishNotes: 'Group by bloom time for maximum impact. Ensure something blooms every month.',
-    inspirationSource: 'Professional Four-Season Garden Design'
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // POLLINATOR PARADISE - Attract butterflies, bees, hummingbirds
-  // ─────────────────────────────────────────────────────────────────────────────
-  {
-    id: 'residential-pollinator',
+    id: 'pollinator-paradise',
     name: 'Pollinator Paradise',
-    subtitle: 'Wildlife Garden',
-    description: 'Attract butterflies, bees, and hummingbirds with native and nectar-rich plants. Continuous bloom from spring to frost.',
-    theme: 'Residential',
+    subtitle: 'Butterfly & Bee Haven',
+    description: 'Nectar-rich plants for butterflies, bees, and hummingbirds. A living ecosystem.',
+    theme: 'Wildlife Garden',
     preview: '🦋',
-    colorScheme: ['#9C27B0', '#FF9800', '#E91E63', '#FFEB3B'],
+    colorScheme: ['#FFB300', '#E91E63', '#7B1FA2', '#43A047'],
     baseSize: '150 sq ft',
     defaultZone: 7,
-    residentialZone: 'BACKYARD_BORDER',
-    filters: {
-      light: 'full-sun',
-      moisture: 'average',
-      maintenance: 'low'
-    },
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Native - spring nectar, fall berries' },
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'Summer nectar' }
+        { plantId: 'vitex-tree', quantity: 1, role: 'hero', note: 'SIGNATURE: Butterfly magnet tree' },
+        { plantId: 'crape-myrtle-tuscarora', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Coral pink crape' },
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Native bird food' }
       ],
       structure: [
-        { plantId: 'itea-little-henry', quantity: 4, role: 'structure', note: 'Native - fragrant' },
-        { plantId: 'clethra', quantity: 3, role: 'structure', note: 'Summersweet - bees love it' },
-        { plantId: 'viburnum-spring-bouquet', quantity: 3, role: 'structure', note: 'Spring flowers, fall berries' }
+        { plantId: 'butterfly-bush-davidii', quantity: 4, role: 'structure', note: 'SIGNATURE: Butterfly bush' },
+        { plantId: 'butterfly-bush-ice-chip', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Compact white' },
+        { plantId: 'pugster-blue-buddleia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Dwarf blue' },
+        { plantId: 'abelia-kaleidoscope', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Multi-color abelia' }
       ],
       seasonal: [
-        { plantId: 'coneflower-purple', quantity: 12, role: 'seasonal', note: 'Butterfly magnet' },
-        { plantId: 'black-eyed-susan', quantity: 10, role: 'seasonal', note: 'Native - goldfinch seeds' },
-        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'Hummingbird favorite' },
-        { plantId: 'salvia-may-night', quantity: 8, role: 'seasonal', note: 'Long bloom' },
-        { plantId: 'lantana', quantity: 6, role: 'seasonal', note: 'Butterfly nectar' }
+        { plantId: 'coneflower', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Butterfly favorite' },
+        { plantId: 'bee-balm', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Hummingbird magnet' },
+        { plantId: 'black-eyed-susan', quantity: 10, role: 'seasonal', note: 'Native pollinator food' },
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Butterfly nectar' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink', quantity: 6, role: 'texture', note: 'Fall interest' },
-        { plantId: 'karl-foerster', quantity: 4, role: 'texture', note: 'Grass seeds for birds' },
-        { plantId: 'catmint-walkers-low', quantity: 8, role: 'texture', note: 'Bee favorite' }
+        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Fall habitat' },
+        { plantId: 'northern-sea-oats', quantity: 8, role: 'texture', note: 'Native seed heads' },
+        { plantId: 'catmint-walkers', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Bee haven' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 12, role: 'carpet', note: 'Ground bee haven' },
-        { plantId: 'sedum-angelina', quantity: 8, role: 'carpet', note: 'Late season nectar' },
-        { plantId: 'ajuga', quantity: 10, role: 'carpet', note: 'Early spring nectar' }
+        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'SIGNATURE: Ground bee food' },
+        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Early bee nectar' }
       ]
-    },
-    requirements: {
-      nativePlants: true,
-      noPesticides: true,
-      continuousBloom: true
-    },
-    finishNotes: 'No pesticides! Leave seed heads for winter bird food. Shallow water source nearby.',
-    inspirationSource: 'Xerces Society Pollinator Guidelines'
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 17. FOUR SEASONS - Year-Round Interest
+  // EXCLUSIVE: Balanced Bloom Sequence All Seasons
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'four-seasons',
+    name: 'Four Seasons',
+    subtitle: 'Year-Round Interest',
+    description: 'Carefully sequenced plants for color and interest in every season.',
+    theme: 'Multi-Season',
+    preview: '🍂',
+    colorScheme: ['#E91E63', '#FFD54F', '#D84315', '#1B5E20'],
+    baseSize: '200 sq ft',
+    defaultZone: 7,
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'standard' },
+    plants: {
+      hero: [
+        { plantId: 'dogwood-stellar-pink', quantity: 1, role: 'hero', note: 'SPRING: Pink stellar dogwood' },
+        { plantId: 'crape-myrtle-sarahs-favorite', quantity: 1, role: 'hero', note: 'SUMMER: Red/white bicolor' },
+        { plantId: 'maple-october-glory', quantity: 1, role: 'hero', note: 'FALL: Blazing red leaves' }
+      ],
+      structure: [
+        { plantId: 'chinese-snowball', quantity: 3, role: 'structure', note: 'SPRING: White pom-poms' },
+        { plantId: 'abelia-rose-creek', quantity: 4, role: 'structure', note: 'SUMMER: Pink abelia' },
+        { plantId: 'camellia-sasanqua', quantity: 4, role: 'structure', note: 'FALL: Pink sasanqua' },
+        { plantId: 'winter-daphne', quantity: 3, role: 'structure', note: 'WINTER: Fragrant daphne' }
+      ],
+      seasonal: [
+        { plantId: 'lenten-rose', quantity: 6, role: 'seasonal', note: 'WINTER: First blooms' },
+        { plantId: 'rose-knockout-double-red', quantity: 5, role: 'seasonal', note: 'SUMMER: Continuous' },
+        { plantId: 'hydrangea-vanilla-strawberry', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Color-changing' }
+      ],
+      texture: [
+        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'FALL: Pink clouds' },
+        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Winter structure' },
+        { plantId: 'daylily-stella', quantity: 10, role: 'texture', note: 'SUMMER: Yellow rebloomer' }
+      ],
+      carpet: [
+        { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'SPRING: Color carpet' },
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'SPRING: Purple spikes' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 18. SHADE SANCTUARY - Deep Shade Garden
+  // EXCLUSIVE: Hostas, Ferns, Hellebores, Shade Lovers
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'shade-sanctuary',
+    name: 'Shade Sanctuary',
+    subtitle: 'Deep Shade Oasis',
+    description: 'For those challenging shady spots - hostas, ferns, and shade-loving beauties.',
+    theme: 'Shade Garden',
+    preview: '🌿',
+    colorScheme: ['#1B5E20', '#FFFFFF', '#7B1FA2', '#8D6E63'],
+    baseSize: '150 sq ft',
+    defaultZone: 7,
+    filters: { light: 'full-shade', moisture: 'average', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'SIGNATURE: Shade-tolerant dogwood' },
+        { plantId: 'redbud-forest-pansy', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Purple-leaf redbud' },
+        { plantId: 'japanese-maple-orangeola', quantity: 1, role: 'hero', note: 'Orange laceleaf' }
+      ],
+      structure: [
+        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'structure', note: 'SIGNATURE: Shade oakleaf' },
+        { plantId: 'fatsia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Bold tropical' },
+        { plantId: 'leucothoe', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Arching shade shrub' },
+        { plantId: 'pieris-dorothy-wycoff', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Pink pieris' }
+      ],
+      seasonal: [
+        { plantId: 'lenten-rose', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Shade hellebore' },
+        { plantId: 'astilbe-fanal', quantity: 8, role: 'seasonal', note: 'Red plumes' },
+        { plantId: 'camellia-japonica', quantity: 3, role: 'seasonal', note: 'Shade bloomer' }
+      ],
+      texture: [
+        { plantId: 'hosta-blue-angel', quantity: 8, role: 'texture', note: 'SIGNATURE: Giant blue' },
+        { plantId: 'hosta-guacamole', quantity: 6, role: 'texture', note: 'Golden center' },
+        { plantId: 'fern-japanese-painted', quantity: 10, role: 'texture', note: 'Silver fronds' },
+        { plantId: 'cast-iron-plant', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Indestructible' }
+      ],
+      carpet: [
+        { plantId: 'pachysandra', quantity: 4, role: 'carpet', note: 'SIGNATURE: Shade essential' },
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple accent' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 19. DROUGHT SMART - Water-Wise Xeriscape
+  // EXCLUSIVE: Sedums, Ornamental Grasses, Succulents
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'drought-smart',
+    name: 'Drought Smart',
+    subtitle: 'Water-Wise Xeriscape',
+    description: 'Beautiful without the water bill. Drought-tolerant plants that thrive on neglect.',
+    theme: 'Xeriscape',
+    preview: '☀️',
+    colorScheme: ['#FFD54F', '#43A047', '#8D6E63', '#5D4037'],
+    baseSize: '150 sq ft',
+    defaultZone: 7,
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'blue-ice-cypress', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Silver-blue drought tree' },
+        { plantId: 'eastern-red-cedar', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Native tough cedar' },
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Purple drought tree' }
+      ],
+      structure: [
+        { plantId: 'juniper-blue-point', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Blue column' },
+        { plantId: 'yew-yewtopia', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Compact yew' },
+        { plantId: 'dwarf-yaupon-holly', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Native drought holly' }
+      ],
+      seasonal: [
+        { plantId: 'russian-sage', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Silver sage' },
+        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'Drought lavender' },
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Drought bloomer' }
+      ],
+      texture: [
+        { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'SIGNATURE: Blue tufts' },
+        { plantId: 'hamlin-grass', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Fountain grass' },
+        { plantId: 'mexican-feather', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Wispy blonde' }
+      ],
+      carpet: [
+        { plantId: 'sedum-angelina', quantity: 4, role: 'carpet', note: 'SIGNATURE: Golden succulent' },
+        { plantId: 'bar-harbor-juniper', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Blue carpet' },
+        { plantId: 'juniper-blue-rug', quantity: 2, role: 'carpet', note: 'Silvery carpet' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 20. EVERGREEN FOUNDATION - Timeless Structure
+  // EXCLUSIVE: Hollies, Arborvitae, Evergreen Shrubs
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'evergreen-foundation',
+    name: 'Evergreen Foundation',
+    subtitle: 'Timeless Structure',
+    description: 'Classic evergreen foundation planting. Clean, professional, always green.',
+    theme: 'Foundation',
+    preview: '🌲',
+    colorScheme: ['#1B5E20', '#2E7D32', '#388E3C', '#43A047'],
+    baseSize: '200 sq ft',
+    defaultZone: 7,
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'arborvitae-emerald-green', quantity: 3, role: 'hero', note: 'SIGNATURE: Classic column' },
+        { plantId: 'arborvitae-green-giant', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Fast screen' },
+        { plantId: 'holly-american', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Native holly' }
+      ],
+      structure: [
+        { plantId: 'holly-nellie-stevens', quantity: 5, role: 'structure', note: 'SIGNATURE: Workhorse holly' },
+        { plantId: 'cherry-laurel', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Glossy hedge' },
+        { plantId: 'laurel-compact-cherry', quantity: 4, role: 'structure', note: 'Compact version' },
+        { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'Evergreen backdrop' }
+      ],
+      seasonal: [
+        { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'Fall color' },
+        { plantId: 'gardenia-frostproof', quantity: 3, role: 'seasonal', note: 'Summer fragrance' },
+        { plantId: 'azalea-encore-majesty', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Purple encore' }
+      ],
+      texture: [
+        { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
+        { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden sedge' },
+        { plantId: 'cast-iron-plant', quantity: 6, role: 'texture', note: 'Indestructible texture' }
+      ],
+      carpet: [
+        { plantId: 'asiatic-jasmine', quantity: 3, role: 'carpet', note: 'SIGNATURE: Evergreen carpet' },
+        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped edge' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 21. TROPICAL VIBES - Lush & Bold
+  // EXCLUSIVE: Bananas, Cannas, Elephant Ears, Bold Tropicals
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'tropical-vibes',
+    name: 'Tropical Vibes',
+    subtitle: 'Lush & Bold Statement',
+    description: 'Bold tropical foliage for that resort vacation feel right at home.',
+    theme: 'Tropical',
+    preview: '🌴',
+    colorScheme: ['#43A047', '#D84315', '#FFD54F', '#E91E63'],
+    baseSize: '150 sq ft',
+    defaultZone: 8,
+    filters: { light: 'part-shade', moisture: 'wet', maintenance: 'showcase' },
+    plants: {
+      hero: [
+        { plantId: 'magnolia-alta', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Columnar magnolia' },
+        { plantId: 'crape-myrtle-dynamite', quantity: 1, role: 'hero', note: 'Red tropical crape' },
+        { plantId: 'windmill-palm', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Hardy palm (if available)' }
+      ],
+      structure: [
+        { plantId: 'fatsia', quantity: 4, role: 'structure', note: 'SIGNATURE: Bold tropical leaf' },
+        { plantId: 'anise-florida-sunshine', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Golden anise' },
+        { plantId: 'anise-bananappeal', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Banana-scent anise' },
+        { plantId: 'gardenia-jubilation', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Large gardenia' }
+      ],
+      seasonal: [
+        { plantId: 'hibiscus', quantity: 5, role: 'seasonal', note: 'SIGNATURE: Tropical blooms' },
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Tropical color' },
+        { plantId: 'gardenia-kleims-hardy', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Compact gardenia' }
+      ],
+      texture: [
+        { plantId: 'maiden-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Tall tropical grass' },
+        { plantId: 'zebra-grass', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Banded tropical' },
+        { plantId: 'cast-iron-plant', quantity: 8, role: 'texture', note: 'Bold shade texture' }
+      ],
+      carpet: [
+        { plantId: 'asiatic-jasmine', quantity: 3, role: 'carpet', note: 'SIGNATURE: Tropical carpet' },
+        { plantId: 'mondo-grass', quantity: 2, role: 'carpet', note: 'Asian groundcover' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 22. COTTAGE CHARM - Informal Romance
+  // EXCLUSIVE: Peonies, Old Roses, Cottage Perennials
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'cottage-charm',
+    name: 'Cottage Charm',
+    subtitle: 'Informal Romantic Garden',
+    description: 'Overflowing cottage garden with romantic perennials and old-fashioned charm.',
+    theme: 'Cottage',
+    preview: '🌸',
+    colorScheme: ['#E91E63', '#7B1FA2', '#FFFFFF', '#FFB6C1'],
+    baseSize: '150 sq ft',
+    defaultZone: 7,
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'standard' },
+    plants: {
+      hero: [
+        { plantId: 'crape-myrtle-pink-velour', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Pink cottage tree' },
+        { plantId: 'fringe-tree', quantity: 1, role: 'hero', note: 'EXCLUSIVE: White fringe' },
+        { plantId: 'redbud-forest-pansy', quantity: 1, role: 'hero', note: 'Purple-leaf redbud' }
+      ],
+      structure: [
+        { plantId: 'hydrangea-endless-summer', quantity: 5, role: 'structure', note: 'SIGNATURE: Cottage hydrangea' },
+        { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Pink bells' },
+        { plantId: 'forsythia-sugar-baby', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Spring yellow' }
+      ],
+      seasonal: [
+        { plantId: 'peony', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Cottage classic' },
+        { plantId: 'rose-apricot-drift', quantity: 5, role: 'seasonal', note: 'Apricot cottage rose' },
+        { plantId: 'rose-peach-drift', quantity: 5, role: 'seasonal', note: 'Peach cottage' },
+        { plantId: 'daylily-happy-returns', quantity: 8, role: 'seasonal', note: 'Yellow rebloomer' }
+      ],
+      texture: [
+        { plantId: 'catmint-walkers', quantity: 10, role: 'texture', note: 'SIGNATURE: Blue cottage border' },
+        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'EXCLUSIVE: White daisies' },
+        { plantId: 'coral-bell', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Heuchera foliage' }
+      ],
+      carpet: [
+        { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'SIGNATURE: Spring color carpet' },
+        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'Blue spring' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 23. MINIMALIST MODERN - Clean Contemporary
+  // EXCLUSIVE: Architectural Plants, Grasses, Minimal Palette
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'minimalist-modern',
+    name: 'Minimalist Modern',
+    subtitle: 'Clean Contemporary Lines',
+    description: 'Architectural plants, ornamental grasses, and a restrained color palette.',
+    theme: 'Modern',
+    preview: '◻️',
+    colorScheme: ['#1B5E20', '#FFFFFF', '#8D6E63', '#5D4037'],
+    baseSize: '150 sq ft',
+    defaultZone: 7,
+    filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'juniper-skyrocket', quantity: 3, role: 'hero', note: 'SIGNATURE: Narrow columns' },
+        { plantId: 'blue-point-juniper', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Blue pyramids' },
+        { plantId: 'arborvitae-north-pole', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Narrow arborvitae' }
+      ],
+      structure: [
+        { plantId: 'holly-carissa', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Soft holly' },
+        { plantId: 'holly-helleri', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Compact holly' },
+        { plantId: 'yew-dukes-garden', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Spreading yew' }
+      ],
+      seasonal: [
+        { plantId: 'hydrangea-little-lime', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Compact lime' },
+        { plantId: 'gardenia-kleims-hardy', quantity: 3, role: 'seasonal', note: 'Compact white' }
+      ],
+      texture: [
+        { plantId: 'karl-foerster', quantity: 12, role: 'texture', note: 'SIGNATURE: Vertical grass lines' },
+        { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'Blue spheres' },
+        { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden accents' }
+      ],
+      carpet: [
+        { plantId: 'juniper-blue-rug', quantity: 3, role: 'carpet', note: 'SIGNATURE: Blue carpet' },
+        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Pacific juniper' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 24. WOODLAND EDGE - Natural Transition
+  // EXCLUSIVE: Native Trees, Understory Plants, Ferns
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'woodland-edge',
+    name: 'Woodland Edge',
+    subtitle: 'Natural Forest Transition',
+    description: 'Where lawn meets forest - native plants that create a natural woodland edge.',
+    theme: 'Native Woodland',
+    preview: '🌳',
+    colorScheme: ['#1B5E20', '#8D6E63', '#FFFFFF', '#5D4037'],
+    baseSize: '200 sq ft',
+    defaultZone: 7,
+    filters: { light: 'part-shade', moisture: 'average', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'serviceberry-autumn-brilliance', quantity: 2, role: 'hero', note: 'SIGNATURE: Native four-season' },
+        { plantId: 'dogwood', quantity: 1, role: 'hero', note: 'Native flowering' },
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Spring purple' }
+      ],
+      structure: [
+        { plantId: 'beautyberry', quantity: 5, role: 'structure', note: 'SIGNATURE: Purple berry clusters' },
+        { plantId: 'fothergilla-dwarf', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Native witch-hazel' },
+        { plantId: 'oakleaf-hydrangea', quantity: 4, role: 'structure', note: 'Native hydrangea' },
+        { plantId: 'sweetspire-little-henry', quantity: 4, role: 'structure', note: 'Native sweetspire' }
+      ],
+      seasonal: [
+        { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Early shade bloom' },
+        { plantId: 'azalea-encore-carnation', quantity: 5, role: 'seasonal', note: 'Woodland azalea' },
+        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Native pollinator' }
+      ],
+      texture: [
+        { plantId: 'fern-autumn', quantity: 12, role: 'texture', note: 'SIGNATURE: Woodland fern' },
+        { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern' },
+        { plantId: 'northern-sea-oats', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Native oats' }
+      ],
+      carpet: [
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'SIGNATURE: Woodland carpet' },
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Native phlox' }
+      ]
+    }
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 25. PRIVACY SCREEN - Fast & Dense
+  // EXCLUSIVE: Fast-Growing Screens, Dense Evergreens
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    id: 'privacy-screen',
+    name: 'Privacy Screen',
+    subtitle: 'Fast & Dense Coverage',
+    description: 'For when you need privacy ASAP. Fast-growing, dense evergreen screens.',
+    theme: 'Functional',
+    preview: '🏠',
+    colorScheme: ['#1B5E20', '#2E7D32', '#43A047', '#66BB6A'],
+    baseSize: '200 sq ft',
+    defaultZone: 7,
+    filters: { light: 'full-sun', moisture: 'average', maintenance: 'low' },
+    plants: {
+      hero: [
+        { plantId: 'leyland-cypress', quantity: 5, role: 'hero', note: 'SIGNATURE: Fast privacy screen' },
+        { plantId: 'arborvitae-green-giant', quantity: 4, role: 'hero', note: 'EXCLUSIVE: 3-4ft/year growth' },
+        { plantId: 'carolina-sapphire-cypress', quantity: 3, role: 'hero', note: 'EXCLUSIVE: Blue-green screen' }
+      ],
+      structure: [
+        { plantId: 'holly-nellie-stevens', quantity: 6, role: 'structure', note: 'SIGNATURE: Dense holly' },
+        { plantId: 'cherry-laurel', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Fast evergreen' },
+        { plantId: 'wax-myrtle', quantity: 4, role: 'structure', note: 'Fast native screen' }
+      ],
+      seasonal: [
+        { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Screening camellia' },
+        { plantId: 'gardenia-august-beauty', quantity: 3, role: 'seasonal', note: 'Tall gardenia' }
+      ],
+      texture: [
+        { plantId: 'holly-fern', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
+        { plantId: 'carex-everillo', quantity: 8, role: 'texture', note: 'Golden sedge' }
+      ],
+      carpet: [
+        { plantId: 'asiatic-jasmine', quantity: 4, role: 'carpet', note: 'SIGNATURE: Fast evergreen carpet' },
+        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped edge' }
+      ]
+    }
   }
 ];
 
-// Helper function to get bundle by ID
-export const getBundleById = (id) => {
-  return PLANT_BUNDLES.find(bundle => bundle.id === id);
+// Export bundle count for statistics
+export const BUNDLE_COUNT = PLANT_BUNDLES.length;
+
+// Helper to get bundle by ID
+export const getBundleById = (id) => PLANT_BUNDLES.find(b => b.id === id);
+
+// Get all plants from a bundle
+export const getBundlePlants = (bundle) => {
+  if (!bundle || !bundle.plants) return [];
+  return [
+    ...(bundle.plants.hero || []),
+    ...(bundle.plants.structure || []),
+    ...(bundle.plants.seasonal || []),
+    ...(bundle.plants.texture || []),
+    ...(bundle.plants.carpet || [])
+  ];
 };
 
-// Helper function to get bundles by theme
-export const getBundlesByTheme = (theme) => {
-  return PLANT_BUNDLES.filter(bundle => bundle.theme === theme);
+// Invasive plant warnings - plants that may spread aggressively
+export const INVASIVE_WARNINGS = {
+  'bamboo-golden': 'Running bamboo - spreads aggressively underground. Requires containment barrier.',
+  'english-ivy': 'Invasive in many regions. Can damage structures and trees.',
+  'vinca-minor': 'Can escape cultivation and spread in woodlands.',
+  'wisteria-chinese': 'Can strangle trees and damage structures. Japanese wisteria preferred.',
+  'butterfly-bush': 'Invasive in some regions. Consider sterile cultivars.',
+  'burning-bush': 'Invasive in eastern US. Birds spread seeds.',
+  'privet': 'Highly invasive. Consider native alternatives like inkberry.'
 };
 
-// Helper function to check if a plant has invasive warnings
+// Get invasive warning for a plant
 export const getInvasiveWarning = (plantId) => {
   return INVASIVE_WARNINGS[plantId] || null;
 };
-
-// Get all plants from a bundle as a flat array
-export const getBundlePlants = (bundle) => {
-  if (!bundle || !bundle.plants) return [];
-
-  const allPlants = [];
-  Object.values(bundle.plants).forEach(roleArray => {
-    roleArray.forEach(plant => {
-      allPlants.push(plant);
-    });
-  });
-  return allPlants;
-};
-
-export default PLANT_BUNDLES;
