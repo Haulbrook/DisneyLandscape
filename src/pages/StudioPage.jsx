@@ -2663,7 +2663,7 @@ export default function StudioPage() {
         imageUrl = Array.isArray(result.output) ? result.output[0] : result.output;
       }
 
-      const plantList = Object.entries(plantDetails)
+      const plantList = Object.entries(plantCounts)
         .map(([name, info]) => `${info.count} ${name}`)
         .join(', ');
 
