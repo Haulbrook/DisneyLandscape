@@ -1493,6 +1493,76 @@ export default function StudioPage() {
       };
     }).filter(Boolean);
 
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // DIVERSITY INJECTION: If a role has high quantity but few varieties, add more
+    // Goal: 4-6 different plant types per role when quantity is significant
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const MIN_VARIETIES_PER_ROLE = 4;
+    const VARIETY_QUANTITY_THRESHOLD = 15; // Only diversify if total > 15 plants
+
+    // Group by role to analyze diversity
+    const roleGroups = {};
+    processedPlants.forEach(p => {
+      if (!roleGroups[p.role]) roleGroups[p.role] = [];
+      roleGroups[p.role].push(p);
+    });
+
+    // Check roles that need more variety
+    ['back', 'middle'].forEach(role => {
+      const plants = roleGroups[role] || [];
+      const totalQuantity = plants.reduce((sum, p) => sum + p.quantity, 0);
+      const uniqueTypes = new Set(plants.map(p => p.plantId)).size;
+
+      if (totalQuantity >= VARIETY_QUANTITY_THRESHOLD && uniqueTypes < MIN_VARIETIES_PER_ROLE) {
+        const varietiesToAdd = MIN_VARIETIES_PER_ROLE - uniqueTypes;
+        const existingPlantIds = new Set(plants.map(p => p.plantId));
+
+        // Find compatible plants from database not already in bundle
+        const compatiblePlants = ALL_PLANTS.filter(p => {
+          if (existingPlantIds.has(p.id)) return false;
+          // Match by category - shrubs for back/middle roles
+          const category = p.category || p.dbCategory;
+          if (role === 'back') return category === 'shrubs' && getPlantHeightInches(p.id) >= 48;
+          if (role === 'middle') return (category === 'shrubs' || category === 'perennials') &&
+            getPlantHeightInches(p.id) >= 18 && getPlantHeightInches(p.id) <= 60;
+          return false;
+        });
+
+        // Shuffle and pick new varieties
+        const shuffledCompat = compatiblePlants.sort(() => Math.random() - 0.5);
+        const newVarieties = shuffledCompat.slice(0, varietiesToAdd);
+
+        // Redistribute quantity: take some from existing high-quantity plants
+        const quantityToRedistribute = Math.floor(totalQuantity * 0.4); // Take 40% to spread
+        const perNewVariety = Math.floor(quantityToRedistribute / Math.max(1, newVarieties.length));
+
+        // Reduce existing plant quantities proportionally
+        const reductionRatio = 1 - (quantityToRedistribute / totalQuantity);
+        plants.forEach(p => {
+          p.quantity = Math.max(3, Math.floor(p.quantity * reductionRatio));
+          // Apply odd-number rule
+          p.quantity = roundToOddNumber(p.quantity);
+        });
+
+        // Add new variety plants to processedPlants
+        newVarieties.forEach(plantData => {
+          const height = getPlantHeightInches(plantData.id);
+          const radius = getPlantSpreadRadius(plantData.id);
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role,
+            height,
+            radius,
+            quantity: roundToOddNumber(Math.max(3, perNewVariety)),
+            isSmallPlant: false,
+            isCanopy: height > 120,
+            injectedVariety: true // Mark as injected for debugging
+          });
+        });
+      }
+    });
+
     // Sort: place large plants first, then fill with smaller ones
     processedPlants.sort((a, b) => {
       const order = ['focal', 'back', 'topiary', 'middle', 'front', 'edge', 'groundcover'];
