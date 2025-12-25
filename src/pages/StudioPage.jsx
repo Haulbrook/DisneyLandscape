@@ -1358,6 +1358,56 @@ export default function StudioPage() {
       return validPositions;
     };
 
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // LOBE DETECTION: Cluster valid positions into connected regions (lobes)
+    // Uses simple grid-based flood fill to find separate lobes
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const detectLobes = (positions, connectionRadius) => {
+      if (positions.length === 0) return [];
+
+      const lobes = [];
+      const assigned = new Set();
+
+      positions.forEach((startPos, startIdx) => {
+        if (assigned.has(startIdx)) return;
+
+        // Start a new lobe with flood fill
+        const lobe = [];
+        const queue = [startIdx];
+
+        while (queue.length > 0) {
+          const currentIdx = queue.shift();
+          if (assigned.has(currentIdx)) continue;
+
+          assigned.add(currentIdx);
+          const currentPos = positions[currentIdx];
+          lobe.push(currentPos);
+
+          // Find all unassigned neighbors within connection radius
+          positions.forEach((otherPos, otherIdx) => {
+            if (assigned.has(otherIdx) || queue.includes(otherIdx)) return;
+            const dist = Math.sqrt(Math.pow(currentPos.x - otherPos.x, 2) + Math.pow(currentPos.y - otherPos.y, 2));
+            if (dist <= connectionRadius) {
+              queue.push(otherIdx);
+            }
+          });
+        }
+
+        if (lobe.length > 0) {
+          lobes.push(lobe);
+        }
+      });
+
+      return lobes;
+    };
+
+    // Get centroid of a lobe for distribution
+    const getLobeCentroid = (lobe) => {
+      const sumX = lobe.reduce((sum, p) => sum + p.x, 0);
+      const sumY = lobe.reduce((sum, p) => sum + p.y, 0);
+      return { x: sumX / lobe.length, y: sumY / lobe.length };
+    };
+
     // Group sampled positions by height zone (back/middle/front)
     const groupPositionsByZone = (positions) => {
       const bedHeight = bedBounds.maxY - bedBounds.minY;
@@ -1388,11 +1438,67 @@ export default function StudioPage() {
     };
 
     // Select evenly distributed cluster centers from sampled positions
+    // ENHANCED: First ensures each detected lobe gets at least one cluster center
     const selectDistributedCenters = (positions, numCenters, minSpacing) => {
       if (positions.length === 0) return [];
       if (positions.length <= numCenters) return [...positions];
 
       const centers = [];
+
+      // LOBE-AWARE DISTRIBUTION: Detect lobes and ensure each gets clusters
+      if (useCustomPath && positions.length > 10) {
+        const connectionRadius = minSpacing * 2.5; // Points this close are same lobe
+        const lobes = detectLobes(positions, connectionRadius);
+
+        if (lobes.length > 1) {
+          // Multiple lobes detected - distribute clusters proportionally
+          const totalPositions = positions.length;
+
+          lobes.forEach(lobe => {
+            // Each lobe gets clusters proportional to its size (min 1)
+            const lobeShare = lobe.length / totalPositions;
+            const lobeClusters = Math.max(1, Math.round(numCenters * lobeShare));
+
+            // Pick centers from this lobe using greedy selection
+            const lobePositions = [...lobe];
+            for (let i = lobePositions.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [lobePositions[i], lobePositions[j]] = [lobePositions[j], lobePositions[i]];
+            }
+
+            let lobeCentersAdded = 0;
+            while (lobeCentersAdded < lobeClusters && lobePositions.length > 0) {
+              let bestIdx = 0;
+              let bestMinDist = 0;
+
+              for (let i = 0; i < lobePositions.length; i++) {
+                const pos = lobePositions[i];
+                let minDistToCenters = Infinity;
+
+                for (const center of centers) {
+                  const dist = Math.sqrt(Math.pow(pos.x - center.x, 2) + Math.pow(pos.y - center.y, 2));
+                  minDistToCenters = Math.min(minDistToCenters, dist);
+                }
+
+                if (centers.length === 0 || minDistToCenters > bestMinDist) {
+                  bestMinDist = minDistToCenters;
+                  bestIdx = i;
+                }
+              }
+
+              if (centers.length === 0 || bestMinDist >= minSpacing * 0.5) {
+                centers.push(lobePositions[bestIdx]);
+                lobeCentersAdded++;
+              }
+              lobePositions.splice(bestIdx, 1);
+            }
+          });
+
+          return centers.slice(0, numCenters);
+        }
+      }
+
+      // FALLBACK: Single lobe or rectangular bed - use original greedy selection
       const availablePositions = [...positions];
 
       // Shuffle to randomize starting point
