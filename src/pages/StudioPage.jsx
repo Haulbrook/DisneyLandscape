@@ -1532,32 +1532,50 @@ export default function StudioPage() {
         const shuffledCompat = compatiblePlants.sort(() => Math.random() - 0.5);
         const newVarieties = shuffledCompat.slice(0, varietiesToAdd);
 
-        // Redistribute quantity: take some from existing high-quantity plants
-        const quantityToRedistribute = Math.floor(totalQuantity * 0.4); // Take 40% to spread
-        const perNewVariety = Math.floor(quantityToRedistribute / Math.max(1, newVarieties.length));
+        // NATURAL VARIETY: Uneven quantities create visual interest
+        // Some plants dominate (9-13), some accent (3-7), not equal distribution
+        const quantityToRedistribute = Math.floor(totalQuantity * 0.35); // Take 35% for new varieties
 
-        // Reduce existing plant quantities proportionally
-        const reductionRatio = 1 - (quantityToRedistribute / totalQuantity);
-        plants.forEach(p => {
-          p.quantity = Math.max(3, Math.floor(p.quantity * reductionRatio));
-          // Apply odd-number rule
+        // Vary existing plant quantities randomly (keep some dominant, reduce others more)
+        plants.forEach((p, idx) => {
+          // Random variation: some keep more (0.7-0.9), some less (0.5-0.7)
+          const variationFactor = 0.5 + Math.random() * 0.4; // 0.5 to 0.9
+          p.quantity = Math.max(3, Math.floor(p.quantity * variationFactor));
           p.quantity = roundToOddNumber(p.quantity);
         });
 
-        // Add new variety plants to processedPlants
-        newVarieties.forEach(plantData => {
+        // Add new variety plants with VARIED quantities (not equal)
+        let remainingToDistribute = quantityToRedistribute;
+        newVarieties.forEach((plantData, idx) => {
           const height = getPlantHeightInches(plantData.id);
           const radius = getPlantSpreadRadius(plantData.id);
+
+          // Vary quantity: first gets more, others get random amounts
+          let varietyQty;
+          if (idx === 0) {
+            // First new variety gets more (accent feature)
+            varietyQty = Math.floor(remainingToDistribute * (0.3 + Math.random() * 0.2));
+          } else if (idx === newVarieties.length - 1) {
+            // Last one gets remainder
+            varietyQty = remainingToDistribute;
+          } else {
+            // Middle ones get random portion
+            varietyQty = Math.floor(remainingToDistribute * (0.15 + Math.random() * 0.25));
+          }
+
+          varietyQty = roundToOddNumber(Math.max(3, Math.min(varietyQty, 11)));
+          remainingToDistribute -= varietyQty;
+
           processedPlants.push({
             plantId: plantData.id,
             plantData,
             role,
             height,
             radius,
-            quantity: roundToOddNumber(Math.max(3, perNewVariety)),
+            quantity: varietyQty,
             isSmallPlant: false,
             isCanopy: height > 120,
-            injectedVariety: true // Mark as injected for debugging
+            injectedVariety: true
           });
         });
       }
