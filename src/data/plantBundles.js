@@ -725,44 +725,54 @@ export const PLANT_BUNDLES = [
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 17. FOUR SEASONS - Year-Round Interest
-  // EXCLUSIVE: Balanced Bloom Sequence All Seasons
+  // EXCLUSIVE: Balanced Bloom Sequence All Seasons + Evergreen Structure
+  // TRAINING: Needs heavy shrub presence + winter bloomers + evergreen anchors
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'four-seasons',
-    name: 'Four Seasons',
-    subtitle: 'Year-Round Interest',
-    description: 'Carefully sequenced plants for color and interest in every season.',
-    theme: 'Multi-Season',
-    preview: '🍂',
+    name: 'Four Season Color',
+    subtitle: 'Always Something Blooming',
+    description: 'Carefully sequenced for year-round color. Winter camellia, spring azalea, summer hydrangea, fall grasses.',
+    theme: 'Continuous Bloom',
+    preview: '🌈',
     colorScheme: ['#E91E63', '#FFD54F', '#D84315', '#1B5E20'],
-    baseSize: '200 sq ft',
+    baseSize: '120 sq ft',
     defaultZone: 7,
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'dogwood-stellar-pink', quantity: 1, role: 'hero', note: 'SPRING: Pink stellar dogwood' },
-        { plantId: 'crape-myrtle-sarahs-favorite', quantity: 1, role: 'hero', note: 'SUMMER: Red/white bicolor' },
-        { plantId: 'maple-october-glory', quantity: 1, role: 'hero', note: 'FALL: Blazing red leaves' }
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'SPRING: White blooms, fall color, winter berries' },
+        { plantId: 'crape-myrtle-tuscarora', quantity: 1, role: 'hero', note: 'SUMMER: Coral-pink 100 days' },
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'FALL: Crimson specimen' }
       ],
       structure: [
-        { plantId: 'chinese-snowball', quantity: 3, role: 'structure', note: 'SPRING: White pom-poms' },
-        { plantId: 'abelia-rose-creek', quantity: 4, role: 'structure', note: 'SUMMER: Pink abelia' },
-        { plantId: 'camellia-sasanqua', quantity: 4, role: 'structure', note: 'FALL: Pink sasanqua' },
-        { plantId: 'winter-daphne', quantity: 3, role: 'structure', note: 'WINTER: Fragrant daphne' }
+        // EVERGREEN ANCHORS - year-round structure (critical for winter)
+        { plantId: 'arborvitae-tater-tot', quantity: 8, role: 'structure', note: 'EVERGREEN: Compact globes year-round' },
+        { plantId: 'dwarf-alberta-spruce', quantity: 4, role: 'structure', note: 'EVERGREEN: Pyramidal anchors' },
+        { plantId: 'holly-compacta', quantity: 4, role: 'structure', note: 'EVERGREEN: Berries for winter color' },
+        // WINTER BLOOMERS (critical!)
+        { plantId: 'gardenia-frost-proof', quantity: 6, role: 'structure', note: 'WINTER: Fragrant white Jan-Mar' },
+        { plantId: 'camellia-sasanqua', quantity: 5, role: 'structure', note: 'WINTER: Pink Oct-Dec' },
+        { plantId: 'paper-bush', quantity: 4, role: 'structure', note: 'WINTER: Yellow fragrant Jan-Feb' },
+        // SPRING/SUMMER BLOOMERS
+        { plantId: 'hydrangea-endless-summer', quantity: 8, role: 'structure', note: 'SUMMER: Blue/pink rebloomer' },
+        { plantId: 'azalea-encore-autumn-twist', quantity: 5, role: 'structure', note: 'SPRING+FALL: Reblooming' }
       ],
       seasonal: [
-        { plantId: 'lenten-rose', quantity: 6, role: 'seasonal', note: 'WINTER: First blooms' },
-        { plantId: 'rose-knockout-double-red', quantity: 5, role: 'seasonal', note: 'SUMMER: Continuous' },
-        { plantId: 'hydrangea-vanilla-strawberry', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Color-changing' }
+        { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'LATE WINTER: First color Feb-Apr' },
+        { plantId: 'rose-knockout-double-red', quantity: 6, role: 'seasonal', note: 'SUMMER: Continuous May-frost' },
+        { plantId: 'coneflower', quantity: 5, role: 'seasonal', note: 'SUMMER: Native pollinator' },
+        { plantId: 'black-eyed-susan', quantity: 5, role: 'seasonal', note: 'SUMMER-FALL: Golden daisies' }
       ],
       texture: [
-        { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'FALL: Pink clouds' },
-        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Winter structure' },
-        { plantId: 'daylily-stella', quantity: 10, role: 'texture', note: 'SUMMER: Yellow rebloomer' }
+        { plantId: 'muhly-grass-white-cloud', quantity: 15, role: 'texture', note: 'FALL: White cloud masses' },
+        { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'FALL: Pink clouds' },
+        { plantId: 'karl-foerster', quantity: 8, role: 'texture', note: 'WINTER: Tan structure persists' },
+        { plantId: 'daylily-stella', quantity: 8, role: 'texture', note: 'SUMMER: Yellow rebloomer' }
       ],
       carpet: [
-        { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'SPRING: Color carpet' },
-        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'SPRING: Purple spikes' }
+        { plantId: 'creeping-phlox', quantity: 4, role: 'carpet', note: 'SPRING: Pink/purple carpet' },
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'SPRING: Purple spikes + evergreen' }
       ]
     }
   },
