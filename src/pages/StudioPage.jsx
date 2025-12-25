@@ -3936,11 +3936,13 @@ export default function StudioPage() {
             )}
 
             <div
-              className="relative mx-auto bg-gradient-to-b from-wood-200 to-wood-300 rounded-lg overflow-hidden shadow-xl border border-wood-400"
+              className="relative mx-auto bg-gradient-to-b from-wood-200 to-wood-300 rounded-lg shadow-xl border border-wood-400"
               style={{
                 width: bedDimensions.width * 12 * zoom * 4, // feet * 12 = inches * zoom * 4 pixels
                 height: bedDimensions.height * 12 * zoom * 4,
-                cursor: isDrawingMode ? 'crosshair' : selectedPlant ? 'crosshair' : 'default'
+                cursor: isDrawingMode ? 'crosshair' : selectedPlant ? 'crosshair' : 'default',
+                overflow: 'hidden', // Clip all content to canvas bounds - prevents blur artifacts
+                isolation: 'isolate' // Create new stacking context to contain blurs
               }}
               ref={canvasRef}
               onClick={handleCanvasClick}
@@ -4028,75 +4030,47 @@ export default function StudioPage() {
               )}
 
               {/* Bed Edge Labels - Visual orientation indicators */}
-              {showBedLabels && bedType === 'rectangle' && (
+              {showBedLabels && (
                 <>
-                  {/* Top Edge Label */}
-                  {(() => {
-                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top);
-                    return opt && (
-                      <div
-                        className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
-                        style={{ backgroundColor: opt.color }}
-                      >
-                        <span>{opt.icon}</span>
-                        <span className="hidden sm:inline">{opt.label.split(' ')[0]}</span>
-                      </div>
-                    );
-                  })()}
-                  {/* Bottom Edge Label */}
-                  {(() => {
-                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom);
-                    return opt && (
-                      <div
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
-                        style={{ backgroundColor: opt.color }}
-                      >
-                        <span>{opt.icon}</span>
-                        <span className="hidden sm:inline">{opt.label.split(' ')[0]}</span>
-                      </div>
-                    );
-                  })()}
-                  {/* Left Edge Label */}
-                  {(() => {
-                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left);
-                    return opt && (
-                      <div
-                        className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
-                        style={{ backgroundColor: opt.color, writingMode: 'vertical-rl', textOrientation: 'mixed' }}
-                      >
-                        <span style={{ writingMode: 'horizontal-tb' }}>{opt.icon}</span>
-                      </div>
-                    );
-                  })()}
-                  {/* Right Edge Label */}
-                  {(() => {
-                    const opt = BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right);
-                    return opt && (
-                      <div
-                        className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
-                        style={{ backgroundColor: opt.color, writingMode: 'vertical-rl', textOrientation: 'mixed' }}
-                      >
-                        <span style={{ writingMode: 'horizontal-tb' }}>{opt.icon}</span>
-                      </div>
-                    );
-                  })()}
-                  {/* Edge Color Bars */}
+                  {/* BACK Label - Always at top (house/fence side) */}
                   <div
-                    className="absolute top-0 left-4 right-4 h-1 rounded-full pointer-events-none"
-                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.top)?.color || '#9E9E9E' }}
-                  />
+                    className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-bold shadow-lg pointer-events-none"
+                    style={{ backgroundColor: '#795548' }}
+                  >
+                    <span>🏠</span>
+                    <span>BACK</span>
+                  </div>
+
+                  {/* FRONT Label - Always at bottom (viewing side) */}
                   <div
-                    className="absolute bottom-0 left-4 right-4 h-1 rounded-full pointer-events-none"
-                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.bottom)?.color || '#9E9E9E' }}
-                  />
+                    className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-3 py-1.5 rounded-full text-white text-xs font-bold shadow-lg pointer-events-none"
+                    style={{ backgroundColor: '#4CAF50' }}
+                  >
+                    <span>👁️</span>
+                    <span>FRONT</span>
+                  </div>
+
+                  {/* Left side indicator */}
                   <div
-                    className="absolute left-0 top-4 bottom-4 w-1 rounded-full pointer-events-none"
-                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.left)?.color || '#9E9E9E' }}
-                  />
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                    style={{ backgroundColor: '#607D8B' }}
+                  >
+                    <span>◀</span>
+                  </div>
+
+                  {/* Right side indicator */}
                   <div
-                    className="absolute right-0 top-4 bottom-4 w-1 rounded-full pointer-events-none"
-                    style={{ backgroundColor: BED_EDGE_OPTIONS.find(o => o.id === bedOrientation.right)?.color || '#9E9E9E' }}
-                  />
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 px-2 py-1 rounded-full text-white text-xs font-medium shadow-lg pointer-events-none"
+                    style={{ backgroundColor: '#607D8B' }}
+                  >
+                    <span>▶</span>
+                  </div>
+
+                  {/* Edge Color Bars - subtle border indicators */}
+                  <div className="absolute top-0 left-8 right-8 h-1 rounded-full pointer-events-none bg-amber-700/60" />
+                  <div className="absolute bottom-0 left-8 right-8 h-1 rounded-full pointer-events-none bg-green-600/60" />
+                  <div className="absolute left-0 top-8 bottom-8 w-1 rounded-full pointer-events-none bg-gray-500/40" />
+                  <div className="absolute right-0 top-8 bottom-8 w-1 rounded-full pointer-events-none bg-gray-500/40" />
                 </>
               )}
 
@@ -4158,14 +4132,36 @@ export default function StudioPage() {
                     </div>
 
                     {/* Selection ring - now shows size info */}
-                    {isSelected && (
-                      <>
-                        <div className="absolute inset-0 rounded-full ring-4 ring-sage-500 ring-opacity-50" />
-                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-sage-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-20">
-                          {plantData?.name} {plant.size && `(${plant.size})`} - {Math.round(matureSpread)}" spread
-                        </div>
-                      </>
-                    )}
+                    {isSelected && (() => {
+                      // Smart label positioning - keep visible within canvas bounds
+                      const canvasWidth = bedDimensions.width * 12 * zoom * 4;
+                      const canvasHeight = bedDimensions.height * 12 * zoom * 4;
+                      const plantX = plant.x * zoom * 4;
+                      const plantY = plant.y * zoom * 4;
+
+                      // Position label below if near top edge, above otherwise
+                      const nearTop = plantY < 80;
+                      const nearBottom = plantY > canvasHeight - 80;
+                      const nearLeft = plantX < 120;
+                      const nearRight = plantX > canvasWidth - 120;
+
+                      // Vertical position
+                      const verticalClass = nearTop ? 'top-full mt-2' : '-top-8';
+
+                      // Horizontal position - shift left/right if near edges
+                      let horizontalClass = 'left-1/2 -translate-x-1/2';
+                      if (nearLeft) horizontalClass = 'left-0';
+                      else if (nearRight) horizontalClass = 'right-0';
+
+                      return (
+                        <>
+                          <div className="absolute inset-0 rounded-full ring-4 ring-sage-500 ring-opacity-50" />
+                          <div className={`absolute ${verticalClass} ${horizontalClass} bg-sage-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-50 shadow-lg`}>
+                            {plantData?.name} {plant.size && `(${plant.size})`} - {Math.round(matureSpread)}" spread
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 );
               })}
