@@ -109,22 +109,22 @@ const DISNEY_RULES = {
   }
 };
 
-// USDA Hardiness Zones reference - Average Annual Minimum Temperature
+// USDA Hardiness Zones - Full annual temperature range (winter low to summer high)
 const HARDINESS_ZONES = [
-  { zone: 3, minF: -40, maxF: -30, minC: -40, maxC: -34, label: 'Zone 3' },
-  { zone: 4, minF: -30, maxF: -20, minC: -34, maxC: -29, label: 'Zone 4' },
-  { zone: 5, minF: -20, maxF: -10, minC: -29, maxC: -23, label: 'Zone 5' },
-  { zone: 6, minF: -10, maxF: 0, minC: -23, maxC: -18, label: 'Zone 6' },
-  { zone: 7, minF: 0, maxF: 10, minC: -18, maxC: -12, label: 'Zone 7' },
-  { zone: 8, minF: 10, maxF: 20, minC: -12, maxC: -7, label: 'Zone 8' },
-  { zone: 9, minF: 20, maxF: 30, minC: -7, maxC: -1, label: 'Zone 9' },
-  { zone: 10, minF: 30, maxF: 40, minC: -1, maxC: 4, label: 'Zone 10' },
-  { zone: 11, minF: 40, maxF: 50, minC: 4, maxC: 10, label: 'Zone 11' },
+  { zone: 3, winterLowF: -40, summerHighF: 85, winterLowC: -40, summerHighC: 29, label: 'Zone 3' },
+  { zone: 4, winterLowF: -30, summerHighF: 90, winterLowC: -34, summerHighC: 32, label: 'Zone 4' },
+  { zone: 5, winterLowF: -20, summerHighF: 90, winterLowC: -29, summerHighC: 32, label: 'Zone 5' },
+  { zone: 6, winterLowF: -10, summerHighF: 95, winterLowC: -23, summerHighC: 35, label: 'Zone 6' },
+  { zone: 7, winterLowF: 0, summerHighF: 100, winterLowC: -18, summerHighC: 38, label: 'Zone 7' },
+  { zone: 8, winterLowF: 10, summerHighF: 100, winterLowC: -12, summerHighC: 38, label: 'Zone 8' },
+  { zone: 9, winterLowF: 20, summerHighF: 105, winterLowC: -7, summerHighC: 41, label: 'Zone 9' },
+  { zone: 10, winterLowF: 30, summerHighF: 100, winterLowC: -1, summerHighC: 38, label: 'Zone 10' },
+  { zone: 11, winterLowF: 40, summerHighF: 95, winterLowC: 4, summerHighC: 35, label: 'Zone 11' },
 ];
 
 // Helper function to format zone temperature display
 const formatZoneTemp = (zoneData) => {
-  return `Zone ${zoneData.zone} (${zoneData.minF} to ${zoneData.maxF}°F / ${zoneData.minC} to ${zoneData.maxC}°C)`;
+  return `Zone ${zoneData.zone} (${zoneData.winterLowF}° to ${zoneData.summerHighF}°F / ${zoneData.winterLowC}° to ${zoneData.summerHighC}°C)`;
 };
 
 // Plant categories mapped from new database
