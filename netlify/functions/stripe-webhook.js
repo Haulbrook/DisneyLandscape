@@ -6,6 +6,19 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+// Helper to determine plan from price ID
+const getPlanFromPriceId = (priceId) => {
+  if (priceId === process.env.STRIPE_BASIC_PRICE_ID) return 'basic';
+  if (priceId === process.env.STRIPE_PRICE_ID) return 'pro';
+  return 'pro'; // Default to pro
+};
+
+// Helper to get next month reset date
+const getNextMonthReset = () => {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
+};
+
 exports.handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json'
@@ -47,19 +60,24 @@ exports.handler = async (event) => {
         const userId = session.metadata?.userId;
         const customerId = session.customer;
         const subscriptionId = session.subscription;
+        const planFromMetadata = session.metadata?.plan;
 
-        console.log('checkout.session.completed - userId:', userId, 'customerId:', customerId, 'subscriptionId:', subscriptionId);
+        console.log('checkout.session.completed - userId:', userId, 'customerId:', customerId, 'subscriptionId:', subscriptionId, 'plan:', planFromMetadata);
 
         if (userId && subscriptionId) {
           // Fetch the subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           console.log('Retrieved subscription:', JSON.stringify(subscription, null, 2));
 
+          // Determine plan from metadata or price ID
+          const priceId = subscription.items?.data?.[0]?.price?.id;
+          const plan = planFromMetadata || getPlanFromPriceId(priceId);
+
           const updateData = {
             stripe_customer_id: customerId,
             stripe_subscription_id: subscriptionId,
             status: 'active',
-            plan: 'pro',
+            plan: plan,
             cancel_at_period_end: false
           };
 
@@ -71,20 +89,29 @@ exports.handler = async (event) => {
             updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
           }
 
+          // Initialize Basic tier monthly tracking fields
+          if (plan === 'basic') {
+            updateData.projects_this_month = 0;
+            updateData.vision_renders_this_month = 0;
+            updateData.month_reset_date = getNextMonthReset();
+          }
+
           await supabase
             .from('subscriptions')
             .update(updateData)
             .eq('user_id', userId);
 
-          console.log(`Subscription activated for user ${userId}`);
+          console.log(`Subscription activated for user ${userId} with plan: ${plan}`);
         } else if (customerId && subscriptionId) {
           // Fallback: If no userId in metadata, try to update by customer_id
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const priceId = subscription.items?.data?.[0]?.price?.id;
+          const plan = planFromMetadata || getPlanFromPriceId(priceId);
 
           const updateData = {
             stripe_subscription_id: subscriptionId,
             status: 'active',
-            plan: 'pro',
+            plan: plan,
             cancel_at_period_end: false
           };
 
@@ -95,12 +122,19 @@ exports.handler = async (event) => {
             updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
           }
 
+          // Initialize Basic tier monthly tracking fields
+          if (plan === 'basic') {
+            updateData.projects_this_month = 0;
+            updateData.vision_renders_this_month = 0;
+            updateData.month_reset_date = getNextMonthReset();
+          }
+
           await supabase
             .from('subscriptions')
             .update(updateData)
             .eq('stripe_customer_id', customerId);
 
-          console.log(`Subscription activated for customer ${customerId} (no userId in metadata)`);
+          console.log(`Subscription activated for customer ${customerId} (no userId in metadata) with plan: ${plan}`);
         }
         break;
       }
@@ -109,8 +143,10 @@ exports.handler = async (event) => {
       case 'customer.subscription.updated': {
         const subscription = stripeEvent.data.object;
         const customerId = subscription.customer;
+        const priceId = subscription.items?.data?.[0]?.price?.id;
+        const planFromMetadata = subscription.metadata?.plan;
 
-        console.log(`${stripeEvent.type} - customerId:`, customerId, 'subscription.status:', subscription.status);
+        console.log(`${stripeEvent.type} - customerId:`, customerId, 'subscription.status:', subscription.status, 'priceId:', priceId);
 
         // Map Stripe status to our status
         let status = 'inactive';
@@ -119,10 +155,16 @@ exports.handler = async (event) => {
         else if (subscription.status === 'past_due') status = 'past_due';
         else if (subscription.status === 'canceled') status = 'canceled';
 
+        // Determine plan from metadata or price ID
+        let plan = 'free';
+        if (status === 'active' || status === 'trialing') {
+          plan = planFromMetadata || getPlanFromPriceId(priceId);
+        }
+
         const updateData = {
           stripe_subscription_id: subscription.id,
           status: status,
-          plan: status === 'active' || status === 'trialing' ? 'pro' : 'free',
+          plan: plan,
           cancel_at_period_end: subscription.cancel_at_period_end || false
         };
 
@@ -134,12 +176,19 @@ exports.handler = async (event) => {
           updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
         }
 
+        // Initialize Basic tier monthly tracking fields if new Basic subscription
+        if (plan === 'basic' && stripeEvent.type === 'customer.subscription.created') {
+          updateData.projects_this_month = 0;
+          updateData.vision_renders_this_month = 0;
+          updateData.month_reset_date = getNextMonthReset();
+        }
+
         const updateResult = await supabase
           .from('subscriptions')
           .update(updateData)
           .eq('stripe_customer_id', customerId);
 
-        console.log(`Subscription ${stripeEvent.type} for customer ${customerId}: ${status}`, updateResult);
+        console.log(`Subscription ${stripeEvent.type} for customer ${customerId}: ${status}, plan: ${plan}`, updateResult);
         break;
       }
 

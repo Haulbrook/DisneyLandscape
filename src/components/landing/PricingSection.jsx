@@ -1,5 +1,5 @@
 import PricingCard from './PricingCard'
-import { Sparkles, Crown, Building2 } from 'lucide-react'
+import { Sparkles, Leaf, Crown, Building2 } from 'lucide-react'
 
 const PRICING_TIERS = [
   {
@@ -25,18 +25,44 @@ const PRICING_TIERS = [
     tier: 'demo',
   },
   {
+    name: 'Basic',
+    price: '$15',
+    period: '/month',
+    description: 'For hobbyists',
+    icon: Leaf,
+    features: [
+      '3 projects per month',
+      'Up to 45 plants per project',
+      'Apply 1 bundle per project',
+      '1 re-bundle swap allowed',
+      '10 AI Vision renders/month',
+      '1 export per project',
+      'Full plant database',
+    ],
+    limitations: [
+      'No cloud save',
+      'Watermark on canvas & exports',
+      'No bundle plant preview',
+    ],
+    cta: 'Get Basic',
+    highlighted: false,
+    tier: 'basic',
+  },
+  {
     name: 'Pro',
     price: '$49',
     period: '/month',
     description: 'For serious designers',
     icon: Crown,
     features: [
-      'Unlimited plants & designs',
-      'Full plant database',
+      'Unlimited plants & projects',
       'All theme bed bundles',
-      'HD AI Vision rendering',
+      'Unlimited bundle swaps',
+      'Unlimited AI Vision renders',
+      'Unlimited exports',
       'Cloud save & sync',
-      'Export to PDF & PNG',
+      'No watermark',
+      'Preview bundle plants',
       'Advanced design analysis',
       'Priority support',
     ],
@@ -83,7 +109,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto items-start">
           {PRICING_TIERS.map((tier) => (
             <PricingCard key={tier.name} tier={tier} />
           ))}

@@ -34,11 +34,12 @@ export const redirectToCheckout = async (sessionId) => {
 }
 
 // Create checkout session via Netlify function
-export const createCheckoutSession = async (userId, email) => {
+// plan can be 'basic' or 'pro'
+export const createCheckoutSession = async (userId, email, plan = 'pro') => {
   const response = await fetch('/.netlify/functions/create-checkout-session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, email })
+    body: JSON.stringify({ userId, email, plan })
   })
 
   if (!response.ok) {

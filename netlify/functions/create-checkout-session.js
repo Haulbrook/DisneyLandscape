@@ -37,13 +37,26 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { userId, email } = JSON.parse(event.body);
+    const { userId, email, plan = 'pro' } = JSON.parse(event.body);
 
     if (!userId || !email) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ error: 'userId and email are required' })
+      };
+    }
+
+    // Get the correct price ID based on plan
+    const priceId = plan === 'basic'
+      ? process.env.STRIPE_BASIC_PRICE_ID
+      : process.env.STRIPE_PRICE_ID;
+
+    if (!priceId) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: `Price ID not configured for ${plan} plan` })
       };
     }
 
@@ -98,18 +111,20 @@ exports.handler = async (event) => {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID,
+          price: priceId,
           quantity: 1
         }
       ],
       success_url: `${siteUrl}/studio?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/?checkout=canceled`,
       metadata: {
-        userId: userId
+        userId: userId,
+        plan: plan
       },
       subscription_data: {
         metadata: {
-          userId: userId
+          userId: userId,
+          plan: plan
         }
       }
     });

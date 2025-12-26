@@ -11,7 +11,7 @@ export default function PricingCard({ tier }) {
   const [loading, setLoading] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handleProClick = async (e) => {
+  const handlePaidPlanClick = async (e, plan) => {
     e.preventDefault()
 
     // If not authenticated, show auth modal
@@ -23,7 +23,7 @@ export default function PricingCard({ tier }) {
     // Start checkout
     setLoading(true)
     try {
-      const { url } = await createCheckoutSession(user.id, user.email)
+      const { url } = await createCheckoutSession(user.id, user.email, plan)
       window.location.href = url
     } catch (err) {
       console.error('Checkout error:', err)
@@ -34,7 +34,7 @@ export default function PricingCard({ tier }) {
   }
 
   const getButtonContent = () => {
-    if (tier.tier === 'pro') {
+    if (tier.tier === 'pro' || tier.tier === 'basic') {
       if (loading) {
         return (
           <>
@@ -65,11 +65,28 @@ export default function PricingCard({ tier }) {
       )
     }
 
+    // Basic tier - checkout button
+    if (tier.tier === 'basic') {
+      return (
+        <button
+          onClick={(e) => handlePaidPlanClick(e, 'basic')}
+          disabled={loading}
+          className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            tier.highlighted
+              ? 'bg-white text-sage-600 hover:bg-sage-50 shadow-lg'
+              : 'bg-sage-500 text-white hover:bg-sage-600'
+          }`}
+        >
+          {getButtonContent()}
+        </button>
+      )
+    }
+
     // Pro tier - checkout button
     if (tier.tier === 'pro') {
       return (
         <button
-          onClick={handleProClick}
+          onClick={(e) => handlePaidPlanClick(e, 'pro')}
           disabled={loading}
           className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
             tier.highlighted
