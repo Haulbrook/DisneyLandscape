@@ -6,7 +6,8 @@ import {
   X, ChevronRight, ChevronDown, ChevronUp, Search, Package, Sparkles,
   Layers, Settings, Info, Move, Trash2, Copy, FlipHorizontal,
   Sun, CloudRain, Thermometer, Star, Crown, CircleDot, Home,
-  PenTool, Square, User, LogOut, Lock, Undo2, Redo2, GripVertical
+  PenTool, Square, User, LogOut, Lock, Undo2, Redo2, GripVertical,
+  RefreshCw, ArrowRightLeft
 } from 'lucide-react';
 
 // Import auth and subscription hooks
@@ -266,6 +267,11 @@ export default function StudioPage() {
 
   // Hardiness zone filter
   const [selectedZone, setSelectedZone] = useState(7); // Default to Zone 7
+
+  // Multi-select and swap functionality
+  const [multiSelectedPlants, setMultiSelectedPlants] = useState([]); // Array of placed plant IDs
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [swapTargetPlant, setSwapTargetPlant] = useState(null); // Plant to swap TO
 
   // Size variant selection - tracks selected size for each plant that has multiple sizes
   const [plantSizeSelections, setPlantSizeSelections] = useState({});
@@ -549,9 +555,21 @@ export default function StudioPage() {
   };
 
   // Handle plant selection on canvas
+  // Shift+Click for multi-select, regular click for single select
   const handlePlantClick = (e, plant) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Shift+Click: Toggle multi-select
+    if (e.shiftKey) {
+      togglePlantMultiSelect(plant.id);
+      return;
+    }
+
+    // Regular click: Single select (clears multi-select)
+    if (multiSelectedPlants.length > 0) {
+      setMultiSelectedPlants([]);
+    }
     // Use functional update to avoid any stale state issues
     setSelectedPlacedPlant(prev => prev === plant.id ? null : plant.id);
   };
@@ -1544,14 +1562,46 @@ export default function StudioPage() {
       return centers;
     };
 
-    // Process plants with quantity scaling for small plants
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // QUANTITY SCALING - BALANCED for natural variety
+    // - Structure plants (36-72") PROTECTED: minimum 3 per type
+    // - Small plants CAPPED: no single type dominates
+    // - Height tier enforcement: ensure chest-height (36-48") plants get placed
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const MAX_SINGLE_PLANT_QTY = 15; // No single plant type exceeds this
+    const MIN_STRUCTURE_QTY = 3;     // Structure plants need minimum for grouping
+    const MIN_CHEST_HEIGHT_QTY = 5;  // Ensure chest-height tier represented
+
+    // Track height tiers for enforcement
+    let chestHeightCount = 0; // 36-48" plants
+
+    // Track plants skipped due to zone incompatibility for user feedback
+    const skippedForZone = [];
+
     const processedPlants = plantsList.map(bp => {
       const plantData = ALL_PLANTS.find(p => p.id === bp.plantId);
       if (!plantData) return null;
 
+      // ═══════════════════════════════════════════════════════════════════════════════
+      // ZONE SURVIVABILITY CHECK: Skip plants that can't survive in selected zone
+      // ═══════════════════════════════════════════════════════════════════════════════
+      const plantZones = plantData.zones || [];
+      if (plantZones.length > 0 && !plantZones.includes(selectedZone)) {
+        skippedForZone.push({
+          name: plantData.name,
+          zones: plantZones,
+          role: bp.role
+        });
+        return null; // Skip this plant - won't survive
+      }
+
       const height = getPlantHeightInches(bp.plantId);
       const radius = getPlantSpreadRadius(bp.plantId);
       const role = roleMapping[bp.role] || bp.role;
+
+      // Determine height tier
+      const isChestHeight = height >= 36 && height <= 48; // Critical missing tier
+      const isKneeHeight = height >= 12 && height < 36;
 
       // Get plant size category
       const sizes = plantData.sizes || ['3gal'];
@@ -1562,16 +1612,33 @@ export default function StudioPage() {
       // Scale quantity based on plant size and bed area
       let quantity = Math.round(bp.quantity * bundleScale * areaScale);
 
-      // Small plants (1gal or less) get significantly more quantity
+      // REBALANCED: Small plants get moderate boost (was 2.5x, now 2.0x)
       if (isSmallPlant) {
-        quantity = Math.max(quantity * 2.5, 7);
+        quantity = Math.max(Math.round(quantity * 2.0), 5);
       } else if (isMediumPlant) {
-        quantity = Math.max(quantity * 1.5, 5);
+        quantity = Math.max(Math.round(quantity * 1.5), 5);
       }
 
-      // SHRUB BOOST: Middle and structure plants get more quantity for variety
-      if (role === 'middle' || role === 'structure' || role === 'seasonal') {
-        quantity = Math.max(quantity * 1.5, 5); // Boost shrub counts
+      // STRUCTURE PROTECTION: Back/structure plants get minimum guarantee
+      // These are critical for layering - don't let them shrink to 1
+      if (role === 'back' || bp.role === 'structure') {
+        quantity = Math.max(quantity, MIN_STRUCTURE_QTY);
+        // Chest-height plants get extra boost to fill missing tier
+        if (isChestHeight) {
+          quantity = Math.max(quantity, MIN_CHEST_HEIGHT_QTY);
+          chestHeightCount += quantity;
+        }
+      }
+
+      // SHRUB BOOST: Middle/seasonal plants (but not compounding on texture)
+      if ((role === 'middle' && bp.role === 'seasonal') || bp.role === 'seasonal') {
+        quantity = Math.max(Math.round(quantity * 1.3), 5);
+      }
+
+      // TEXTURE PLANTS: Reduced boost to prevent dominance
+      if (bp.role === 'texture') {
+        // Don't boost texture as aggressively - they already get small plant boost
+        quantity = Math.max(quantity, 5);
       }
 
       // Groundcover REDUCED 50% - more space for shrub varieties
@@ -1587,6 +1654,11 @@ export default function StudioPage() {
         quantity = Math.min(quantity, Math.max(1, maxTrees));
       }
 
+      // CAP: No single plant type dominates (except trees which are already limited)
+      if (role !== 'focal' && height <= 120) {
+        quantity = Math.min(quantity, MAX_SINGLE_PLANT_QTY);
+      }
+
       // APPLY ODD-NUMBER RULE for non-groundcover plants
       if (role !== 'groundcover') {
         quantity = roundToOddNumber(quantity);
@@ -1600,9 +1672,23 @@ export default function StudioPage() {
         radius,
         quantity,
         isSmallPlant,
+        isChestHeight,
+        isKneeHeight,
         isCanopy: height > 120
       };
     }).filter(Boolean);
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // CHEST HEIGHT TIER BOOST: If missing 36-48" plants, boost existing ones
+    // ═══════════════════════════════════════════════════════════════════════════════
+    if (chestHeightCount < MIN_CHEST_HEIGHT_QTY) {
+      // Find chest-height plants in processed list and boost them
+      processedPlants.forEach(p => {
+        if (p.isChestHeight && p.quantity < 5) {
+          p.quantity = roundToOddNumber(Math.max(5, p.quantity + 2));
+        }
+      });
+    }
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // DIVERSITY INJECTION: If a role has high quantity but few varieties, add more
@@ -2412,6 +2498,13 @@ export default function StudioPage() {
       }
     }
 
+    // Log zone compatibility feedback
+    if (skippedForZone.length > 0) {
+      console.log(`Zone ${selectedZone} Compatibility: Skipped ${skippedForZone.length} plants that won't survive:`,
+        skippedForZone.map(p => `${p.name} (zones ${p.zones.join('-')})`));
+      // Could add a toast notification here in the future
+    }
+
     setPlacedPlants([...placedPlants, ...newPlants]);
     setSelectedBundle(bundle);
   };
@@ -2421,6 +2514,81 @@ export default function StudioPage() {
     setPlacedPlants([]);
     setSelectedPlacedPlant(null);
     setSelectedBundle(null);
+    setMultiSelectedPlants([]);
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // MULTI-SELECT & SWAP FUNCTIONALITY
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  // Toggle a plant's selection in multi-select mode
+  const togglePlantMultiSelect = (plantId) => {
+    setMultiSelectedPlants(prev => {
+      if (prev.includes(plantId)) {
+        return prev.filter(id => id !== plantId);
+      } else {
+        return [...prev, plantId];
+      }
+    });
+  };
+
+  // Select all plants of a specific type (by plantId)
+  const selectAllOfType = (plantId) => {
+    const matchingPlants = placedPlants.filter(p => p.plantId === plantId);
+    const matchingIds = matchingPlants.map(p => p.id);
+    setMultiSelectedPlants(matchingIds);
+  };
+
+  // Clear multi-selection
+  const clearMultiSelect = () => {
+    setMultiSelectedPlants([]);
+  };
+
+  // Get unique plant types from selected plants
+  const getSelectedPlantTypes = () => {
+    const selectedPlantIds = new Set(
+      multiSelectedPlants.map(id => placedPlants.find(p => p.id === id)?.plantId).filter(Boolean)
+    );
+    return Array.from(selectedPlantIds).map(plantId => ALL_PLANTS.find(p => p.id === plantId)).filter(Boolean);
+  };
+
+  // Swap selected plants to a new plant type
+  const swapSelectedPlants = (newPlantId) => {
+    if (multiSelectedPlants.length === 0 || !newPlantId) return;
+
+    const newPlantData = ALL_PLANTS.find(p => p.id === newPlantId);
+    if (!newPlantData) return;
+
+    // Check zone compatibility
+    if (newPlantData.zones && !newPlantData.zones.includes(selectedZone)) {
+      console.warn(`${newPlantData.name} won't survive in Zone ${selectedZone}`);
+      return;
+    }
+
+    setPlacedPlants(prev => prev.map(plant => {
+      if (multiSelectedPlants.includes(plant.id)) {
+        // Keep position, rotation, scale - just change the plant type
+        return {
+          ...plant,
+          plantId: newPlantId,
+          // Reset size to default for new plant
+          size: newPlantData.sizes?.[0] || '3gal',
+          sizeMultiplier: getSizeMultiplier(newPlantData.sizes?.[0] || '3gal')
+        };
+      }
+      return plant;
+    }));
+
+    setShowSwapModal(false);
+    setSwapTargetPlant(null);
+    setMultiSelectedPlants([]);
+  };
+
+  // Delete all multi-selected plants
+  const deleteMultiSelected = () => {
+    setPlacedPlants(prev => prev.filter(p => !multiSelectedPlants.includes(p.id)));
+    setMultiSelectedPlants([]);
+    setSelectedPlacedPlant(null);
   };
 
   // Export blueprint
@@ -4099,6 +4267,7 @@ export default function StudioPage() {
                   ? getPlantSizesWithMultiplier(plant.plantId, plant.sizeMultiplier)
                   : getPlantSizesLegacy(plant.plantId);
                 const isSelected = selectedPlacedPlant === plant.id;
+                const isMultiSelected = multiSelectedPlants.includes(plant.id);
                 const isBeingDragged = draggingPlantId === plant.id;
 
                 // Scale factor: 1 inch = 4 pixels at zoom 1
@@ -4148,6 +4317,11 @@ export default function StudioPage() {
                       <span style={{ fontSize: iconPixels * 0.5 }}>{plantData?.icon}</span>
                     </div>
 
+                    {/* Multi-selection ring (purple) */}
+                    {isMultiSelected && (
+                      <div className="absolute inset-0 rounded-full ring-4 ring-purple-500 ring-opacity-70" />
+                    )}
+
                     {/* Selection ring - now shows size info */}
                     {isSelected && (() => {
                       // Smart label positioning - keep visible within canvas bounds
@@ -4182,6 +4356,63 @@ export default function StudioPage() {
                   </div>
                 );
               })}
+
+              {/* Multi-Select Floating Toolbar */}
+              {multiSelectedPlants.length > 0 && (
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-2xl border border-sage-200 p-3 z-50 flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 rounded-lg">
+                    <span className="text-purple-700 font-bold">{multiSelectedPlants.length}</span>
+                    <span className="text-purple-600 text-sm">selected</span>
+                  </div>
+
+                  {/* Select All of Type Button */}
+                  {multiSelectedPlants.length === 1 && (() => {
+                    const selectedPlant = placedPlants.find(p => p.id === multiSelectedPlants[0]);
+                    const plantData = selectedPlant ? ALL_PLANTS.find(p => p.id === selectedPlant.plantId) : null;
+                    const sameTypeCount = placedPlants.filter(p => p.plantId === selectedPlant?.plantId).length;
+
+                    return sameTypeCount > 1 ? (
+                      <button
+                        onClick={() => selectAllOfType(selectedPlant.plantId)}
+                        className="flex items-center gap-1 px-3 py-2 bg-sage-100 hover:bg-sage-200 rounded-lg text-sm text-sage-700 transition-colors"
+                        title={`Select all ${sameTypeCount} ${plantData?.name || 'plants'}`}
+                      >
+                        <Layers className="w-4 h-4" />
+                        Select All {sameTypeCount} {plantData?.name}
+                      </button>
+                    ) : null;
+                  })()}
+
+                  {/* Swap Button */}
+                  <button
+                    onClick={() => setShowSwapModal(true)}
+                    className="flex items-center gap-1 px-3 py-2 bg-forest-500 hover:bg-forest-600 rounded-lg text-sm text-white transition-colors"
+                    title="Swap selected plants"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Swap Plants
+                  </button>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={deleteMultiSelected}
+                    className="flex items-center gap-1 px-3 py-2 bg-red-500 hover:bg-red-600 rounded-lg text-sm text-white transition-colors"
+                    title="Delete selected plants"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+
+                  {/* Clear Selection */}
+                  <button
+                    onClick={clearMultiSelect}
+                    className="flex items-center gap-1 px-2 py-2 hover:bg-sage-100 rounded-lg text-sm text-sage-500 transition-colors"
+                    title="Clear selection"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Empty State - only show when no plants AND no custom bed drawn */}
               {placedPlants.length === 0 && !(bedType === 'custom' && customBedPath.length > 2) && (
@@ -4416,32 +4647,204 @@ export default function StudioPage() {
                   </div>
                 </div>
 
-                {/* Individual Scores */}
+                {/* Individual Scores with Diagnostics */}
                 <div className="space-y-2 text-xs">
-                  {[
-                    { label: 'Coverage', score: showReadyScore.scores.coverage, weight: 20 },
-                    { label: 'Bloom Sequence', score: showReadyScore.scores.bloomSequence, weight: 20 },
-                    { label: 'Height Layers', score: showReadyScore.scores.heightLayering, weight: 15 },
-                    { label: 'Form Variety', score: showReadyScore.scores.formVariety, weight: 15 },
-                    { label: 'Texture Mix', score: showReadyScore.scores.textureVariety, weight: 10 },
-                    { label: 'Mass Planting', score: showReadyScore.scores.massPlanting, weight: 10 },
-                    { label: 'Color Harmony', score: showReadyScore.scores.colorHarmony, weight: 10 },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <div className="w-24 text-sage-600">{item.label}</div>
+                  {/* Coverage */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Coverage</div>
                       <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-300"
                           style={{
-                            width: `${item.score}%`,
-                            backgroundColor: item.score >= 80 ? '#4CAF50' : item.score >= 60 ? '#FFC107' : '#F44336'
+                            width: `${showReadyScore.scores.coverage}%`,
+                            backgroundColor: showReadyScore.scores.coverage >= 80 ? '#4CAF50' : showReadyScore.scores.coverage >= 60 ? '#FFC107' : '#F44336'
                           }}
                         />
                       </div>
-                      <div className="w-8 text-right text-sage-700">{Math.round(item.score)}</div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.coverage)}</div>
                     </div>
-                  ))}
+                    {showReadyScore.scores.coverage < 100 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ {Math.round(coveragePercent)}% of 95% target ({Math.round(95 - coveragePercent)}% more needed)
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bloom Sequence */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Bloom Sequence</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.bloomSequence}%`,
+                            backgroundColor: showReadyScore.scores.bloomSequence >= 80 ? '#4CAF50' : showReadyScore.scores.bloomSequence >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.bloomSequence)}</div>
+                    </div>
+                    {bloomAnalysis && bloomAnalysis.interestGaps && bloomAnalysis.interestGaps.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ Missing: {bloomAnalysis.interestGaps.map(m => m.abbr).join(', ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Height Layers */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Height Layers</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.heightLayering}%`,
+                            backgroundColor: showReadyScore.scores.heightLayering >= 80 ? '#4CAF50' : showReadyScore.scores.heightLayering >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.heightLayering)}</div>
+                    </div>
+                    {heightAnalysis && heightAnalysis.issues && heightAnalysis.issues.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ {heightAnalysis.issues[0]}
+                      </div>
+                    )}
+                    {heightAnalysis && showReadyScore.scores.heightLayering < 100 && heightAnalysis.tierDiversity && (
+                      <div className="ml-24 pl-2 text-[10px] text-sage-500 mt-0.5">
+                        ↳ Using {heightAnalysis.tierDiversity} of {Math.min(5, Math.ceil(placedPlants.length / 3))} ideal tiers
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Form Variety */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Form Variety</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.formVariety}%`,
+                            backgroundColor: showReadyScore.scores.formVariety >= 80 ? '#4CAF50' : showReadyScore.scores.formVariety >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.formVariety)}</div>
+                    </div>
+                    {formAnalysis && formAnalysis.issues && formAnalysis.issues.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ {formAnalysis.issues[0]}
+                      </div>
+                    )}
+                    {formAnalysis && formAnalysis.formCounts && showReadyScore.scores.formVariety < 100 && (
+                      <div className="ml-24 pl-2 text-[10px] text-sage-500 mt-0.5">
+                        ↳ Forms: {Object.entries(formAnalysis.formCounts).map(([f, c]) => `${f}:${c}`).join(', ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Texture Mix */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Texture Mix</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.textureVariety}%`,
+                            backgroundColor: showReadyScore.scores.textureVariety >= 80 ? '#4CAF50' : showReadyScore.scores.textureVariety >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.textureVariety)}</div>
+                    </div>
+                    {textureAnalysis && textureAnalysis.issues && textureAnalysis.issues.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ {textureAnalysis.issues[0]}
+                      </div>
+                    )}
+                    {textureAnalysis && textureAnalysis.textureCounts && showReadyScore.scores.textureVariety < 100 && (
+                      <div className="ml-24 pl-2 text-[10px] text-sage-500 mt-0.5">
+                        ↳ Textures: {Object.entries(textureAnalysis.textureCounts).map(([t, c]) => `${t}:${c}`).join(', ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Mass Planting */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Mass Planting</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.massPlanting}%`,
+                            backgroundColor: showReadyScore.scores.massPlanting >= 80 ? '#4CAF50' : showReadyScore.scores.massPlanting >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.massPlanting)}</div>
+                    </div>
+                    {massPlantingAnalysis && massPlantingAnalysis.issues && massPlantingAnalysis.issues.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ {massPlantingAnalysis.issues.length} plant(s) need grouping (min 3-5)
+                      </div>
+                    )}
+                    {massPlantingAnalysis && massPlantingAnalysis.suggestions && massPlantingAnalysis.suggestions.length > 0 && (
+                      <div className="ml-24 pl-2 text-[10px] text-sage-500 mt-0.5">
+                        ↳ {massPlantingAnalysis.suggestions.length} even groups (odd preferred)
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Color Harmony */}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 text-sage-600">Color Harmony</div>
+                      <div className="flex-1 h-2 bg-sage-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${showReadyScore.scores.colorHarmony}%`,
+                            backgroundColor: showReadyScore.scores.colorHarmony >= 80 ? '#4CAF50' : showReadyScore.scores.colorHarmony >= 60 ? '#FFC107' : '#F44336'
+                          }}
+                        />
+                      </div>
+                      <div className="w-8 text-right text-sage-700">{Math.round(showReadyScore.scores.colorHarmony)}</div>
+                    </div>
+                    {showReadyScore.scores.colorHarmony < 100 && (
+                      <div className="ml-24 pl-2 text-[10px] text-amber-600 mt-0.5">
+                        ↳ Clashing colors detected
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Points Lost Summary */}
+                {showReadyScore.totalScore < 93 && (
+                  <div className="mt-3 pt-3 border-t border-sage-200">
+                    <div className="text-[10px] text-sage-600">
+                      <span className="font-medium">To reach 93+:</span> Fix categories showing amber text above
+                    </div>
+                    <div className="text-[10px] text-sage-500 mt-1">
+                      Points lost: {(() => {
+                        const losses = [];
+                        if (showReadyScore.scores.coverage < 100) losses.push(`Coverage -${Math.round((100 - showReadyScore.scores.coverage) * 0.2)}`);
+                        if (showReadyScore.scores.bloomSequence < 100) losses.push(`Bloom -${Math.round((100 - showReadyScore.scores.bloomSequence) * 0.2)}`);
+                        if (showReadyScore.scores.heightLayering < 100) losses.push(`Height -${Math.round((100 - showReadyScore.scores.heightLayering) * 0.15)}`);
+                        if (showReadyScore.scores.formVariety < 100) losses.push(`Form -${Math.round((100 - showReadyScore.scores.formVariety) * 0.15)}`);
+                        if (showReadyScore.scores.textureVariety < 100) losses.push(`Texture -${Math.round((100 - showReadyScore.scores.textureVariety) * 0.1)}`);
+                        if (showReadyScore.scores.massPlanting < 100) losses.push(`Mass -${Math.round((100 - showReadyScore.scores.massPlanting) * 0.1)}`);
+                        if (showReadyScore.scores.colorHarmony < 100) losses.push(`Color -${Math.round((100 - showReadyScore.scores.colorHarmony) * 0.1)}`);
+                        return losses.join(', ') || 'None';
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -4684,6 +5087,94 @@ export default function StudioPage() {
           </div>
         </aside>
       </div>
+
+      {/* Plant Swap Modal */}
+      {showSwapModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] border border-sage-200 shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-sage-200 sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-sage-800 flex items-center gap-2">
+                <ArrowRightLeft className="w-5 h-5 text-forest-500" />
+                Swap {multiSelectedPlants.length} Plants
+              </h2>
+              <button
+                onClick={() => { setShowSwapModal(false); setSwapTargetPlant(null); }}
+                className="p-2 hover:bg-sage-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-sage-600" />
+              </button>
+            </div>
+
+            <div className="p-4">
+              {/* Currently Selected Info */}
+              <div className="mb-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="text-sm text-purple-700 font-medium mb-2">Currently Selected:</div>
+                <div className="flex flex-wrap gap-2">
+                  {getSelectedPlantTypes().map(plant => (
+                    <span key={plant.id} className="px-2 py-1 bg-purple-100 rounded text-sm text-purple-800 flex items-center gap-1">
+                      <span>{plant.icon}</span>
+                      {plant.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search and Filter */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-sage-400" />
+                  <input
+                    type="text"
+                    placeholder="Search plants to swap to..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-sage-200 rounded-lg focus:ring-2 focus:ring-forest-200 focus:border-forest-400"
+                  />
+                </div>
+              </div>
+
+              {/* Plant Options Grid */}
+              <div className="max-h-[40vh] overflow-y-auto">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {ALL_PLANTS
+                    .filter(plant => {
+                      // Zone compatibility check
+                      if (plant.zones && !plant.zones.includes(selectedZone)) return false;
+                      // Search filter
+                      if (searchQuery && !plant.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+                      return true;
+                    })
+                    .slice(0, 50) // Limit for performance
+                    .map(plant => (
+                      <button
+                        key={plant.id}
+                        onClick={() => swapSelectedPlants(plant.id)}
+                        className={`p-3 rounded-lg border text-left hover:border-forest-400 hover:bg-forest-50 transition-all ${
+                          swapTargetPlant === plant.id
+                            ? 'border-forest-500 bg-forest-50'
+                            : 'border-sage-200 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{plant.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sage-800 text-sm truncate">{plant.name}</div>
+                            <div className="text-xs text-sage-500">{plant.height} • {plant.category}</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Hint */}
+              <div className="mt-4 text-xs text-sage-500 text-center">
+                Click a plant to swap all {multiSelectedPlants.length} selected plants to that variety
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Vision Preview Modal */}
       {showVisionPreview && (

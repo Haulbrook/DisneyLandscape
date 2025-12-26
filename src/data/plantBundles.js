@@ -289,14 +289,15 @@ export const PLANT_BUNDLES = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 7. MEXICO PAVILION - Desert Southwest
-  // EXCLUSIVE: Agaves, Yuccas, Red Yucca, Desert Succulents
+  // 7. MEXICO PAVILION - Authentic Mexican/Southwestern
+  // EXCLUSIVE: Agaves, Red Yucca, Texas Sage, Esperanza, Mexican Bird of Paradise
+  // ALL PLANTS NATIVE TO MEXICO OR AMERICAN SOUTHWEST
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'mexico-pavilion',
     name: 'Mexico Pavilion',
-    subtitle: 'Desert Courtyard + Succulents',
-    description: 'Authentic Mexican desert feel with succulents, agaves, and bold architectural plants.',
+    subtitle: 'Authentic Hacienda Garden',
+    description: 'True Mexican garden with native agaves, desert blooms, and plants that thrive in arid climates.',
     theme: 'EPCOT World Showcase',
     preview: '🇲🇽',
     colorScheme: ['#D84315', '#FFB300', '#43A047', '#5D4037'],
@@ -305,41 +306,49 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Purple desert tree' },
-        { plantId: 'crape-myrtle-dynamite', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Red desert crape' },
-        { plantId: 'blue-atlas-cedar', quantity: 1, role: 'hero', note: 'Blue desert specimen' }
+        // AUTHENTIC: Texas Mountain Laurel is native to Mexico/Texas
+        { plantId: 'texas-mountain-laurel', quantity: 3, role: 'hero', note: 'MEXICO NATIVE: Grape-scented purple blooms' },
+        // AUTHENTIC: Agave is THE iconic Mexican plant
+        { plantId: 'agave-americana', quantity: 3, role: 'hero', note: 'MEXICO NATIVE: Iconic architectural agave' },
+        { plantId: 'vitex-shoal-creek', quantity: 1, role: 'hero', note: 'Texas native, Mexican compatible' }
       ],
       structure: [
-        { plantId: 'nandina-blush-pink', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Pink nandina' },
-        { plantId: 'barberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Thorny burgundy' },
-        { plantId: 'mugo-pine', quantity: 3, role: 'structure', note: 'Compact desert pine' }
+        // AUTHENTIC: All Mexican/Texas natives
+        { plantId: 'texas-sage', quantity: 5, role: 'structure', note: 'MEXICO NATIVE: Silver leaves, purple blooms' },
+        { plantId: 'cenizo', quantity: 5, role: 'structure', note: 'MEXICO NATIVE: Compact silverleaf sage' },
+        { plantId: 'mexican-bird-of-paradise', quantity: 3, role: 'structure', note: 'MEXICO NATIVE: Yellow feathery blooms' },
+        { plantId: 'esperanza-yellow-bells', quantity: 5, role: 'structure', note: 'MEXICO NATIVE: Trumpet yellow flowers' }
       ],
       seasonal: [
-        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Desert bloomer' },
-        { plantId: 'russian-sage', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Silver desert sage' },
-        { plantId: 'lavender-phenomenal', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Desert lavender' }
+        // AUTHENTIC: Native Mexican flowering plants
+        { plantId: 'mexican-honeysuckle', quantity: 5, role: 'seasonal', note: 'MEXICO NATIVE: Orange hummingbird magnet' },
+        { plantId: 'lantana-ms-huff', quantity: 5, role: 'seasonal', note: 'Texas/Mexico native lantana' },
+        { plantId: 'red-yucca', quantity: 7, role: 'seasonal', note: 'TEXAS/MEXICO NATIVE: Coral flower spikes' }
       ],
       texture: [
-        { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'EXCLUSIVE: Blue desert tufts' },
-        { plantId: 'maiden-grass', quantity: 6, role: 'texture', note: 'Tall desert grass' },
-        { plantId: 'hamlin-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Fountain grass' }
+        // AUTHENTIC: Mexican succulents and grasses
+        { plantId: 'sotol', quantity: 5, role: 'texture', note: 'MEXICO NATIVE: Dramatic spiky rosette' },
+        { plantId: 'red-yucca', quantity: 5, role: 'texture', note: 'TEXAS/MEXICO NATIVE: Grass-like rosette' },
+        { plantId: 'mexican-feather', quantity: 10, role: 'texture', note: 'Mexican native wispy grass' },
+        { plantId: 'blue-fescue', quantity: 8, role: 'texture', note: 'Blue accent tufts' }
       ],
       carpet: [
-        { plantId: 'sedum-angelina', quantity: 4, role: 'carpet', note: 'EXCLUSIVE: Golden succulent' },
-        { plantId: 'bar-harbor-juniper', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Blue creeping juniper' }
+        { plantId: 'sedum-angelina', quantity: 5, role: 'carpet', note: 'Drought succulent carpet' },
+        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'Heat-tolerant groundcover' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 8. ENGLAND PAVILION - English Cottage
-  // EXCLUSIVE: English Roses, Lavender, Boxwood, Cottage Perennials
+  // 8. ENGLAND PAVILION - Authentic English Cottage Garden
+  // EXCLUSIVE: English Oak, Hawthorn, Yew, Roses, Lavender, Boxwood
+  // ALL PLANTS NATIVE TO BRITAIN OR TRADITIONAL ENGLISH GARDEN PLANTS
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'england-pavilion',
     name: 'England Pavilion',
-    subtitle: 'English Cottage Garden',
-    description: 'Roses, boxwood hedges, lavender borders, and romantic cottage perennial drifts.',
+    subtitle: 'Authentic English Cottage Garden',
+    description: 'True English garden with native oaks, hawthorns, yew hedges, and romantic cottage perennials.',
     theme: 'EPCOT World Showcase',
     preview: '🇬🇧',
     colorScheme: ['#E91E63', '#7B1FA2', '#FFFFFF', '#1B5E20'],
@@ -348,42 +357,47 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'dogwood-kousa', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Korean dogwood' },
-        { plantId: 'fringe-tree', quantity: 1, role: 'hero', note: 'EXCLUSIVE: White fringe' },
-        { plantId: 'kwanzan-cherry', quantity: 1, role: 'hero', note: 'Pink double cherry' }
+        // AUTHENTIC: Native British trees
+        { plantId: 'english-oak', quantity: 1, role: 'hero', note: 'ENGLAND NATIVE: The iconic British oak' },
+        { plantId: 'english-hawthorn', quantity: 1, role: 'hero', note: 'ENGLAND NATIVE: May blossom tree' },
+        { plantId: 'wild-cherry', quantity: 1, role: 'hero', note: 'BRITAIN NATIVE: White spring blossoms' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'SIGNATURE: English hedge' },
-        { plantId: 'boxwood-winter-gem', quantity: 6, role: 'structure', note: 'Compact boxwood' },
-        { plantId: 'holly-sky-pencil', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Vertical accent' }
+        // Classic English garden hedging
+        { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'SIGNATURE: English parterre hedge' },
+        { plantId: 'english-yew', quantity: 3, role: 'structure', note: 'ENGLAND NATIVE: Classic topiary yew' },
+        { plantId: 'english-holly', quantity: 3, role: 'structure', note: 'ENGLAND NATIVE: Christmas holly' }
       ],
       seasonal: [
-        { plantId: 'rose-apricot-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Apricot cottage rose' },
-        { plantId: 'rose-peach-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Peach cottage' },
-        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'Blue/pink cottage' },
-        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Cottage classic' }
+        // English cottage roses and perennials
+        { plantId: 'rose-apricot-drift', quantity: 6, role: 'seasonal', note: 'ENGLISH ROSE: Apricot cottage' },
+        { plantId: 'rose-peach-drift', quantity: 6, role: 'seasonal', note: 'ENGLISH ROSE: Peach cottage' },
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'English cottage classic' },
+        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'ENGLAND: Traditional cottage peony' }
       ],
       texture: [
-        { plantId: 'lavender', quantity: 10, role: 'texture', note: 'SIGNATURE: English lavender' },
-        { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Blue catmint' },
-        { plantId: 'lambs-ear', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Soft silver' }
+        // Classic English herbaceous borders
+        { plantId: 'lavender', quantity: 12, role: 'texture', note: 'SIGNATURE: English lavender borders' },
+        { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'English border catmint' },
+        { plantId: 'lambs-ear', quantity: 8, role: 'texture', note: 'Traditional cottage silver' }
       ],
       carpet: [
-        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'SIGNATURE: English herb' },
-        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'Blue spring' }
+        { plantId: 'creeping-thyme', quantity: 4, role: 'carpet', note: 'BRITAIN NATIVE: English herb carpet' },
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Bugle groundcover' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 9. ITALY PAVILION - Mediterranean Formal
-  // EXCLUSIVE: Cypress, Rosemary, Italian Herbs, Olive-like Plants
+  // 9. ITALY PAVILION - Authentic Tuscan Villa Garden
+  // EXCLUSIVE: Italian Cypress, Stone Pine, Bay Laurel, Olive, Rosemary
+  // ALL PLANTS NATIVE TO ITALY OR TRADITIONAL MEDITERRANEAN GARDENS
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'italy-pavilion',
     name: 'Italy Pavilion',
-    subtitle: 'Tuscan Villa Garden',
-    description: 'Italian parterre gardens with cypress columns, rosemary, and Mediterranean herbs.',
+    subtitle: 'Authentic Tuscan Villa Garden',
+    description: 'True Italian garden with iconic cypress columns, stone pines, bay laurel, and Mediterranean herbs.',
     theme: 'EPCOT World Showcase',
     preview: '🇮🇹',
     colorScheme: ['#43A047', '#5D4037', '#FFB300', '#D84315'],
@@ -392,41 +406,46 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'dry', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'juniper-spartan', quantity: 2, role: 'hero', note: 'SIGNATURE: Italian cypress form' },
-        { plantId: 'juniper-taylor', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Columnar juniper' },
-        { plantId: 'cryptomeria-radicans', quantity: 1, role: 'hero', note: 'Evergreen column' }
+        // AUTHENTIC: Native Italian trees
+        { plantId: 'italian-cypress', quantity: 3, role: 'hero', note: 'ITALY NATIVE: Iconic Tuscan columnar cypress' },
+        { plantId: 'italian-stone-pine', quantity: 1, role: 'hero', note: 'ITALY NATIVE: Roman umbrella pine' },
+        { plantId: 'olive-tree', quantity: 2, role: 'hero', note: 'MEDITERRANEAN NATIVE: Ancient Italian symbol' }
       ],
       structure: [
-        { plantId: 'rosemary', quantity: 6, role: 'structure', note: 'SIGNATURE: Italian herb essential' },
-        { plantId: 'laurel-otto-luyken', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Italian laurel' },
-        { plantId: 'ligustrum', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Italian privet' }
+        // Classic Italian garden plants
+        { plantId: 'bay-laurel', quantity: 4, role: 'structure', note: 'ITALY NATIVE: Roman victory wreaths' },
+        { plantId: 'rosemary', quantity: 6, role: 'structure', note: 'MEDITERRANEAN NATIVE: Italian herb essential' },
+        { plantId: 'oleander', quantity: 3, role: 'structure', note: 'MEDITERRANEAN NATIVE: Villa gardens' }
       ],
       seasonal: [
-        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'Mediterranean lavender' },
-        { plantId: 'salvia-may-night', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Italian sage' },
-        { plantId: 'salvia-blue-hill', quantity: 6, role: 'seasonal', note: 'Blue sage' }
+        // Mediterranean flowering plants
+        { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'MEDITERRANEAN: Tuscan lavender fields' },
+        { plantId: 'salvia-may-night', quantity: 8, role: 'seasonal', note: 'ITALY: Italian sage' },
+        { plantId: 'rockrose-cistus', quantity: 5, role: 'seasonal', note: 'MEDITERRANEAN NATIVE: Hillside wildflower' }
       ],
       texture: [
-        { plantId: 'santolina', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Silver mound' },
-        { plantId: 'artemisia', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Silver herbs' },
-        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Blue Mediterranean grass' }
+        // Mediterranean silver and aromatic plants
+        { plantId: 'santolina', quantity: 8, role: 'texture', note: 'MEDITERRANEAN NATIVE: Silver lavender cotton' },
+        { plantId: 'artemisia', quantity: 6, role: 'texture', note: 'MEDITERRANEAN NATIVE: Silver foliage' },
+        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Mediterranean blue grass' }
       ],
       carpet: [
-        { plantId: 'rosemary-creeping', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Creeping rosemary' },
-        { plantId: 'juniper-blue-rug', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Blue carpet juniper' }
+        { plantId: 'rosemary-creeping', quantity: 4, role: 'carpet', note: 'ITALY NATIVE: Cascading rosemary' },
+        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'MEDITERRANEAN NATIVE: Aromatic herb mat' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 10. FRANCE PAVILION - French Formal
-  // EXCLUSIVE: Parterres, Roses, Lavender Fields, Symmetry
+  // 10. FRANCE PAVILION - Authentic French Formal Garden
+  // EXCLUSIVE: Boxwood Parterres, French Lavender, Roses, Lilacs
+  // ALL PLANTS TRADITIONAL TO FRENCH GARDENS OR NATIVE TO FRANCE
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'france-pavilion',
     name: 'France Pavilion',
-    subtitle: 'French Formal Garden',
-    description: 'French parterre gardens - boxwood parterres, lavender fields of Provence, roses.',
+    subtitle: 'Authentic Versailles Garden',
+    description: 'True French garden with formal boxwood parterres, Provence lavender fields, and romantic roses.',
     theme: 'EPCOT World Showcase',
     preview: '🇫🇷',
     colorScheme: ['#7B1FA2', '#E91E63', '#1B5E20', '#FFFFFF'],
@@ -435,41 +454,47 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'magnolia-brackens-brown', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Compact magnolia' },
-        { plantId: 'crape-myrtle-pink-velour', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Pink French crape' },
-        { plantId: 'yoshino-cherry', quantity: 1, role: 'hero', note: 'SIGNATURE: French cherry' }
+        // AUTHENTIC: French garden trees
+        { plantId: 'french-lilac', quantity: 2, role: 'hero', note: 'FRANCE: Fragrant Parisian lilac' },
+        { plantId: 'european-beech', quantity: 1, role: 'hero', note: 'FRANCE NATIVE: Formal allée tree' },
+        { plantId: 'common-fig', quantity: 1, role: 'hero', note: 'MEDITERRANEAN: French Riviera essential' }
       ],
       structure: [
-        { plantId: 'boxwood-wintergreen', quantity: 16, role: 'structure', note: 'SIGNATURE: French parterre' },
-        { plantId: 'baby-gem-boxwood', quantity: 8, role: 'structure', note: 'EXCLUSIVE: Compact edging' },
-        { plantId: 'distylium-vintage-jade', quantity: 4, role: 'structure', note: 'Modern boxwood alternative' }
+        // Classic French parterre hedging
+        { plantId: 'boxwood-wintergreen', quantity: 16, role: 'structure', note: 'SIGNATURE: Versailles parterre' },
+        { plantId: 'baby-gem-boxwood', quantity: 10, role: 'structure', note: 'FRANCE: Compact broderie edging' },
+        { plantId: 'french-lavender', quantity: 6, role: 'structure', note: 'FRANCE NATIVE: Provence lavender shrub' }
       ],
       seasonal: [
-        { plantId: 'rose-red-drift', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: French red rose' },
-        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Pink-white' },
-        { plantId: 'hydrangea-little-lime', quantity: 4, role: 'seasonal', note: 'Compact lime hydrangea' }
+        // French roses and hydrangeas
+        { plantId: 'rose-red-drift', quantity: 6, role: 'seasonal', note: 'FRANCE: Classic French red rose' },
+        { plantId: 'rose-peach-drift', quantity: 5, role: 'seasonal', note: 'FRANCE: Romantic peach rose' },
+        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'French garden hydrangea' },
+        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'FRANCE: Romantic French garden peony' }
       ],
       texture: [
-        { plantId: 'lavender', quantity: 14, role: 'texture', note: 'SIGNATURE: Provence lavender' },
-        { plantId: 'stokesia-blue-danube', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Blue aster' },
-        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'EXCLUSIVE: White daisies' }
+        // Provence-style planting
+        { plantId: 'lavender', quantity: 14, role: 'texture', note: 'SIGNATURE: Provence lavender fields' },
+        { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'French border catmint' },
+        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'FRANCE: Marguerite daisies' }
       ],
       carpet: [
-        { plantId: 'gardenia-radicans', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Fragrant carpet' },
-        { plantId: 'juniper-procumbens-nana', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Japanese garden juniper' }
+        { plantId: 'creeping-thyme', quantity: 4, role: 'carpet', note: 'FRANCE NATIVE: Herbes de Provence' },
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Purple bugle carpet' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 11. GERMANY PAVILION - Central European
-  // EXCLUSIVE: Spireas, Weigelas, German Perennials
+  // 11. GERMANY PAVILION - Authentic Central European Garden
+  // EXCLUSIVE: European Beech, Linden, Hornbeam, Karl Foerster Grass
+  // ALL PLANTS NATIVE TO GERMANY OR LONG-CULTIVATED IN GERMAN GARDENS
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'germany-pavilion',
     name: 'Germany Pavilion',
-    subtitle: 'Bavarian Garden Charm',
-    description: 'Central European style - formal hedges with cottage perennials. Karl Foerster grass named after famous German nurseryman.',
+    subtitle: 'Authentic Bavarian Garden',
+    description: 'True German garden with European beech, lindens, and the famous Karl Foerster grass named after the legendary German nurseryman.',
     theme: 'EPCOT World Showcase',
     preview: '🇩🇪',
     colorScheme: ['#FFD54F', '#D84315', '#1B5E20', '#5D4037'],
@@ -478,41 +503,48 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'hornbeam-american', quantity: 1, role: 'hero', note: 'EXCLUSIVE: European hedge tree' },
-        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Ancient German specimen' },
-        { plantId: 'zelkova-musashino', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Columnar elm' }
+        // AUTHENTIC: All native to Central Europe
+        { plantId: 'european-hornbeam', quantity: 1, role: 'hero', note: 'GERMANY NATIVE: Classic pleached hedge tree' },
+        { plantId: 'small-leaf-linden', quantity: 1, role: 'hero', note: 'GERMANY NATIVE: Iconic Lindenstraße tree' },
+        { plantId: 'copper-beech', quantity: 1, role: 'hero', note: 'EUROPE NATIVE: Purple specimen beech' }
       ],
       structure: [
-        { plantId: 'spirea-gold-flame', quantity: 6, role: 'structure', note: 'EXCLUSIVE: Golden spirea' },
-        { plantId: 'spirea-candy-corn', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Multi-color spirea' },
-        { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EXCLUSIVE: German cottage shrub' }
+        // Spireas thrive in Central European climate
+        { plantId: 'spirea-gold-flame', quantity: 6, role: 'structure', note: 'EUROPE: Golden spirea' },
+        { plantId: 'spirea-candy-corn', quantity: 5, role: 'structure', note: 'EUROPE: Multi-color spirea' },
+        { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EUROPE: German cottage shrub' },
+        { plantId: 'boxwood-wintergreen', quantity: 5, role: 'structure', note: 'EUROPE: Classic German parterre hedge' }
       ],
       seasonal: [
-        { plantId: 'forsythia-sugar-baby', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Spring yellow' },
-        { plantId: 'hydrangea-summer-crush', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Raspberry pink' },
-        { plantId: 'daylily-frans-hals', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Bi-color daylily' }
+        // Forsythia is from Europe/Asia, naturalized in Germany
+        { plantId: 'forsythia-sugar-baby', quantity: 4, role: 'seasonal', note: 'EUROPE: Spring yellow herald' },
+        { plantId: 'hydrangea-summer-crush', quantity: 4, role: 'seasonal', note: 'European garden classic' },
+        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'EUROPE: Classic German cottage peony' },
+        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'EUROPE NATIVE: Helleborus for shade' }
       ],
       texture: [
-        { plantId: 'karl-foerster', quantity: 10, role: 'texture', note: 'SIGNATURE: Named after German nurseryman' },
-        { plantId: 'karley-rose', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Pink fountain grass' },
-        { plantId: 'coral-bell', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Heuchera variety' }
+        // Karl Foerster: THE German grass, named after the famous German nurseryman
+        { plantId: 'karl-foerster', quantity: 12, role: 'texture', note: 'SIGNATURE: Named after legendary German nurseryman' },
+        { plantId: 'karley-rose', quantity: 6, role: 'texture', note: 'European fountain grass' },
+        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'Shade garden essential' }
       ],
       carpet: [
-        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Purple bugle' },
-        { plantId: 'pachysandra', quantity: 2, role: 'carpet', note: 'German shade carpet' }
+        { plantId: 'ajuga', quantity: 4, role: 'carpet', note: 'EUROPE NATIVE: Purple bugle groundcover' },
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'German shade carpet' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 12. MOROCCO PAVILION - Moorish Garden
-  // EXCLUSIVE: Date Palm Look-alikes, Citrus-like Plants, Tile Accent Plants
+  // 12. MOROCCO PAVILION - Authentic Moorish Riad Garden
+  // EXCLUSIVE: Atlas Cedar, Oleander, Pomegranate, Mediterranean Natives
+  // ALL PLANTS NATIVE TO MOROCCO/NORTH AFRICA/MEDITERRANEAN
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'morocco-pavilion',
     name: 'Morocco Pavilion',
-    subtitle: 'Riad Courtyard Garden',
-    description: 'Geometric Moorish gardens with courtyards, fountains, and drought-tolerant Mediterranean plants.',
+    subtitle: 'Authentic Riad Courtyard',
+    description: 'True Moorish garden with Atlas cedars, pomegranates, oleanders - plants of the Maghreb.',
     theme: 'EPCOT World Showcase',
     preview: '🇲🇦',
     colorScheme: ['#1565C0', '#FFB300', '#FFFFFF', '#43A047'],
@@ -521,41 +553,49 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'dry', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'deodar-cedar', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Atlas cedar family' },
-        { plantId: 'blue-atlas-cedar-horstmann', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Weeping blue' },
-        { plantId: 'thunderhead-pine', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Japanese pine' }
+        // AUTHENTIC: Atlas Cedar is NATIVE to Morocco's Atlas Mountains
+        { plantId: 'blue-atlas-cedar', quantity: 1, role: 'hero', note: 'MOROCCO NATIVE: Atlas Mountains cedar' },
+        // AUTHENTIC: Olive is essential Mediterranean/North African
+        { plantId: 'olive-tree', quantity: 3, role: 'hero', note: 'MEDITERRANEAN NATIVE: Ancient Moroccan symbol' },
+        // AUTHENTIC: Strawberry Tree native to Mediterranean
+        { plantId: 'strawberry-tree', quantity: 1, role: 'hero', note: 'MEDITERRANEAN NATIVE: Red fruit, evergreen' }
       ],
       structure: [
-        { plantId: 'rosemary', quantity: 8, role: 'structure', note: 'SIGNATURE: Moroccan herb' },
-        { plantId: 'anise', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Licorice shrub' },
-        { plantId: 'vitex-shoal-creek', quantity: 3, role: 'structure', note: 'Purple desert shrub' }
+        // AUTHENTIC: All Mediterranean/North African natives
+        { plantId: 'oleander', quantity: 5, role: 'structure', note: 'MOROCCO NATIVE: Profuse pink/white blooms' },
+        { plantId: 'pomegranate', quantity: 3, role: 'structure', note: 'PERSIA/MOROCCO: Orange flowers, red fruit' },
+        { plantId: 'mastic-tree', quantity: 3, role: 'structure', note: 'MEDITERRANEAN NATIVE: Aromatic evergreen' },
+        { plantId: 'rosemary', quantity: 5, role: 'structure', note: 'MEDITERRANEAN NATIVE: Moroccan culinary herb' }
       ],
       seasonal: [
-        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Moroccan color' },
-        { plantId: 'daylily-happy-returns', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Yellow rebloomer' },
-        { plantId: 'cats-pajamas', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Compact catmint' }
+        // AUTHENTIC: Mediterranean flowering plants
+        { plantId: 'rockrose-cistus', quantity: 5, role: 'seasonal', note: 'MOROCCO NATIVE: Papery pink flowers' },
+        { plantId: 'jerusalem-sage', quantity: 5, role: 'seasonal', note: 'MEDITERRANEAN NATIVE: Yellow whorls' },
+        { plantId: 'french-lavender', quantity: 7, role: 'seasonal', note: 'MEDITERRANEAN NATIVE: Rabbit-ear petals' }
       ],
       texture: [
-        { plantId: 'zebra-grass', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Banded grass' },
-        { plantId: 'adagio-grass', quantity: 8, role: 'texture', note: 'Compact miscanthus' },
-        { plantId: 'lenten-rose', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Shade hellebore' }
+        // AUTHENTIC: Mediterranean grasses and herbs
+        { plantId: 'blue-fescue', quantity: 10, role: 'texture', note: 'Mediterranean blue tufts' },
+        { plantId: 'santolina', quantity: 8, role: 'texture', note: 'MEDITERRANEAN NATIVE: Silver mound herb' },
+        { plantId: 'artemisia', quantity: 6, role: 'texture', note: 'MEDITERRANEAN NATIVE: Silver foliage' }
       ],
       carpet: [
-        { plantId: 'juniper-parsonii', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Spreading juniper' },
-        { plantId: 'rosemary-creeping', quantity: 2, role: 'carpet', note: 'Fragrant carpet' }
+        { plantId: 'rosemary-creeping', quantity: 5, role: 'carpet', note: 'MEDITERRANEAN NATIVE: Fragrant carpet' },
+        { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'MEDITERRANEAN NATIVE: Aromatic herb mat' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 13. CHINA PAVILION - Chinese Garden
-  // EXCLUSIVE: Ginkgo, Cryptomeria, Chinese Fringeflower, Peonies
+  // 13. CHINA PAVILION - Authentic Chinese Temple Garden
+  // EXCLUSIVE: Ginkgo, Chinese Fringe Tree, Dawn Redwood, Peonies, Camellias
+  // ALL PLANTS NATIVE TO CHINA
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'china-pavilion',
     name: 'China Pavilion',
-    subtitle: 'Temple Garden Serenity',
-    description: 'Balanced Chinese garden with ginkgos, bamboo-like plants, and contemplative spaces.',
+    subtitle: 'Authentic Temple Garden',
+    description: 'True Chinese garden with ginkgos, dawn redwoods, peonies - plants native to China.',
     theme: 'EPCOT World Showcase',
     preview: '🇨🇳',
     colorScheme: ['#D84315', '#FFD54F', '#1B5E20', '#5D4037'],
@@ -564,42 +604,50 @@ export const PLANT_BUNDLES = [
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'SIGNATURE: Ancient Chinese tree' },
-        { plantId: 'cryptomeria-radicans', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Temple tree' },
-        { plantId: 'japanese-maple-sango-kaku', quantity: 1, role: 'hero', note: 'Coral bark maple' }
+        // AUTHENTIC: All three are NATIVE to China
+        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Living fossil, ancient temple tree' },
+        { plantId: 'chinese-fringe-tree', quantity: 1, role: 'hero', note: 'CHINA NATIVE: White fringe flowers' },
+        { plantId: 'paperbark-maple', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Cinnamon peeling bark' },
+        { plantId: 'dawn-redwood', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Living fossil conifer' }
       ],
       structure: [
-        { plantId: 'loropetalum-purple-pixie', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Chinese fringeflower' },
-        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'Burgundy Chinese' },
-        { plantId: 'fatsia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Bold tropical leaf' },
-        { plantId: 'paper-bush', quantity: 2, role: 'structure', note: 'EXCLUSIVE: Winter fragrance' }
+        // AUTHENTIC: Chinese fringeflower is native to China
+        { plantId: 'loropetalum-purple-pixie', quantity: 5, role: 'structure', note: 'CHINA NATIVE: Purple fringeflower' },
+        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'CHINA NATIVE: Burgundy fringeflower' },
+        { plantId: 'chinese-witch-hazel', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Yellow winter flowers' },
+        { plantId: 'chinese-snowball-viburnum', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Massive white blooms' },
+        { plantId: 'paper-bush', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Fragrant winter blooms' }
       ],
       seasonal: [
-        { plantId: 'peony', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Chinese national flower' },
-        { plantId: 'camellia-yuletide', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Red winter' },
-        { plantId: 'camellia-october-magic', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Fall camellia' }
+        // AUTHENTIC: Peony and Camellia are both native to China
+        { plantId: 'peony', quantity: 7, role: 'seasonal', note: 'CHINA NATIVE: National flower of China' },
+        { plantId: 'camellia-yuletide', quantity: 5, role: 'seasonal', note: 'CHINA NATIVE: Red winter camellia' },
+        { plantId: 'camellia-sasanqua', quantity: 5, role: 'seasonal', note: 'CHINA NATIVE: Fall-blooming camellia' }
       ],
       texture: [
-        { plantId: 'maiden-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Tall bamboo-like' },
-        { plantId: 'adagio-grass', quantity: 6, role: 'texture', note: 'Compact miscanthus' },
-        { plantId: 'hosta-guacamole', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Golden hosta' }
+        // AUTHENTIC: Chinese beautyberry and Asian grasses
+        { plantId: 'chinese-beautyberry', quantity: 5, role: 'texture', note: 'CHINA NATIVE: Purple berry clusters' },
+        { plantId: 'maiden-grass', quantity: 6, role: 'texture', note: 'Asian ornamental grass' },
+        { plantId: 'hosta-guacamole', quantity: 8, role: 'texture', note: 'Shade texture foliage' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 3, role: 'carpet', note: 'SIGNATURE: Asian groundcover' },
-        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped lilyturf' }
+        // Mondo grass is from East Asia
+        { plantId: 'mondo-grass', quantity: 5, role: 'carpet', note: 'EAST ASIA NATIVE: Temple groundcover' },
+        { plantId: 'liriope-variegated', quantity: 3, role: 'carpet', note: 'CHINA NATIVE: Striped lilyturf' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 14. NORWAY PAVILION - Nordic Forest
-  // EXCLUSIVE: Birches, Spruces, Cold-Hardy Perennials
+  // 14. NORWAY PAVILION - Authentic Nordic/Scandinavian Garden
+  // EXCLUSIVE: Norway Spruce, Scots Pine, Mountain Ash, Birch, Heather, Lingonberry
+  // ALL PLANTS NATIVE TO SCANDINAVIA OR THRIVING IN NORDIC GARDENS
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'norway-pavilion',
     name: 'Norway Pavilion',
-    subtitle: 'Nordic Forest Edge',
-    description: 'Scandinavian woodland feel with birches, spruces, and cold-hardy plants.',
+    subtitle: 'Authentic Nordic Forest Edge',
+    description: 'True Scandinavian woodland with Norway spruce, mountain ash, heather, and lingonberries.',
     theme: 'EPCOT World Showcase',
     preview: '🇳🇴',
     colorScheme: ['#1565C0', '#FFFFFF', '#1B5E20', '#8D6E63'],
@@ -608,41 +656,51 @@ export const PLANT_BUNDLES = [
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'low' },
     plants: {
       hero: [
-        { plantId: 'river-birch', quantity: 2, role: 'hero', note: 'SIGNATURE: Nordic birch' },
-        { plantId: 'canadian-hemlock', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Nordic conifer' },
-        { plantId: 'dwarf-alberta-spruce', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Miniature spruce' }
+        // AUTHENTIC: All native to Scandinavia
+        { plantId: 'norway-spruce', quantity: 1, role: 'hero', note: 'NORWAY NATIVE: Classic Nordic conifer' },
+        { plantId: 'scots-pine', quantity: 1, role: 'hero', note: 'NORDIC NATIVE: Orange bark, blue needles' },
+        { plantId: 'mountain-ash', quantity: 1, role: 'hero', note: 'NORDIC NATIVE: Orange berry clusters' },
+        { plantId: 'river-birch', quantity: 3, role: 'hero', note: 'BIRCH: Nordic forest essential' }
       ],
       structure: [
-        { plantId: 'rhododendron', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Nordic classic' },
-        { plantId: 'rhododendron-roseum-elegans', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Pink rhodo' },
-        { plantId: 'viburnum-chindo', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Nordic viburnum' }
+        // Rhododendrons thrive in Nordic climates
+        { plantId: 'rhododendron', quantity: 5, role: 'structure', note: 'Nordic garden classic' },
+        { plantId: 'rhododendron-roseum-elegans', quantity: 3, role: 'structure', note: 'Cold-hardy pink rhodo' },
+        { plantId: 'boxwood-wintergreen', quantity: 5, role: 'structure', note: 'Cold-hardy evergreen' },
+        { plantId: 'viburnum-chindo', quantity: 3, role: 'structure', note: 'Cold-hardy viburnum' },
+        { plantId: 'pieris-mountain-fire', quantity: 3, role: 'structure', note: 'Nordic-adapted pieris' }
       ],
       seasonal: [
-        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Native oakleaf' },
-        { plantId: 'astilbe-fanal', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Red astilbe' },
-        { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'Early spring hellebore' }
+        // AUTHENTIC: Heather is native to Nordic heathlands
+        { plantId: 'heather', quantity: 10, role: 'seasonal', note: 'NORDIC NATIVE: Purple heath flowers' },
+        { plantId: 'hydrangea-oakleaf', quantity: 5, role: 'seasonal', note: 'Cold-hardy hydrangea' },
+        { plantId: 'astilbe-fanal', quantity: 5, role: 'seasonal', note: 'Shade garden plumes' },
+        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'Early spring hellebore' }
       ],
       texture: [
-        { plantId: 'fern-christmas', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
-        { plantId: 'fern-autumn', quantity: 8, role: 'texture', note: 'Woodland fern' },
-        { plantId: 'hosta-blue-angel', quantity: 6, role: 'texture', note: 'EXCLUSIVE: Giant blue hosta' }
+        { plantId: 'fern-christmas', quantity: 7, role: 'texture', note: 'Evergreen woodland fern' },
+        { plantId: 'fern-autumn', quantity: 5, role: 'texture', note: 'Deciduous fern' },
+        { plantId: 'hosta-blue-angel', quantity: 5, role: 'texture', note: 'Blue woodland hosta' },
+        { plantId: 'carex-everillo', quantity: 5, role: 'texture', note: 'Golden sedge accent' }
       ],
       carpet: [
-        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'SIGNATURE: Nordic shade carpet' },
-        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple bugle' }
+        // AUTHENTIC: Lingonberry is native Nordic groundcover
+        { plantId: 'lingonberry', quantity: 7, role: 'carpet', note: 'NORDIC NATIVE: Edible red berries' },
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'Purple bugle groundcover' }
       ]
     }
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 15. JAPAN PAVILION - Traditional Japanese
-  // EXCLUSIVE: Cloud-Pruned Pines, Azaleas, Moss Substitutes
+  // 15. JAPAN PAVILION - Authentic Japanese Temple Garden
+  // EXCLUSIVE: Japanese Maple, Thunderhead Pine, Hinoki, Azaleas, Cryptomeria
+  // ALL PLANTS NATIVE TO JAPAN OR TRADITIONAL JAPANESE GARDEN PLANTS
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'japan-pavilion',
     name: 'Japan Pavilion',
-    subtitle: 'Traditional Temple Garden',
-    description: 'Authentic Japanese garden with cloud-pruned pines, azaleas, and contemplative design.',
+    subtitle: 'Authentic Temple Garden',
+    description: 'True Japanese garden with cloud-pruned pines, maples, azaleas, and contemplative design.',
     theme: 'EPCOT World Showcase',
     preview: '🇯🇵',
     colorScheme: ['#C62828', '#FFFFFF', '#1B5E20', '#5D4037'],
@@ -651,29 +709,33 @@ export const PLANT_BUNDLES = [
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'japanese-maple-dwarf', quantity: 2, role: 'hero', note: 'SIGNATURE: Compact laceleaf' },
-        { plantId: 'thunderhead-pine', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Cloud-pruned pine' },
-        { plantId: 'hinoki-cypress', quantity: 1, role: 'hero', note: 'SIGNATURE: Temple tree' }
+        // AUTHENTIC: All native to Japan
+        { plantId: 'japanese-maple-dwarf', quantity: 2, role: 'hero', note: 'JAPAN NATIVE: Compact laceleaf maple' },
+        { plantId: 'thunderhead-pine', quantity: 1, role: 'hero', note: 'JAPAN NATIVE: Cloud-pruned black pine' },
+        { plantId: 'hinoki-cypress', quantity: 1, role: 'hero', note: 'JAPAN NATIVE: Sacred temple tree' }
       ],
       structure: [
-        { plantId: 'azalea-encore-bonfire', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Red encore' },
-        { plantId: 'azalea-encore-embers', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Orange-red' },
-        { plantId: 'azalea-encore-chiffon', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Pink chiffon' },
-        { plantId: 'cryptomeria-shrub', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Dwarf cryptomeria' }
+        // Azaleas are native to Japan, essential in Japanese gardens
+        { plantId: 'azalea-encore-bonfire', quantity: 5, role: 'structure', note: 'JAPAN: Red karafuto azalea style' },
+        { plantId: 'azalea-encore-embers', quantity: 5, role: 'structure', note: 'JAPAN: Orange-red kirishima style' },
+        { plantId: 'pieris-mountain-fire', quantity: 4, role: 'structure', note: 'JAPAN NATIVE: Asebi pieris' },
+        { plantId: 'cryptomeria-shrub', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Sugi dwarf cedar' }
       ],
       seasonal: [
-        { plantId: 'camellia-hot-flash', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Sasanqua variety' },
-        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Japanese iris' },
-        { plantId: 'winter-jasmine', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Yellow winter' }
+        // Camellias and iris are essential Japanese garden plants
+        { plantId: 'camellia-sasanqua', quantity: 5, role: 'seasonal', note: 'JAPAN NATIVE: Sazanka camellia' },
+        { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'JAPAN NATIVE: Hanashobu iris' },
+        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'ASIA: Botan peony, beloved in Japan' }
       ],
       texture: [
-        { plantId: 'japanese-painted-fern', quantity: 10, role: 'texture', note: 'SIGNATURE: Silver fronds' },
-        { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Japanese fern' },
-        { plantId: 'carex-everillo', quantity: 8, role: 'texture', note: 'Golden sedge' }
+        // Japanese ferns and grasses
+        { plantId: 'fern-japanese-painted', quantity: 10, role: 'texture', note: 'JAPAN NATIVE: Silver painted fern' },
+        { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'JAPAN NATIVE: Cyrtomium fern' },
+        { plantId: 'sweet-flag', quantity: 6, role: 'texture', note: 'JAPAN: Sekisho sweet flag grass' }
       ],
       carpet: [
-        { plantId: 'mondo-grass', quantity: 4, role: 'carpet', note: 'SIGNATURE: Japanese essential' },
-        { plantId: 'creeping-mazus', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Stepping stone plant' }
+        { plantId: 'mondo-grass', quantity: 5, role: 'carpet', note: 'JAPAN NATIVE: Ryuunohige grass' },
+        { plantId: 'liriope-variegated', quantity: 3, role: 'carpet', note: 'JAPAN NATIVE: Yaburan lilyturf' }
       ]
     }
   },
