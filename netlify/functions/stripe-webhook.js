@@ -70,6 +70,7 @@ exports.handler = async (event) => {
         break;
       }
 
+      case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = stripeEvent.data.object;
         const customerId = subscription.customer;
@@ -81,7 +82,7 @@ exports.handler = async (event) => {
         else if (subscription.status === 'past_due') status = 'past_due';
         else if (subscription.status === 'canceled') status = 'canceled';
 
-        await supabase
+        const updateResult = await supabase
           .from('subscriptions')
           .update({
             stripe_subscription_id: subscription.id,
@@ -93,7 +94,7 @@ exports.handler = async (event) => {
           })
           .eq('stripe_customer_id', customerId);
 
-        console.log(`Subscription updated for customer ${customerId}: ${status}`);
+        console.log(`Subscription ${stripeEvent.type} for customer ${customerId}: ${status}`, updateResult);
         break;
       }
 
