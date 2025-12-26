@@ -557,6 +557,12 @@ export default function StudioPage() {
     }
 
     setPlacedPlants([...placedPlants, newPlant]);
+
+    // BASIC TIER: Show warning at 12th plant about re-bundle swap
+    const newPlantCount = placedPlants.length + 1;
+    if (demoMode.isBasicMode && demoMode.hasAppliedBundle && newPlantCount === 12) {
+      demoMode.setShowReBundleWarning(true);
+    }
   };
 
   // Handle plant selection on canvas
@@ -4429,6 +4435,33 @@ export default function StudioPage() {
                   </div>
                 </div>
               )}
+
+              {/* Watermark Overlay - for Demo and Basic tiers */}
+              {demoMode.hasWatermark && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                  {/* Diagonal watermark pattern */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="text-sage-900/10 font-bold text-4xl whitespace-nowrap select-none"
+                      style={{
+                        transform: 'rotate(-30deg) scale(1.5)',
+                        letterSpacing: '0.1em'
+                      }}
+                    >
+                      IMAGINE DESIGN
+                    </div>
+                  </div>
+                  {/* Corner watermark */}
+                  <div className="absolute bottom-4 right-4 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <Flower2 className="w-4 h-4 text-sage-500" />
+                      <span className="text-xs font-medium text-sage-600">
+                        {demoMode.isBasicMode ? 'Basic' : 'Demo'} - imaginelandscape.design
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </main>
@@ -5331,6 +5364,51 @@ export default function StudioPage() {
         onClose={() => setShowUpgradePrompt(false)}
         context={upgradeContext}
       />
+
+      {/* Re-Bundle Warning Modal (Basic tier - 12+ plants) */}
+      {demoMode.showReBundleWarning && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md mx-4 overflow-hidden">
+            <div className="bg-amber-50 px-6 py-4 border-b border-amber-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                  <RefreshCw className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-amber-900">Re-Bundle Notice</h3>
+                  <p className="text-sm text-amber-700">Important information</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sage-700 mb-4">
+                You now have <span className="font-bold text-sage-900">12+ plants</span> in your design.
+              </p>
+              <p className="text-sage-600 mb-4">
+                From this point forward, if you <span className="font-semibold">clear the canvas</span> or{' '}
+                <span className="font-semibold">apply a different bundle</span>, it will use your{' '}
+                <span className="font-bold text-amber-600">1 re-bundle swap</span> for this project.
+              </p>
+              <div className="bg-sage-50 rounded-lg p-3 mb-4">
+                <p className="text-sm text-sage-600">
+                  <span className="font-medium">Tip:</span> Make sure you're happy with your bundle choice before adding more plants!
+                </p>
+              </div>
+              <p className="text-sm text-sage-500">
+                Upgrade to <span className="font-semibold text-sage-700">Pro</span> for unlimited bundle swaps.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-sage-50 flex gap-3">
+              <button
+                onClick={() => demoMode.setShowReBundleWarning(false)}
+                className="flex-1 px-4 py-2.5 bg-sage-500 text-white rounded-lg font-medium hover:bg-sage-600 transition-colors"
+              >
+                Got it, continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
