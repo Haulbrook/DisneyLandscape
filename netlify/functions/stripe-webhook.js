@@ -48,24 +48,59 @@ exports.handler = async (event) => {
         const customerId = session.customer;
         const subscriptionId = session.subscription;
 
+        console.log('checkout.session.completed - userId:', userId, 'customerId:', customerId, 'subscriptionId:', subscriptionId);
+
         if (userId && subscriptionId) {
           // Fetch the subscription details
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          console.log('Retrieved subscription:', JSON.stringify(subscription, null, 2));
+
+          const updateData = {
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            status: 'active',
+            plan: 'pro',
+            cancel_at_period_end: false
+          };
+
+          // Only add date fields if they exist
+          if (subscription.current_period_start) {
+            updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
+          }
+          if (subscription.current_period_end) {
+            updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
+          }
 
           await supabase
             .from('subscriptions')
-            .update({
-              stripe_customer_id: customerId,
-              stripe_subscription_id: subscriptionId,
-              status: 'active',
-              plan: 'pro',
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              cancel_at_period_end: false
-            })
+            .update(updateData)
             .eq('user_id', userId);
 
           console.log(`Subscription activated for user ${userId}`);
+        } else if (customerId && subscriptionId) {
+          // Fallback: If no userId in metadata, try to update by customer_id
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+          const updateData = {
+            stripe_subscription_id: subscriptionId,
+            status: 'active',
+            plan: 'pro',
+            cancel_at_period_end: false
+          };
+
+          if (subscription.current_period_start) {
+            updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
+          }
+          if (subscription.current_period_end) {
+            updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
+          }
+
+          await supabase
+            .from('subscriptions')
+            .update(updateData)
+            .eq('stripe_customer_id', customerId);
+
+          console.log(`Subscription activated for customer ${customerId} (no userId in metadata)`);
         }
         break;
       }
@@ -75,6 +110,8 @@ exports.handler = async (event) => {
         const subscription = stripeEvent.data.object;
         const customerId = subscription.customer;
 
+        console.log(`${stripeEvent.type} - customerId:`, customerId, 'subscription.status:', subscription.status);
+
         // Map Stripe status to our status
         let status = 'inactive';
         if (subscription.status === 'active') status = 'active';
@@ -82,16 +119,24 @@ exports.handler = async (event) => {
         else if (subscription.status === 'past_due') status = 'past_due';
         else if (subscription.status === 'canceled') status = 'canceled';
 
+        const updateData = {
+          stripe_subscription_id: subscription.id,
+          status: status,
+          plan: status === 'active' || status === 'trialing' ? 'pro' : 'free',
+          cancel_at_period_end: subscription.cancel_at_period_end || false
+        };
+
+        // Only add date fields if they exist
+        if (subscription.current_period_start) {
+          updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
+        }
+        if (subscription.current_period_end) {
+          updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
+        }
+
         const updateResult = await supabase
           .from('subscriptions')
-          .update({
-            stripe_subscription_id: subscription.id,
-            status: status,
-            plan: status === 'active' || status === 'trialing' ? 'pro' : 'free',
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            cancel_at_period_end: subscription.cancel_at_period_end || false
-          })
+          .update(updateData)
           .eq('stripe_customer_id', customerId);
 
         console.log(`Subscription ${stripeEvent.type} for customer ${customerId}: ${status}`, updateResult);
