@@ -109,18 +109,23 @@ const DISNEY_RULES = {
   }
 };
 
-// USDA Hardiness Zones reference
+// USDA Hardiness Zones reference - Average Annual Minimum Temperature
 const HARDINESS_ZONES = [
-  { zone: 3, minTemp: '-40 to -30°F', label: 'Zone 3' },
-  { zone: 4, minTemp: '-30 to -20°F', label: 'Zone 4' },
-  { zone: 5, minTemp: '-20 to -10°F', label: 'Zone 5' },
-  { zone: 6, minTemp: '-10 to 0°F', label: 'Zone 6' },
-  { zone: 7, minTemp: '0 to 10°F', label: 'Zone 7' },
-  { zone: 8, minTemp: '10 to 20°F', label: 'Zone 8' },
-  { zone: 9, minTemp: '20 to 30°F', label: 'Zone 9' },
-  { zone: 10, minTemp: '30 to 40°F', label: 'Zone 10' },
-  { zone: 11, minTemp: '40 to 50°F', label: 'Zone 11' },
+  { zone: 3, minF: -40, maxF: -30, minC: -40, maxC: -34, label: 'Zone 3' },
+  { zone: 4, minF: -30, maxF: -20, minC: -34, maxC: -29, label: 'Zone 4' },
+  { zone: 5, minF: -20, maxF: -10, minC: -29, maxC: -23, label: 'Zone 5' },
+  { zone: 6, minF: -10, maxF: 0, minC: -23, maxC: -18, label: 'Zone 6' },
+  { zone: 7, minF: 0, maxF: 10, minC: -18, maxC: -12, label: 'Zone 7' },
+  { zone: 8, minF: 10, maxF: 20, minC: -12, maxC: -7, label: 'Zone 8' },
+  { zone: 9, minF: 20, maxF: 30, minC: -7, maxC: -1, label: 'Zone 9' },
+  { zone: 10, minF: 30, maxF: 40, minC: -1, maxC: 4, label: 'Zone 10' },
+  { zone: 11, minF: 40, maxF: 50, minC: 4, maxC: 10, label: 'Zone 11' },
 ];
+
+// Helper function to format zone temperature display
+const formatZoneTemp = (zoneData) => {
+  return `Zone ${zoneData.zone} (${zoneData.minF} to ${zoneData.maxF}°F / ${zoneData.minC} to ${zoneData.maxC}°C)`;
+};
 
 // Plant categories mapped from new database
 const PLANT_DATABASE = {
@@ -3171,11 +3176,11 @@ export default function StudioPage() {
                 <select
                   value={selectedZone}
                   onChange={(e) => setSelectedZone(Number(e.target.value))}
-                  className="flex-1 bg-cream-50 border border-sage-200 rounded-lg px-2 py-1 text-sm text-sage-700 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
+                  className="flex-1 bg-cream-50 border border-sage-200 rounded-lg px-2 py-1 text-xs text-sage-700 focus:outline-none focus:ring-2 focus:ring-sage-500/50"
                 >
                   {HARDINESS_ZONES.map(z => (
                     <option key={z.zone} value={z.zone}>
-                      Zone {z.zone} ({z.minTemp})
+                      {formatZoneTemp(z)}
                     </option>
                   ))}
                 </select>

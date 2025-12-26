@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Flower2, Play, Sparkles, User, LogOut, Crown, Settings } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useSubscription } from '../../context/SubscriptionContext'
@@ -10,10 +10,39 @@ export default function Hero() {
   const { isPro, hasFullAccess, getStatusMessage } = useSubscription()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const navigate = useNavigate()
+  const menuRef = useRef(null)
 
-  const handleSignOut = async () => {
-    await signOut()
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showUserMenu])
+
+  const handleSignOut = async (e) => {
+    e.stopPropagation()
     setShowUserMenu(false)
+    await signOut()
+  }
+
+  const handleNavigate = (path) => (e) => {
+    e.stopPropagation()
+    setShowUserMenu(false)
+    navigate(path)
+  }
+
+  const handleAnchorClick = (href) => (e) => {
+    e.stopPropagation()
+    setShowUserMenu(false)
+    window.location.href = href
   }
 
   return (
@@ -38,7 +67,7 @@ export default function Hero() {
           <Link to="/portfolio" className="text-sage-700 hover:text-sage-900 transition-colors">Portfolio</Link>
 
           {isAuthenticated ? (
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sage-100 transition-colors"
@@ -63,38 +92,35 @@ export default function Hero() {
                     <p className="text-xs text-sage-500 mt-1">{getStatusMessage()}</p>
                   </div>
 
-                  <Link
-                    to="/studio"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors"
+                  <button
+                    onClick={handleNavigate('/studio')}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left"
                   >
                     <Sparkles className="w-4 h-4" />
                     Open Studio
-                  </Link>
+                  </button>
 
-                  <Link
-                    to="/account"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors"
+                  <button
+                    onClick={handleNavigate('/account')}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left"
                   >
                     <Settings className="w-4 h-4" />
                     Account Settings
-                  </Link>
+                  </button>
 
                   {!hasFullAccess && (
-                    <a
-                      href="#pricing"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-olive-600 hover:bg-olive-50 transition-colors"
+                    <button
+                      onClick={handleAnchorClick('#pricing')}
+                      className="flex items-center gap-2 px-4 py-2 text-olive-600 hover:bg-olive-50 transition-colors w-full text-left"
                     >
                       <Crown className="w-4 h-4" />
                       Upgrade to Pro
-                    </a>
+                    </button>
                   )}
 
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full"
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full text-left"
                   >
                     <LogOut className="w-4 h-4" />
                     Sign Out
