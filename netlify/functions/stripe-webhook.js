@@ -61,81 +61,110 @@ exports.handler = async (event) => {
         const customerId = session.customer;
         const subscriptionId = session.subscription;
         const planFromMetadata = session.metadata?.plan;
+        const customerEmail = session.customer_details?.email || session.customer_email;
 
-        console.log('checkout.session.completed - userId:', userId, 'customerId:', customerId, 'subscriptionId:', subscriptionId, 'plan:', planFromMetadata);
+        console.log('checkout.session.completed:', { userId, customerId, subscriptionId, plan: planFromMetadata, email: customerEmail });
 
-        if (userId && subscriptionId) {
-          // Fetch the subscription details
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          console.log('Retrieved subscription:', JSON.stringify(subscription, null, 2));
-
-          // Determine plan from metadata or price ID
-          const priceId = subscription.items?.data?.[0]?.price?.id;
-          const plan = planFromMetadata || getPlanFromPriceId(priceId);
-
-          const updateData = {
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId,
-            status: 'active',
-            plan: plan,
-            cancel_at_period_end: false
-          };
-
-          // Only add date fields if they exist
-          if (subscription.current_period_start) {
-            updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
-          }
-          if (subscription.current_period_end) {
-            updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
-          }
-
-          // Initialize Basic tier monthly tracking fields
-          if (plan === 'basic') {
-            updateData.projects_this_month = 0;
-            updateData.vision_renders_this_month = 0;
-            updateData.month_reset_date = getNextMonthReset();
-          }
-
-          await supabase
-            .from('subscriptions')
-            .update(updateData)
-            .eq('user_id', userId);
-
-          console.log(`Subscription activated for user ${userId} with plan: ${plan}`);
-        } else if (customerId && subscriptionId) {
-          // Fallback: If no userId in metadata, try to update by customer_id
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          const priceId = subscription.items?.data?.[0]?.price?.id;
-          const plan = planFromMetadata || getPlanFromPriceId(priceId);
-
-          const updateData = {
-            stripe_subscription_id: subscriptionId,
-            status: 'active',
-            plan: plan,
-            cancel_at_period_end: false
-          };
-
-          if (subscription.current_period_start) {
-            updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
-          }
-          if (subscription.current_period_end) {
-            updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
-          }
-
-          // Initialize Basic tier monthly tracking fields
-          if (plan === 'basic') {
-            updateData.projects_this_month = 0;
-            updateData.vision_renders_this_month = 0;
-            updateData.month_reset_date = getNextMonthReset();
-          }
-
-          await supabase
-            .from('subscriptions')
-            .update(updateData)
-            .eq('stripe_customer_id', customerId);
-
-          console.log(`Subscription activated for customer ${customerId} (no userId in metadata) with plan: ${plan}`);
+        if (!subscriptionId) {
+          console.log('No subscription ID, skipping');
+          break;
         }
+
+        // Fetch the subscription details
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const priceId = subscription.items?.data?.[0]?.price?.id;
+        const plan = planFromMetadata || getPlanFromPriceId(priceId);
+
+        console.log('Plan determined:', plan, 'from priceId:', priceId);
+
+        const updateData = {
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId,
+          status: 'active',
+          plan: plan,
+          cancel_at_period_end: false
+        };
+
+        // Add date fields if they exist
+        if (subscription.current_period_start) {
+          updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString();
+        }
+        if (subscription.current_period_end) {
+          updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
+        }
+
+        // Initialize Basic tier monthly tracking fields
+        if (plan === 'basic') {
+          updateData.projects_this_month = 0;
+          updateData.vision_renders_this_month = 0;
+          updateData.month_reset_date = getNextMonthReset();
+        }
+
+        let updated = false;
+
+        // Try 1: Update by user_id from metadata
+        if (userId) {
+          const result = await supabase
+            .from('subscriptions')
+            .update(updateData)
+            .eq('user_id', userId)
+            .select();
+
+          console.log('Update by user_id result:', result);
+          if (result.data && result.data.length > 0) {
+            updated = true;
+            console.log(`SUCCESS: Updated subscription for user_id ${userId}`);
+          }
+        }
+
+        // Try 2: Update by stripe_customer_id
+        if (!updated && customerId) {
+          const result = await supabase
+            .from('subscriptions')
+            .update(updateData)
+            .eq('stripe_customer_id', customerId)
+            .select();
+
+          console.log('Update by stripe_customer_id result:', result);
+          if (result.data && result.data.length > 0) {
+            updated = true;
+            console.log(`SUCCESS: Updated subscription for stripe_customer_id ${customerId}`);
+          }
+        }
+
+        // Try 3: Look up user by email from profiles, then update subscription
+        if (!updated && customerEmail) {
+          console.log('Trying to find user by email:', customerEmail);
+
+          // Find the profile by email
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', customerEmail)
+            .single();
+
+          if (profile) {
+            console.log('Found profile:', profile.id);
+            const result = await supabase
+              .from('subscriptions')
+              .update(updateData)
+              .eq('user_id', profile.id)
+              .select();
+
+            console.log('Update by email lookup result:', result);
+            if (result.data && result.data.length > 0) {
+              updated = true;
+              console.log(`SUCCESS: Updated subscription for email ${customerEmail}`);
+            }
+          } else {
+            console.log('No profile found for email:', customerEmail);
+          }
+        }
+
+        if (!updated) {
+          console.error('FAILED: Could not update any subscription row!', { userId, customerId, customerEmail });
+        }
+
         break;
       }
 
