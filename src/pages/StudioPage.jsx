@@ -1271,6 +1271,11 @@ export default function StudioPage() {
 
     const newPlants = [];
 
+    // DEFAULT SIZE FOR BUNDLE PLANTS - represents established plants (~60-70% mature)
+    // This ensures bundle-placed plants display same size as individually-placed 3gal plants
+    const BUNDLE_DEFAULT_SIZE = '3gal';
+    const BUNDLE_SIZE_MULTIPLIER = getSizeMultiplier(BUNDLE_DEFAULT_SIZE);
+
     // Determine bed bounds
     let bedBounds;
     let useCustomPath = bedType === 'custom' && customBedPath.length > 2;
@@ -1741,7 +1746,9 @@ export default function StudioPage() {
             x: bestPos.x,
             y: bestPos.y,
             rotation: (Math.random() - 0.5) * 5,
-            scale: 0.95 + Math.random() * 0.1
+            scale: 0.95 + Math.random() * 0.1,
+            size: BUNDLE_DEFAULT_SIZE,
+            sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
           });
         }
       }
@@ -1951,7 +1958,9 @@ export default function StudioPage() {
               x, y,
               rotation: (Math.random() - 0.5) * 20,
               scale: 0.9 + Math.random() * 0.15,
-              isClusterCenter: i === 0
+              isClusterCenter: i === 0,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
             });
           }
         });
@@ -2068,7 +2077,9 @@ export default function StudioPage() {
               x, y,
               rotation: (Math.random() - 0.5) * 25,
               scale: 0.85 + Math.random() * 0.2,
-              isClusterCenter: i === 0
+              isClusterCenter: i === 0,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
             });
           }
         });
@@ -2174,7 +2185,9 @@ export default function StudioPage() {
               x, y,
               rotation: (Math.random() - 0.5) * 30,
               scale: 0.8 + Math.random() * 0.25,
-              isClusterCenter: i === 0
+              isClusterCenter: i === 0,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
             });
           }
         });
@@ -2343,7 +2356,9 @@ export default function StudioPage() {
             x: point.x + (Math.random() - 0.5) * 5,
             y: point.y + (Math.random() - 0.5) * 5,
             rotation: (Math.random() - 0.5) * 40,
-            scale: 0.75 + Math.random() * 0.3
+            scale: 0.75 + Math.random() * 0.3,
+            size: BUNDLE_DEFAULT_SIZE,
+            sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
           });
           placedCount++;
         }
@@ -2388,7 +2403,9 @@ export default function StudioPage() {
               x: x + offsetX + (Math.random() - 0.5) * 6,
               y: y + offsetY,
               rotation: (Math.random() - 0.5) * 40,
-              scale: 0.7 + Math.random() * 0.25
+              scale: 0.7 + Math.random() * 0.25,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
             });
           }
         }
