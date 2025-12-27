@@ -9,6 +9,7 @@ const supabase = createClient(
 // Helper to determine plan from price ID
 const getPlanFromPriceId = (priceId) => {
   if (priceId === process.env.STRIPE_BASIC_PRICE_ID) return 'basic';
+  if (priceId === process.env.STRIPE_MAX_PRICE_ID) return 'max';
   if (priceId === process.env.STRIPE_PRICE_ID) return 'pro';
   return 'pro'; // Default to pro
 };
@@ -93,10 +94,11 @@ exports.handler = async (event) => {
           updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
         }
 
-        // Initialize Basic tier monthly tracking fields
-        if (plan === 'basic') {
+        // Initialize monthly tracking fields for Basic and Pro tiers
+        if (plan === 'basic' || plan === 'pro') {
           updateData.projects_this_month = 0;
           updateData.vision_renders_this_month = 0;
+          updateData.exports_this_month = 0;
           updateData.month_reset_date = getNextMonthReset();
         }
 
@@ -205,10 +207,11 @@ exports.handler = async (event) => {
           updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString();
         }
 
-        // Initialize Basic tier monthly tracking fields if new Basic subscription
-        if (plan === 'basic' && stripeEvent.type === 'customer.subscription.created') {
+        // Initialize monthly tracking fields for Basic/Pro if new subscription
+        if ((plan === 'basic' || plan === 'pro') && stripeEvent.type === 'customer.subscription.created') {
           updateData.projects_this_month = 0;
           updateData.vision_renders_this_month = 0;
+          updateData.exports_this_month = 0;
           updateData.month_reset_date = getNextMonthReset();
         }
 

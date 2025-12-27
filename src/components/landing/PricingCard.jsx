@@ -34,7 +34,7 @@ export default function PricingCard({ tier }) {
   }
 
   const getButtonContent = () => {
-    if (tier.tier === 'pro' || tier.tier === 'basic') {
+    if (tier.tier === 'max' || tier.tier === 'pro' || tier.tier === 'basic') {
       if (loading) {
         return (
           <>
@@ -87,6 +87,23 @@ export default function PricingCard({ tier }) {
       return (
         <button
           onClick={(e) => handlePaidPlanClick(e, 'pro')}
+          disabled={loading}
+          className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            tier.highlighted
+              ? 'bg-white text-sage-600 hover:bg-sage-50 shadow-lg'
+              : 'bg-sage-500 text-white hover:bg-sage-600'
+          }`}
+        >
+          {getButtonContent()}
+        </button>
+      )
+    }
+
+    // Max tier - checkout button
+    if (tier.tier === 'max') {
+      return (
+        <button
+          onClick={(e) => handlePaidPlanClick(e, 'max')}
           disabled={loading}
           className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
             tier.highlighted

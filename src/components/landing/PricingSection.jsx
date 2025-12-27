@@ -1,5 +1,5 @@
 import PricingCard from './PricingCard'
-import { Sparkles, Leaf, Crown, Building2 } from 'lucide-react'
+import { Sparkles, Leaf, Crown, Gem, Building2 } from 'lucide-react'
 
 const PRICING_TIERS = [
   {
@@ -12,12 +12,12 @@ const PRICING_TIERS = [
       'Place up to 5 plants',
       'Basic design canvas',
       'View full plant database',
-      'Basic design analysis',
     ],
     limitations: [
       'No theme bundles',
       'No save/export',
       'No AI Vision rendering',
+      'No design analysis',
     ],
     cta: 'Try Demo',
     ctaLink: '/studio',
@@ -33,16 +33,16 @@ const PRICING_TIERS = [
     features: [
       '3 projects per month',
       'Up to 45 plants per project',
-      'Apply 1 bundle per project',
-      '1 re-bundle swap allowed',
+      'Apply bundles (1 swap)',
       '10 AI Vision renders/month',
       '1 export per project',
-      'Full plant database',
+      'Design score analysis',
     ],
     limitations: [
       'No cloud save',
-      'Watermark on canvas & exports',
+      'Watermark on exports',
       'No bundle plant preview',
+      'No diagnosis/how-to guides',
     ],
     cta: 'Get Basic',
     highlighted: false,
@@ -52,24 +52,48 @@ const PRICING_TIERS = [
     name: 'Pro',
     price: '$49',
     period: '/month',
-    description: 'For serious designers',
+    description: 'For active designers',
     icon: Crown,
     features: [
+      '15 projects per month',
+      'Up to 100 plants per project',
+      '5 bundle swaps per project',
+      '30 AI Vision renders/month',
+      '100 exports per month',
+      'Cloud save & sync',
+      'Design score analysis',
+    ],
+    limitations: [
+      'Watermark on exports',
+      'No bundle plant preview',
+      'No diagnosis/how-to guides',
+    ],
+    cta: 'Get Pro',
+    highlighted: false,
+    tier: 'pro',
+  },
+  {
+    name: 'Max',
+    price: '$149.99',
+    period: '/month',
+    description: 'For serious designers',
+    icon: Gem,
+    features: [
       'Unlimited plants & projects',
-      'All theme bed bundles',
       'Unlimited bundle swaps',
+      'Preview bundle plant lists',
       'Unlimited AI Vision renders',
       'Unlimited exports',
       'Cloud save & sync',
       'No watermark',
-      'Preview bundle plants',
-      'Advanced design analysis',
+      'Full design analysis',
+      'Diagnosis & how-to guides',
       'Priority support',
     ],
     limitations: [],
-    cta: 'Get Pro',
+    cta: 'Get Max',
     highlighted: true,
-    tier: 'pro',
+    tier: 'max',
   },
   {
     name: 'Enterprise',
@@ -78,7 +102,7 @@ const PRICING_TIERS = [
     description: 'For teams & companies',
     icon: Building2,
     features: [
-      'Everything in Pro',
+      'Everything in Max',
       'Team collaboration',
       'Shared project library',
       'Custom branding on exports',
@@ -109,7 +133,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto items-start">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 max-w-7xl mx-auto items-start">
           {PRICING_TIERS.map((tier) => (
             <PricingCard key={tier.name} tier={tier} />
           ))}

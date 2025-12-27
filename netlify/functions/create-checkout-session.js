@@ -48,15 +48,21 @@ exports.handler = async (event) => {
     }
 
     // Get the correct price ID based on plan
-    const priceId = plan === 'basic'
-      ? process.env.STRIPE_BASIC_PRICE_ID
-      : process.env.STRIPE_PRICE_ID;
+    let priceId;
+    if (plan === 'basic') {
+      priceId = process.env.STRIPE_BASIC_PRICE_ID;
+    } else if (plan === 'max') {
+      priceId = process.env.STRIPE_MAX_PRICE_ID;
+    } else {
+      // Default to pro
+      priceId = process.env.STRIPE_PRICE_ID;
+    }
 
     if (!priceId) {
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: `Price ID not configured for ${plan} plan` })
+        body: JSON.stringify({ error: `Price ID not configured for ${plan} plan. Please set STRIPE_${plan.toUpperCase()}_PRICE_ID` })
       };
     }
 

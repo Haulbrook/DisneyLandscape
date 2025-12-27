@@ -10,34 +10,57 @@ const PLAN_LIMITS = {
     maxPlants: 5,
     maxProjects: 1,
     maxVisionRenders: 0,
-    maxExportsPerProject: 0,
+    maxExportsPerMonth: 0,
     canUseBundles: false,
     canPreviewBundlePlants: false,
     bundleSwapsPerProject: 0,
     canSaveToCloud: false,
     hasWatermark: true,
+    canViewDesignScore: false,
+    canViewAnalysisDiagnosis: false,
+    canViewAnalysisHowTos: false,
   },
   basic: {
     maxPlants: 45,
     maxProjects: 3, // per month
     maxVisionRenders: 10, // per month
-    maxExportsPerProject: 1,
+    maxExportsPerMonth: 1, // 1 export per project
     canUseBundles: true,
     canPreviewBundlePlants: false, // Can't see plant list before applying
     bundleSwapsPerProject: 1, // 1 re-bundle allowed (but only if >12 plants)
     canSaveToCloud: false,
     hasWatermark: true,
+    canViewDesignScore: true,
+    canViewAnalysisDiagnosis: false,
+    canViewAnalysisHowTos: false,
   },
   pro: {
+    maxPlants: 100,
+    maxProjects: 15, // per month
+    maxVisionRenders: 30, // per month
+    maxExportsPerMonth: 100, // per month
+    canUseBundles: true,
+    canPreviewBundlePlants: false, // Pro can't preview bundle plant lists
+    bundleSwapsPerProject: 5,
+    canSaveToCloud: true,
+    hasWatermark: true, // Pro still has watermark
+    canViewDesignScore: true,
+    canViewAnalysisDiagnosis: false, // Pro can't see diagnosis
+    canViewAnalysisHowTos: false, // Pro can't see how-to's
+  },
+  max: {
     maxPlants: Infinity,
     maxProjects: Infinity,
     maxVisionRenders: Infinity,
-    maxExportsPerProject: Infinity,
+    maxExportsPerMonth: Infinity,
     canUseBundles: true,
-    canPreviewBundlePlants: true,
+    canPreviewBundlePlants: true, // Max can preview bundle plant lists
     bundleSwapsPerProject: Infinity,
     canSaveToCloud: true,
-    hasWatermark: false,
+    hasWatermark: false, // No watermark for Max
+    canViewDesignScore: true,
+    canViewAnalysisDiagnosis: true, // Max gets diagnosis
+    canViewAnalysisHowTos: true, // Max gets how-to's
   },
 }
 
@@ -65,8 +88,8 @@ export function SubscriptionProvider({ children }) {
         console.error('Error fetching subscription:', error)
       }
 
-      // Check if we need to reset monthly counters
-      if (data && data.plan === 'basic') {
+      // Check if we need to reset monthly counters (for Basic and Pro tiers)
+      if (data && (data.plan === 'basic' || data.plan === 'pro')) {
         const resetDate = new Date(data.month_reset_date)
         const now = new Date()
         if (now >= resetDate) {
@@ -77,12 +100,14 @@ export function SubscriptionProvider({ children }) {
             .update({
               projects_this_month: 0,
               vision_renders_this_month: 0,
+              exports_this_month: 0,
               month_reset_date: nextReset.toISOString()
             })
             .eq('user_id', user.id)
 
           data.projects_this_month = 0
           data.vision_renders_this_month = 0
+          data.exports_this_month = 0
           data.month_reset_date = nextReset.toISOString()
         }
       }
@@ -134,6 +159,7 @@ export function SubscriptionProvider({ children }) {
 
   // Derived subscription states
   const currentPlan = subscription?.status === 'active' ? subscription?.plan : 'free'
+  const isMax = currentPlan === 'max'
   const isPro = currentPlan === 'pro'
   const isBasic = currentPlan === 'basic'
   const isFree = currentPlan === 'free'
@@ -142,26 +168,30 @@ export function SubscriptionProvider({ children }) {
   const isCanceled = subscription?.status === 'canceled'
   const cancelAtPeriodEnd = subscription?.cancel_at_period_end
 
-  // Get plan limits (admin gets pro limits)
-  const planLimits = isAdmin ? PLAN_LIMITS.pro : PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free
+  // Get plan limits (admin gets max limits)
+  const planLimits = isAdmin ? PLAN_LIMITS.max : PLAN_LIMITS[currentPlan] || PLAN_LIMITS.free
 
-  // Admin always has full access, Pro has full access
-  const hasFullAccess = isAdmin || isPro || isTrialing
+  // Admin and Max have truly unlimited access
+  const hasFullAccess = isAdmin || isMax || isTrialing
 
   // Format subscription end date
   const subscriptionEndDate = subscription?.current_period_end
     ? new Date(subscription.current_period_end)
     : null
 
-  // Usage tracking for Basic tier
+  // Usage tracking for Basic and Pro tiers (both have monthly limits now)
+  const hasMonthlyLimits = isBasic || isPro
   const projectsThisMonth = subscription?.projects_this_month || 0
   const visionRendersThisMonth = subscription?.vision_renders_this_month || 0
-  const projectsRemaining = isBasic ? Math.max(0, planLimits.maxProjects - projectsThisMonth) : planLimits.maxProjects
-  const visionRendersRemaining = isBasic ? Math.max(0, planLimits.maxVisionRenders - visionRendersThisMonth) : planLimits.maxVisionRenders
+  const exportsThisMonth = subscription?.exports_this_month || 0
 
-  // Increment usage counters (for Basic tier)
+  const projectsRemaining = hasMonthlyLimits ? Math.max(0, planLimits.maxProjects - projectsThisMonth) : planLimits.maxProjects
+  const visionRendersRemaining = hasMonthlyLimits ? Math.max(0, planLimits.maxVisionRenders - visionRendersThisMonth) : planLimits.maxVisionRenders
+  const exportsRemaining = hasMonthlyLimits ? Math.max(0, planLimits.maxExportsPerMonth - exportsThisMonth) : planLimits.maxExportsPerMonth
+
+  // Increment usage counters (for Basic and Pro tiers)
   const incrementProjectCount = useCallback(async () => {
-    if (!supabase || !user || !isBasic) return
+    if (!supabase || !user || !hasMonthlyLimits) return
 
     await supabase
       .from('subscriptions')
@@ -169,10 +199,10 @@ export function SubscriptionProvider({ children }) {
       .eq('user_id', user.id)
 
     fetchSubscription()
-  }, [user, isBasic, projectsThisMonth, fetchSubscription])
+  }, [user, hasMonthlyLimits, projectsThisMonth, fetchSubscription])
 
   const incrementVisionRenderCount = useCallback(async () => {
-    if (!supabase || !user || !isBasic) return
+    if (!supabase || !user || !hasMonthlyLimits) return
 
     await supabase
       .from('subscriptions')
@@ -180,25 +210,43 @@ export function SubscriptionProvider({ children }) {
       .eq('user_id', user.id)
 
     fetchSubscription()
-  }, [user, isBasic, visionRendersThisMonth, fetchSubscription])
+  }, [user, hasMonthlyLimits, visionRendersThisMonth, fetchSubscription])
+
+  const incrementExportCount = useCallback(async () => {
+    if (!supabase || !user || !hasMonthlyLimits) return
+
+    await supabase
+      .from('subscriptions')
+      .update({ exports_this_month: exportsThisMonth + 1 })
+      .eq('user_id', user.id)
+
+    fetchSubscription()
+  }, [user, hasMonthlyLimits, exportsThisMonth, fetchSubscription])
 
   // Check if user can perform actions
   const canCreateProject = () => {
     if (hasFullAccess) return true
-    if (isBasic) return projectsRemaining > 0
+    if (hasMonthlyLimits) return projectsRemaining > 0
     return true // Free users can create 1 project (no save)
   }
 
   const canUseVisionRender = () => {
     if (hasFullAccess) return true
-    if (isBasic) return visionRendersRemaining > 0
+    if (hasMonthlyLimits) return visionRendersRemaining > 0
     return false // Free users can't use Vision
+  }
+
+  const canExport = () => {
+    if (hasFullAccess) return true
+    if (hasMonthlyLimits) return exportsRemaining > 0
+    return false // Free users can't export
   }
 
   const value = {
     subscription,
     loading,
     currentPlan,
+    isMax,
     isPro,
     isBasic,
     isFree,
@@ -212,17 +260,27 @@ export function SubscriptionProvider({ children }) {
     // Usage tracking
     projectsThisMonth,
     visionRendersThisMonth,
+    exportsThisMonth,
     projectsRemaining,
     visionRendersRemaining,
+    exportsRemaining,
     // Actions
     incrementProjectCount,
     incrementVisionRenderCount,
+    incrementExportCount,
     canCreateProject,
     canUseVisionRender,
+    canExport,
     refreshSubscription: fetchSubscription,
     // Helper to get subscription status message
     getStatusMessage: () => {
       if (isAdmin) return 'Admin Access'
+      if (isMax) {
+        if (cancelAtPeriodEnd) {
+          return `Max (cancels ${subscriptionEndDate?.toLocaleDateString()})`
+        }
+        return `Max (renews ${subscriptionEndDate?.toLocaleDateString()})`
+      }
       if (isPro) {
         if (cancelAtPeriodEnd) {
           return `Pro (cancels ${subscriptionEndDate?.toLocaleDateString()})`
