@@ -27,24 +27,6 @@ export default function Hero() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [showUserMenu])
 
-  const handleSignOut = async (e) => {
-    e.stopPropagation()
-    setShowUserMenu(false)
-    await signOut()
-  }
-
-  const handleNavigate = (path) => (e) => {
-    e.stopPropagation()
-    setShowUserMenu(false)
-    navigate(path)
-  }
-
-  const handleAnchorClick = (href) => (e) => {
-    e.stopPropagation()
-    setShowUserMenu(false)
-    window.location.href = href
-  }
-
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-cream-50 to-cream-100">
       {/* Decorative background elements */}
@@ -93,16 +75,28 @@ export default function Hero() {
                   </div>
 
                   <button
-                    onClick={handleNavigate('/studio')}
-                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setShowUserMenu(false)
+                      navigate('/studio')
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4" />
                     Open Studio
                   </button>
 
                   <button
-                    onClick={handleNavigate('/account')}
-                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setShowUserMenu(false)
+                      navigate('/account')
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-sage-700 hover:bg-sage-50 transition-colors w-full text-left cursor-pointer"
                   >
                     <Settings className="w-4 h-4" />
                     Account Settings
@@ -110,8 +104,14 @@ export default function Hero() {
 
                   {!hasFullAccess && (
                     <button
-                      onClick={handleAnchorClick('#pricing')}
-                      className="flex items-center gap-2 px-4 py-2 text-olive-600 hover:bg-olive-50 transition-colors w-full text-left"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowUserMenu(false)
+                        window.location.href = '/#pricing'
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 text-olive-600 hover:bg-olive-50 transition-colors w-full text-left cursor-pointer"
                     >
                       <Crown className="w-4 h-4" />
                       Upgrade to Pro
@@ -119,8 +119,15 @@ export default function Hero() {
                   )}
 
                   <button
-                    onClick={handleSignOut}
-                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setShowUserMenu(false)
+                      await signOut()
+                      navigate('/')
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors w-full text-left cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
                     Sign Out

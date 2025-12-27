@@ -69,7 +69,7 @@ const PRICING_TIERS = [
       'No diagnosis/how-to guides',
     ],
     cta: 'Get Pro',
-    highlighted: false,
+    highlighted: true,
     tier: 'pro',
   },
   {
@@ -92,7 +92,7 @@ const PRICING_TIERS = [
     ],
     limitations: [],
     cta: 'Get Max',
-    highlighted: true,
+    highlighted: false,
     tier: 'max',
   },
   {
