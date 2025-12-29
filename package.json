@@ -7,7 +7,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:stress": "playwright test --project=stress",
+    "test:auth": "playwright test tests/auth/",
+    "test:chaos": "playwright test tests/chaos/",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@stripe/stripe-js": "^8.6.0",
@@ -19,6 +27,7 @@
     "stripe": "^20.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",

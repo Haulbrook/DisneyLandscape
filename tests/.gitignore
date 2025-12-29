@@ -1,0 +1,12 @@
+# Test artifacts
+.auth/
+test-results/
+playwright-report/
+blob-report/
+
+# Environment
+.env
+
+# Screenshots and videos from failed tests
+screenshots/
+videos/
