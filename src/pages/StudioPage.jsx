@@ -4312,7 +4312,7 @@ export default function StudioPage() {
                     <div
                       className={`absolute rounded-full flex items-center justify-center shadow-lg pointer-events-auto ${
                         isBeingDragged ? 'cursor-grabbing' : 'cursor-grab'
-                      } hover:brightness-110 transition-all`}
+                      } hover:brightness-110 transition-all outline-none`}
                       style={{
                         left: '50%',
                         top: '50%',
@@ -4322,6 +4322,7 @@ export default function StudioPage() {
                         backgroundColor: plantData?.color || '#4CAF50',
                         boxShadow: `0 4px 12px ${plantData?.color}40`
                       }}
+                      tabIndex={-1}
                       onClick={(e) => handlePlantClick(e, plant)}
                       onMouseDown={(e) => handleDragStart(e, plant)}
                     >
