@@ -984,6 +984,38 @@ export const PERENNIALS = [
     sizes: ['1gal'],
     description: 'Cold hardy lantana with orange-pink flowers'
   },
+  {
+    id: 'artemisia',
+    name: 'Artemisia Silver Mound',
+    botanicalName: "Artemisia schmidtiana 'Silver Mound'",
+    category: 'front',
+    height: '12-18in',
+    spread: '12-18in',
+    color: '#B0BEC5',
+    bloomTime: 'Foliage interest',
+    sunReq: 'Full Sun',
+    waterReq: 'Low',
+    zones: [3, 4, 5, 6, 7, 8, 9],
+    icon: '🌿',
+    sizes: ['1gal'],
+    description: 'MEDITERRANEAN NATIVE: Silvery aromatic mounding perennial'
+  },
+  {
+    id: 'santolina',
+    name: 'Santolina Lavender Cotton',
+    botanicalName: 'Santolina chamaecyparissus',
+    category: 'front',
+    height: '12-24in',
+    spread: '24-36in',
+    color: '#B0BEC5',
+    bloomTime: 'Summer',
+    sunReq: 'Full Sun',
+    waterReq: 'Low',
+    zones: [6, 7, 8, 9],
+    icon: '🌿',
+    sizes: ['1gal', '3gal'],
+    description: 'MEDITERRANEAN NATIVE: Silver aromatic foliage, yellow button flowers'
+  },
 ];
 
 // Continue with SHRUBS and TREES in next section...
@@ -1152,7 +1184,23 @@ export const SHRUBS = [
     zones: [7, 8, 9, 10, 11],
     icon: '🌸',
     sizes: ['3gal', '7gal'],
-    description: 'Cold hardy gardenia variety'
+    description: 'CHINA NATIVE: Cold hardy gardenia variety'
+  },
+  {
+    id: 'hibiscus',
+    name: 'Tropical Hibiscus',
+    botanicalName: 'Hibiscus rosa-sinensis',
+    category: 'middle',
+    height: '4-8ft',
+    spread: '3-6ft',
+    color: '#E91E63',
+    bloomTime: 'Summer-Fall',
+    sunReq: 'Full Sun',
+    waterReq: 'Moderate',
+    zones: [9, 10, 11],
+    icon: '🌺',
+    sizes: ['3gal', '5gal'],
+    description: 'EAST ASIA NATIVE: Large tropical flowers, many colors available'
   },
   {
     id: 'hydrangea-endless-summer',
@@ -1473,6 +1521,22 @@ export const SHRUBS = [
     icon: '💮',
     sizes: ['3gal'],
     description: 'Dwarf with orange-red semi-double blooms'
+  },
+  {
+    id: 'azalea-encore-autumn-twist',
+    name: 'Azalea Encore Autumn Twist',
+    botanicalName: "Rhododendron 'Autumn Twist'",
+    category: 'middle',
+    height: '3-4ft',
+    spread: '3-4ft',
+    color: '#9C27B0',
+    bloomTime: 'Spring + Fall',
+    sunReq: 'Part Sun',
+    waterReq: 'Moderate',
+    zones: [6, 7, 8, 9],
+    icon: '💮',
+    sizes: ['3gal', '7gal'],
+    description: 'EAST ASIA NATIVE: Bicolor purple-white reblooming azalea'
   },
   {
     id: 'azalea-encore-majesty',
@@ -2016,7 +2080,23 @@ export const SHRUBS = [
     zones: [5, 6, 7, 8],
     icon: '🌲',
     sizes: ['3gal'],
-    description: 'Compact mounding Japanese holly'
+    description: 'JAPAN NATIVE: Compact mounding Japanese holly'
+  },
+  {
+    id: 'holly-compacta',
+    name: 'Compacta Holly',
+    botanicalName: "Ilex crenata 'Compacta'",
+    category: 'front',
+    height: '2-4ft',
+    spread: '2-4ft',
+    color: '#2E7D32',
+    bloomTime: 'Evergreen',
+    sunReq: 'Full-Part Sun',
+    waterReq: 'Moderate',
+    zones: [5, 6, 7, 8],
+    icon: '🌲',
+    sizes: ['3gal', '5gal'],
+    description: 'JAPAN NATIVE: Dense rounded Japanese holly, red berries'
   },
   {
     id: 'holly-carissa',
@@ -3751,7 +3831,23 @@ export const TREES = [
     zones: [4, 5, 6, 7, 8, 9],
     icon: '🌲',
     sizes: ['8ft'],
-    description: 'Dense columnar Eastern red cedar'
+    description: 'NORTH AMERICA NATIVE: Dense columnar Eastern red cedar'
+  },
+  {
+    id: 'juniper-blue-point',
+    name: 'Blue Point Juniper',
+    botanicalName: "Juniperus chinensis 'Blue Point'",
+    category: 'focal',
+    height: '10-12ft',
+    spread: '6-8ft',
+    color: '#607D8B',
+    bloomTime: 'Evergreen',
+    sunReq: 'Full Sun',
+    waterReq: 'Low',
+    zones: [4, 5, 6, 7, 8, 9],
+    icon: '🌲',
+    sizes: ['5gal', '7gal', '15gal'],
+    description: 'CHINA NATIVE: Dense blue-green pyramidal juniper, excellent screen'
   },
   {
     id: 'juniper-skyrocket',
@@ -4405,6 +4501,22 @@ export const TREES = [
     icon: '🌳',
     sizes: ['5gal', '7gal', '15gal'],
     description: 'MEDITERRANEAN: Edible fig tree, French Riviera gardens'
+  },
+  {
+    id: 'windmill-palm',
+    name: 'Windmill Palm',
+    botanicalName: 'Trachycarpus fortunei',
+    category: 'focal',
+    height: '10-25ft',
+    spread: '6-10ft',
+    color: '#2E7D32',
+    bloomTime: 'Evergreen',
+    sunReq: 'Full-Part Sun',
+    waterReq: 'Moderate',
+    zones: [7, 8, 9, 10, 11],
+    icon: '🌴',
+    sizes: ['7gal', '15gal', '30gal'],
+    description: 'CHINA/JAPAN NATIVE: Cold-hardy fan palm, survives to 10°F'
   },
 ];
 

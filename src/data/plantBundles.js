@@ -827,7 +827,7 @@ export const PLANT_BUNDLES = [
         { plantId: 'black-eyed-susan', quantity: 5, role: 'seasonal', note: 'SUMMER-FALL: Golden daisies' }
       ],
       texture: [
-        { plantId: 'muhly-grass-white-cloud', quantity: 15, role: 'texture', note: 'FALL: White cloud masses' },
+        { plantId: 'muhly-grass-white', quantity: 15, role: 'texture', note: 'FALL: White cloud masses' },
         { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'FALL: Pink clouds' },
         { plantId: 'karl-foerster', quantity: 8, role: 'texture', note: 'WINTER: Tan structure persists' },
         { plantId: 'daylily-stella', quantity: 8, role: 'texture', note: 'SUMMER: Yellow rebloomer' }
@@ -957,7 +957,7 @@ export const PLANT_BUNDLES = [
       ],
       seasonal: [
         { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'Fall color' },
-        { plantId: 'gardenia-frostproof', quantity: 3, role: 'seasonal', note: 'Summer fragrance' },
+        { plantId: 'gardenia-frost-proof', quantity: 3, role: 'seasonal', note: 'Summer fragrance' },
         { plantId: 'azalea-encore-majesty', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Purple encore' }
       ],
       texture: [
@@ -1126,7 +1126,7 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'beautyberry', quantity: 5, role: 'structure', note: 'SIGNATURE: Purple berry clusters' },
         { plantId: 'fothergilla-dwarf', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Native witch-hazel' },
-        { plantId: 'oakleaf-hydrangea', quantity: 4, role: 'structure', note: 'Native hydrangea' },
+        { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'structure', note: 'Native hydrangea' },
         { plantId: 'sweetspire-little-henry', quantity: 4, role: 'structure', note: 'Native sweetspire' }
       ],
       seasonal: [

@@ -2,61 +2,240 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flower2, ArrowLeft, Sparkles, Crown, Eye, ArrowRight } from 'lucide-react'
 
-// Featured design examples (static for demo purposes)
+// Featured design examples showcasing all theme bundles
 const FEATURED_DESIGNS = [
+  // Southern & Traditional
   {
-    id: 1,
-    name: 'Augusta Classic Foundation',
-    description: 'Southern golf course elegance with dogwoods, azaleas, and liriope borders.',
-    style: 'Traditional',
-    plants: 24,
-    image: '/portfolio/augusta-classic.jpg',
-    tags: ['Foundation', 'Southern', 'Classic'],
+    id: 'augusta-classic',
+    name: 'Augusta Classic',
+    description: 'Southern golf course elegance with magnolias, dogwoods, azaleas, and pristine evergreen structure.',
+    style: 'Southern Traditional',
+    plants: 56,
+    image: '/portfolio/augusta-classic.png',
+    tags: ['Southern', 'Golf Course', 'Azaleas'],
   },
   {
-    id: 2,
-    name: 'Tropical Paradise Entry',
-    description: 'Bold tropical statement with birds of paradise, hibiscus, and elephant ears.',
-    style: 'Tropical',
-    plants: 18,
-    image: '/portfolio/tropical-paradise.jpg',
-    tags: ['Entry', 'Tropical', 'Bold'],
+    id: 'main-street-classic',
+    name: 'Main Street Classic',
+    description: 'Tight lines, bright seasonal beds, and maximum curb appeal. Quintessential American front yard.',
+    style: 'Classic Americana',
+    plants: 58,
+    image: '/portfolio/main-street-classic.png',
+    tags: ['Americana', 'Curb Appeal', 'Roses'],
   },
+  // Asian Inspired
   {
-    id: 3,
+    id: 'japanese-zen',
     name: 'Japanese Zen Garden',
-    description: 'Minimalist Japanese-inspired design with maples, bamboo, and moss.',
-    style: 'Japanese',
-    plants: 15,
-    image: '/portfolio/japanese-zen.jpg',
-    tags: ['Zen', 'Minimalist', 'Japanese'],
+    description: 'Restrained blooms, layered evergreens, and the art of negative space. Japanese maples as living sculptures.',
+    style: 'Zen Asian',
+    plants: 47,
+    image: '/portfolio/japanese-zen.png',
+    tags: ['Zen', 'Japanese', 'Maples'],
   },
   {
-    id: 4,
-    name: 'English Cottage Border',
-    description: 'Romantic cottage garden with roses, lavender, and perennial layers.',
+    id: 'japan-pavilion',
+    name: 'Japan Pavilion',
+    description: 'True Japanese garden with cloud-pruned pines, maples, azaleas, and contemplative design.',
+    style: 'EPCOT World Showcase',
+    plants: 53,
+    image: '/portfolio/japan-pavilion.png',
+    tags: ['EPCOT', 'Temple', 'Authentic'],
+  },
+  {
+    id: 'china-pavilion',
+    name: 'China Pavilion',
+    description: 'True Chinese garden with ginkgos, dawn redwoods, peonies - plants native to China.',
+    style: 'EPCOT World Showcase',
+    plants: 54,
+    image: '/portfolio/china-pavilion.png',
+    tags: ['EPCOT', 'Temple', 'Peonies'],
+  },
+  // European Gardens
+  {
+    id: 'england-pavilion',
+    name: 'England Pavilion',
+    description: 'True English garden with native oaks, hawthorns, yew hedges, and romantic cottage perennials.',
+    style: 'EPCOT World Showcase',
+    plants: 61,
+    image: '/portfolio/england-pavilion.png',
+    tags: ['EPCOT', 'Cottage', 'Roses'],
+  },
+  {
+    id: 'france-pavilion',
+    name: 'France Pavilion',
+    description: 'True French garden with formal boxwood parterres, Provence lavender fields, and romantic roses.',
+    style: 'EPCOT World Showcase',
+    plants: 72,
+    image: '/portfolio/france-pavilion.png',
+    tags: ['EPCOT', 'Versailles', 'Lavender'],
+  },
+  {
+    id: 'italy-pavilion',
+    name: 'Italy Pavilion',
+    description: 'True Italian garden with iconic cypress columns, stone pines, bay laurel, and Mediterranean herbs.',
+    style: 'EPCOT World Showcase',
+    plants: 49,
+    image: '/portfolio/italy-pavilion.png',
+    tags: ['EPCOT', 'Tuscan', 'Mediterranean'],
+  },
+  {
+    id: 'germany-pavilion',
+    name: 'Germany Pavilion',
+    description: 'True German garden with European beech, lindens, and the famous Karl Foerster grass.',
+    style: 'EPCOT World Showcase',
+    plants: 55,
+    image: '/portfolio/germany-pavilion.png',
+    tags: ['EPCOT', 'Bavarian', 'Grasses'],
+  },
+  {
+    id: 'norway-pavilion',
+    name: 'Norway Pavilion',
+    description: 'True Scandinavian woodland with Norway spruce, mountain ash, heather, and lingonberries.',
+    style: 'EPCOT World Showcase',
+    plants: 54,
+    image: '/portfolio/norway-pavilion.png',
+    tags: ['EPCOT', 'Nordic', 'Woodland'],
+  },
+  // Mediterranean & Desert
+  {
+    id: 'morocco-pavilion',
+    name: 'Morocco Pavilion',
+    description: 'True Moorish garden with Atlas cedars, pomegranates, oleanders - plants of the Maghreb.',
+    style: 'EPCOT World Showcase',
+    plants: 47,
+    image: '/portfolio/morocco-pavilion.png',
+    tags: ['EPCOT', 'Riad', 'Mediterranean'],
+  },
+  {
+    id: 'mexico-pavilion',
+    name: 'Mexico Pavilion',
+    description: 'True Mexican garden with native agaves, desert blooms, and plants that thrive in arid climates.',
+    style: 'EPCOT World Showcase',
+    plants: 56,
+    image: '/portfolio/mexico-pavilion.png',
+    tags: ['EPCOT', 'Hacienda', 'Desert'],
+  },
+  {
+    id: 'drought-smart',
+    name: 'Drought Smart',
+    description: 'Beautiful without the water bill. Drought-tolerant plants that thrive on neglect.',
+    style: 'Xeriscape',
+    plants: 48,
+    image: '/portfolio/drought-smart.png',
+    tags: ['Xeriscape', 'Low Water', 'Succulents'],
+  },
+  // Native & Ecological
+  {
+    id: 'modern-prairie',
+    name: 'Modern Prairie',
+    description: 'Coneflowers, black-eyed susans, and ornamental grasses. Native prairie meets modern design.',
+    style: 'Native Prairie',
+    plants: 62,
+    image: '/portfolio/modern-prairie.png',
+    tags: ['Native', 'Prairie', 'Grasses'],
+  },
+  {
+    id: 'pollinator-paradise',
+    name: 'Pollinator Paradise',
+    description: 'Nectar-rich plants for butterflies, bees, and hummingbirds. A living ecosystem.',
+    style: 'Wildlife Garden',
+    plants: 55,
+    image: '/portfolio/pollinator-paradise.png',
+    tags: ['Pollinators', 'Butterflies', 'Native'],
+  },
+  {
+    id: 'rain-garden',
+    name: 'Rain Garden',
+    description: 'For wet areas, drainage swales, or rain gardens. Plants that thrive with wet feet.',
+    style: 'Water Feature',
+    plants: 48,
+    image: '/portfolio/rain-garden.png',
+    tags: ['Rain Garden', 'Wet Soil', 'Native'],
+  },
+  {
+    id: 'woodland-edge',
+    name: 'Woodland Edge',
+    description: 'Where lawn meets forest - native plants that create a natural woodland edge.',
+    style: 'Native Woodland',
+    plants: 52,
+    image: '/portfolio/woodland-edge.png',
+    tags: ['Woodland', 'Native', 'Shade'],
+  },
+  // Tropical & Coastal
+  {
+    id: 'tropical-paradise',
+    name: 'Tropical Paradise',
+    description: 'Bold tropical foliage for that resort vacation feel right at home.',
+    style: 'Tropical',
+    plants: 42,
+    image: '/portfolio/tropical-paradise.png',
+    tags: ['Tropical', 'Bold', 'Resort'],
+  },
+  {
+    id: 'lowcountry-coastal',
+    name: 'Lowcountry Coastal',
+    description: 'Inspired by Georgia/Carolina coast - wax myrtle, muhly grass, and salt-tolerant beauties.',
+    style: 'Coastal Southern',
+    plants: 48,
+    image: '/portfolio/lowcountry-coastal.png',
+    tags: ['Coastal', 'Southern', 'Salt-tolerant'],
+  },
+  // Specialty Gardens
+  {
+    id: 'shade-sanctuary',
+    name: 'Shade Sanctuary',
+    description: 'For those challenging shady spots - hostas, ferns, and shade-loving beauties.',
+    style: 'Shade Garden',
+    plants: 52,
+    image: '/portfolio/shade-sanctuary.png',
+    tags: ['Shade', 'Hostas', 'Ferns'],
+  },
+  {
+    id: 'cottage-charm',
+    name: 'Cottage Charm',
+    description: 'Overflowing cottage garden with romantic perennials and old-fashioned charm.',
     style: 'Cottage',
-    plants: 32,
-    image: '/portfolio/english-cottage.jpg',
-    tags: ['Cottage', 'Romantic', 'Perennials'],
+    plants: 56,
+    image: '/portfolio/cottage-charm.png',
+    tags: ['Cottage', 'Romantic', 'Peonies'],
   },
   {
-    id: 5,
-    name: 'Modern Minimalist',
-    description: 'Clean lines with ornamental grasses, boxwood, and architectural plants.',
+    id: 'four-seasons',
+    name: 'Four Season Color',
+    description: 'Carefully sequenced for year-round color. Winter camellia, spring azalea, summer hydrangea, fall grasses.',
+    style: 'Continuous Bloom',
+    plants: 78,
+    image: '/portfolio/four-seasons.png',
+    tags: ['Year-round', 'Seasonal', 'Color'],
+  },
+  // Functional & Modern
+  {
+    id: 'evergreen-foundation',
+    name: 'Evergreen Foundation',
+    description: 'Classic evergreen foundation planting. Clean, professional, always green.',
+    style: 'Foundation',
+    plants: 44,
+    image: '/portfolio/evergreen-foundation.png',
+    tags: ['Foundation', 'Evergreen', 'Classic'],
+  },
+  {
+    id: 'minimalist-modern',
+    name: 'Minimalist Modern',
+    description: 'Architectural plants, ornamental grasses, and a restrained color palette.',
     style: 'Modern',
-    plants: 12,
-    image: '/portfolio/modern-minimalist.jpg',
-    tags: ['Modern', 'Clean', 'Architectural'],
+    plants: 38,
+    image: '/portfolio/minimalist-modern.png',
+    tags: ['Modern', 'Minimalist', 'Grasses'],
   },
   {
-    id: 6,
-    name: 'Desert Oasis',
-    description: 'Drought-tolerant beauty with agave, yucca, and desert wildflowers.',
-    style: 'Desert',
-    plants: 20,
-    image: '/portfolio/desert-oasis.jpg',
-    tags: ['Desert', 'Xeriscape', 'Drought-tolerant'],
+    id: 'privacy-screen',
+    name: 'Privacy Screen',
+    description: 'For when you need privacy ASAP. Fast-growing, dense evergreen screens.',
+    style: 'Functional',
+    plants: 36,
+    image: '/portfolio/privacy-screen.png',
+    tags: ['Privacy', 'Screen', 'Fast-growing'],
   },
 ]
 
@@ -138,13 +317,22 @@ export default function PortfolioPage() {
                 className="bg-white rounded-2xl border border-sage-200 overflow-hidden hover:shadow-xl transition-shadow cursor-pointer group"
                 onClick={() => setSelectedDesign(design)}
               >
-                {/* Image placeholder */}
+                {/* Design Image */}
                 <div className="aspect-video bg-gradient-to-br from-sage-200 to-forest-200 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <img
+                    src={design.image}
+                    alt={design.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="absolute inset-0 items-center justify-center hidden">
                     <Flower2 className="w-16 h-16 text-sage-400" />
                   </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="bg-white/90 text-sage-700 px-4 py-2 rounded-lg font-medium">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="bg-white/90 text-sage-700 px-4 py-2 rounded-lg font-medium shadow-lg">
                       View Details
                     </span>
                   </div>
@@ -218,8 +406,17 @@ export default function PortfolioPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
-            <div className="aspect-video bg-gradient-to-br from-sage-200 to-forest-200 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
+            <div className="aspect-video bg-gradient-to-br from-sage-200 to-forest-200 relative overflow-hidden">
+              <img
+                src={selectedDesign.image}
+                alt={selectedDesign.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="absolute inset-0 items-center justify-center hidden">
                 <Flower2 className="w-24 h-24 text-sage-400" />
               </div>
             </div>
