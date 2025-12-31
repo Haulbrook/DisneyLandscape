@@ -571,6 +571,11 @@ export default function StudioPage() {
     e.preventDefault();
     e.stopPropagation();
 
+    // Prevent any focus-related scrolling by blurring active element
+    if (document.activeElement && document.activeElement !== document.body) {
+      document.activeElement.blur();
+    }
+
     // Shift+Click: Toggle multi-select
     if (e.shiftKey) {
       togglePlantMultiSelect(plant.id);
@@ -1579,9 +1584,12 @@ export default function StudioPage() {
     // - Small plants CAPPED: no single type dominates
     // - Height tier enforcement: ensure chest-height (36-48") plants get placed
     // ═══════════════════════════════════════════════════════════════════════════════
-    const MAX_SINGLE_PLANT_QTY = 15; // No single plant type exceeds this
-    const MIN_STRUCTURE_QTY = 3;     // Structure plants need minimum for grouping
-    const MIN_CHEST_HEIGHT_QTY = 5;  // Ensure chest-height tier represented
+    // Scale caps with bed area and bundle multiplier for proper coverage
+    // Base values work for 150 sq ft bed at 1x - scale up for larger beds/multipliers
+    const scaleFactor = Math.max(1, areaScale * bundleScale);
+    const MAX_SINGLE_PLANT_QTY = Math.round(15 * scaleFactor); // Scale cap with bed size
+    const MIN_STRUCTURE_QTY = Math.max(3, Math.round(3 * bundleScale)); // Structure plants need minimum for grouping
+    const MIN_CHEST_HEIGHT_QTY = Math.max(5, Math.round(5 * bundleScale)); // Ensure chest-height tier represented
 
     // Track height tiers for enforcement
     let chestHeightCount = 0; // 36-48" plants
@@ -1623,11 +1631,19 @@ export default function StudioPage() {
       // Scale quantity based on plant size and bed area
       let quantity = Math.round(bp.quantity * bundleScale * areaScale);
 
+      // At 3x multiplier: OVERFULL mode - pack bed tight for instant impact
+      // Plants will need thinning as they mature
+      if (bundleScale >= 3) {
+        quantity = Math.round(quantity * 1.5); // Extra 50% boost at 3x
+      }
+
       // REBALANCED: Small plants get moderate boost (was 2.5x, now 2.0x)
       if (isSmallPlant) {
-        quantity = Math.max(Math.round(quantity * 2.0), 5);
+        const smallBoost = bundleScale >= 3 ? 2.5 : 2.0; // More groundcover at 3x
+        quantity = Math.max(Math.round(quantity * smallBoost), 5);
       } else if (isMediumPlant) {
-        quantity = Math.max(Math.round(quantity * 1.5), 5);
+        const medBoost = bundleScale >= 3 ? 2.0 : 1.5; // More shrubs at 3x
+        quantity = Math.max(Math.round(quantity * medBoost), 5);
       }
 
       // STRUCTURE PROTECTION: Back/structure plants get minimum guarantee
@@ -1652,17 +1668,23 @@ export default function StudioPage() {
         quantity = Math.max(quantity, 5);
       }
 
-      // Groundcover REDUCED 50% - more space for shrub varieties
+      // Groundcover scales with multiplier - higher multiplier = fuller coverage
       if (role === 'groundcover' || role === 'front') {
         const baseQty = Math.floor(bedArea / (radius * radius * 5));
-        quantity = Math.max(Math.floor(baseQty * 0.5), Math.ceil(quantity * 0.5)); // 50% reduction
+        // At 2x+, reduce the reduction to fill more of the bed
+        const reductionFactor = bundleScale >= 2 ? 0.8 : (bundleScale >= 1.5 ? 0.65 : 0.5);
+        quantity = Math.max(Math.floor(baseQty * reductionFactor), quantity);
       }
 
-      // Trees/focal limited by spacing - odd numbers still
+      // Trees/focal - scale with multiplier for more trees at higher scales
       if (role === 'focal' || height > 120) {
-        const minTreeSpacing = radius * 2.5;
+        // Tighter spacing at higher multipliers (more trees)
+        const spacingMultiplier = bundleScale >= 2 ? 1.8 : (bundleScale >= 1.5 ? 2.0 : 2.5);
+        const minTreeSpacing = radius * spacingMultiplier;
         const maxTrees = Math.floor(bedBounds.width / minTreeSpacing) * Math.floor(bedBounds.height / minTreeSpacing);
-        quantity = Math.min(quantity, Math.max(1, maxTrees));
+        // At 2x+, ensure at least 2-3 trees for variety
+        const minTrees = bundleScale >= 2 ? 3 : (bundleScale >= 1.5 ? 2 : 1);
+        quantity = Math.min(quantity, Math.max(minTrees, maxTrees));
       }
 
       // CAP: No single plant type dominates (except trees which are already limited)
