@@ -1379,10 +1379,31 @@ export default function StudioPage() {
       return Math.floor(n / 2) * 2 + 1;
     };
 
-    // PROFESSIONAL RULE: Edge offset - plants should be 12-18" inside bed edges
-    const EDGE_OFFSET_MIN = 12; // 12 inches minimum from edge
-    const EDGE_OFFSET_MAX = 18; // 18 inches for larger plants
+    // PROFESSIONAL RULE: Edge offset - plants should be inside bed edges
+    // At higher multipliers, pack plants closer to edge for fuller coverage
+    const EDGE_OFFSET_MIN = bundleScale >= 2 ? 8 : 12; // Tighter at 2x+
+    const EDGE_OFFSET_MAX = bundleScale >= 2 ? 12 : 18; // Tighter at 2x+
     const CANOPY_HEIGHT_THRESHOLD = 120; // 10 feet - only plants this tall or taller can spill over edges
+
+    // At 2x+, use relaxed path checking (only check center + 4 cardinal points)
+    // This allows plants closer to irregular edges for better coverage
+    const isCircleInsidePathRelaxed = (x, y, radius, path) => {
+      if (path.length < 3) return true;
+      if (!isPointInPath(x, y, path)) return false;
+
+      // At 2x+, only check 4 cardinal points at reduced radius (more lenient)
+      const checkRadius = bundleScale >= 3 ? radius * 0.5 : (bundleScale >= 2 ? radius * 0.7 : radius);
+      const checkPoints = bundleScale >= 2 ? 4 : 12; // Fewer checks at 2x+
+      const angleStep = (Math.PI * 2) / checkPoints;
+
+      for (let i = 0; i < checkPoints; i++) {
+        const angle = i * angleStep;
+        const edgeX = x + Math.cos(angle) * checkRadius;
+        const edgeY = y + Math.sin(angle) * checkRadius;
+        if (!isPointInPath(edgeX, edgeY, path)) return false;
+      }
+      return true;
+    };
 
     // ═══════════════════════════════════════════════════════════════════════════════
     // SHAPE-AWARE SAMPLING: Sample valid positions across the entire custom bed shape
@@ -1396,9 +1417,10 @@ export default function StudioPage() {
       for (let x = bedBounds.minX + EDGE_OFFSET_MIN; x <= bedBounds.maxX - EDGE_OFFSET_MIN; x += gridSpacing) {
         for (let y = bedBounds.minY + EDGE_OFFSET_MIN; y <= bedBounds.maxY - EDGE_OFFSET_MIN; y += gridSpacing) {
           // For custom paths, check if point (and optionally its radius) fits inside
+          // Use relaxed checking at 2x+ for better coverage
           if (useCustomPath) {
             if (checkRadius) {
-              if (!isCircleInsidePath(x, y, plantRadius, customBedPath)) continue;
+              if (!isCircleInsidePathRelaxed(x, y, plantRadius, customBedPath)) continue;
             } else {
               if (!isPointInPath(x, y, customBedPath)) continue;
             }
@@ -1833,28 +1855,33 @@ export default function StudioPage() {
     });
 
     // PHASE 1: Place focal/canopy trees with maximum spacing
+    // At 2x+, pack trees tighter for more coverage
     const focalPlants = processedPlants.filter(p => p.role === 'focal' || p.isCanopy);
     focalPlants.forEach(bundlePlant => {
-      const minSpacing = bundlePlant.radius * 2.5; // Trees need 2.5x their radius apart
+      // Tighter tree spacing at 2x+ for more trees
+      const spacingMult = bundleScale >= 3 ? 1.8 : (bundleScale >= 2 ? 2.0 : 2.5);
+      const minSpacing = bundlePlant.radius * spacingMult;
 
       for (let i = 0; i < bundlePlant.quantity; i++) {
         // Try to space trees evenly across interior
         let bestPos = null;
         let bestMinDist = 0;
 
-        // Generate candidate positions in interior
-        for (let attempt = 0; attempt < 50; attempt++) {
-          // Keep trees away from edges (inset by their radius + buffer)
-          const inset = bundlePlant.isCanopy ? 24 : bundlePlant.radius + 36;
+        // More attempts at 2x+ to find valid positions in irregular beds
+        const maxAttempts = bundleScale >= 2 ? 100 : 50;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          // Keep trees away from edges - smaller inset at 2x+ for better coverage
+          const baseInset = bundlePlant.isCanopy ? 24 : bundlePlant.radius + 36;
+          const inset = bundleScale >= 2 ? baseInset * 0.6 : baseInset;
           const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
           const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
 
-          // Check if in custom path - canopy trees (10'+) can spill, others must fit entirely
+          // Check if in custom path - canopy trees (10'+) can spill, others use relaxed check at 2x+
           if (useCustomPath) {
             if (bundlePlant.isCanopy) {
               if (!isPointInPath(x, y, customBedPath)) continue;
             } else {
-              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) continue;
+              if (!isCircleInsidePathRelaxed(x, y, bundlePlant.radius, customBedPath)) continue;
             }
           }
 
@@ -2013,8 +2040,9 @@ export default function StudioPage() {
       // SHAPE-AWARE: Get valid positions for this plant's radius in the back zone
       let validZonePositions;
       if (useCustomPath) {
+        // Use relaxed checking at 2x+ for better coverage
         validZonePositions = allBackZonePositions.filter(pos =>
-          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius * 1.2, customBedPath)
+          canSpillOver || isCircleInsidePathRelaxed(pos.x, pos.y, bundlePlant.radius, customBedPath)
         );
       } else {
         // For rectangular beds, generate positions the old way
@@ -2037,7 +2065,7 @@ export default function StudioPage() {
       while (clusterCenters.length < numClusters) {
         const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6;
         const fy = (zone.minY + zone.maxY) / 2;
-        if (!useCustomPath || canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+        if (!useCustomPath || canSpillOver || isCircleInsidePathRelaxed(fx, fy, bundlePlant.radius, customBedPath)) {
           clusterCenters.push({ x: fx, y: fy });
         } else {
           break; // Can't find more valid positions
@@ -2048,7 +2076,8 @@ export default function StudioPage() {
         // Use SPLATTER placement with this cluster's portion of plants
         const clusterPlantCount = clusterIdx < clusterCenters.length - 1 ? plantsPerCluster :
           Math.max(1, bundlePlant.quantity - (clusterCenters.length - 1) * plantsPerCluster);
-        const clusterSpacing = bundlePlant.radius * 1.8;
+        // Tighter spacing at 2x+ for denser placement
+        const clusterSpacing = bundlePlant.radius * (bundleScale >= 2 ? 1.4 : 1.8);
         const positions = createSplatterPositions(
           clusterCenter.x, clusterCenter.y,
           clusterPlantCount, clusterSpacing, bundlePlant.role
@@ -2059,28 +2088,29 @@ export default function StudioPage() {
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          // For custom paths: ensure ENTIRE maturity circle stays inside (unless 10'+ canopy)
+          // For custom paths: use relaxed check at 2x+ for better coverage
           if (useCustomPath) {
             const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
             if (canSpillOver) {
               // Tall canopy trees: just check center is inside
               if (!isPointInPath(x, y, customBedPath)) return;
             } else {
-              // All other plants: full maturity circle must stay inside
-              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+              // Use relaxed checking at 2x+ for denser placement
+              if (!isCircleInsidePathRelaxed(x, y, bundlePlant.radius, customBedPath)) return;
             }
           }
 
-          // Looser collision - allow more overlap for organic feel
+          // Looser collision at 2x+ - pack plants tighter for fuller coverage
+          const collisionMultiplier = bundleScale >= 3 ? 0.4 : (bundleScale >= 2 ? 0.5 : 0.7);
           const tooClose = newPlants.some(p => {
             const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
             const isSameType = p.plantId === bundlePlant.plantId;
 
             if (!isSameType) {
-              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.7;
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * collisionMultiplier;
               return d < minDist;
             }
-            return d < bundlePlant.radius * 0.7;
+            return d < bundlePlant.radius * collisionMultiplier;
           });
 
           if (!tooClose) {
@@ -2131,10 +2161,11 @@ export default function StudioPage() {
       const plantsPerCluster = Math.ceil(bundlePlant.quantity / numClusters);
 
       // SHAPE-AWARE: Get valid positions for this plant's radius in middle zone
+      // Use relaxed checking at 2x+ for better coverage
       let validZonePositions;
       if (useCustomPath) {
         validZonePositions = allMiddleZonePositions.filter(pos =>
-          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius * 1.2, customBedPath)
+          canSpillOver || isCircleInsidePathRelaxed(pos.x, pos.y, bundlePlant.radius, customBedPath)
         );
       } else {
         validZonePositions = [];
@@ -2163,7 +2194,7 @@ export default function StudioPage() {
       while (clusterCenters.length < numClusters) {
         const fx = bedBounds.centerX + (Math.random() - 0.5) * bedBounds.width * 0.6;
         const fy = (zone.minY + zone.maxY) / 2;
-        if (!useCustomPath || canSpillOver || isCircleInsidePath(fx, fy, bundlePlant.radius, customBedPath)) {
+        if (!useCustomPath || canSpillOver || isCircleInsidePathRelaxed(fx, fy, bundlePlant.radius, customBedPath)) {
           clusterCenters.push({ x: fx, y: fy });
         } else {
           break;
@@ -2173,7 +2204,8 @@ export default function StudioPage() {
       clusterCenters.forEach((clusterCenter, clusterIdx) => {
         const clusterPlantCount = clusterIdx < clusterCenters.length - 1 ? plantsPerCluster :
           Math.max(1, bundlePlant.quantity - (clusterCenters.length - 1) * plantsPerCluster);
-        const clusterSpacing = bundlePlant.radius * 1.7;
+        // Tighter spacing at 2x+ for denser placement
+        const clusterSpacing = bundlePlant.radius * (bundleScale >= 2 ? 1.3 : 1.7);
         const positions = createSplatterPositions(
           clusterCenter.x, clusterCenter.y,
           clusterPlantCount, clusterSpacing, bundlePlant.role
@@ -2183,23 +2215,25 @@ export default function StudioPage() {
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          // For custom paths: ensure ENTIRE maturity circle stays inside
+          // For custom paths: use relaxed check at 2x+ for denser placement
           if (useCustomPath) {
             if (canSpillOver) {
               if (!isPointInPath(x, y, customBedPath)) return;
             } else {
-              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+              if (!isCircleInsidePathRelaxed(x, y, bundlePlant.radius, customBedPath)) return;
             }
           }
 
+          // Looser collision at 2x+ - pack plants tighter
+          const collisionMult = bundleScale >= 3 ? 0.35 : (bundleScale >= 2 ? 0.45 : 0.65);
           const tooClose = newPlants.some(p => {
             const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
             const isSameType = p.plantId === bundlePlant.plantId;
             if (!isSameType) {
-              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.65;
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * collisionMult;
               return d < minDist;
             }
-            return d < bundlePlant.radius * 0.65;
+            return d < bundlePlant.radius * collisionMult;
           });
 
           if (!tooClose) {
@@ -2245,10 +2279,11 @@ export default function StudioPage() {
       const canSpillOver = bundlePlant.height >= CANOPY_HEIGHT_THRESHOLD;
 
       // SHAPE-AWARE: Get valid positions for this plant in front zone
+      // Use relaxed checking at 2x+ for better coverage
       let validFrontPositions;
       if (useCustomPath) {
         validFrontPositions = allFrontZonePositions.filter(pos =>
-          canSpillOver || isCircleInsidePath(pos.x, pos.y, bundlePlant.radius, customBedPath)
+          canSpillOver || isCircleInsidePathRelaxed(pos.x, pos.y, bundlePlant.radius, customBedPath)
         );
       } else {
         validFrontPositions = [];
@@ -2259,8 +2294,9 @@ export default function StudioPage() {
         }
       }
 
-      // Calculate how many drift lines we need (one per ~7 plants)
-      const numDrifts = Math.max(1, Math.ceil(bundlePlant.quantity / 7));
+      // Calculate how many drift lines we need - more drifts at 2x+ for better coverage
+      const driftDivisor = bundleScale >= 2 ? 5 : 7;
+      const numDrifts = Math.max(1, Math.ceil(bundlePlant.quantity / driftDivisor));
       const plantsPerDrift = Math.ceil(bundlePlant.quantity / numDrifts);
 
       // Select distributed start points for drifts across the front zone
@@ -2280,7 +2316,8 @@ export default function StudioPage() {
         const driftPlantCount = driftIdx < numDrifts - 1 ? plantsPerDrift :
           Math.max(1, bundlePlant.quantity - (numDrifts - 1) * plantsPerDrift);
 
-        const driftWidth = bundlePlant.radius * 2.5;
+        // Tighter drift at 2x+ for denser placement
+        const driftWidth = bundlePlant.radius * (bundleScale >= 2 ? 2.0 : 2.5);
         const positions = createDriftPositions(
           startPos.x, startPos.y,
           endPos.x, endPos.y,
@@ -2291,23 +2328,25 @@ export default function StudioPage() {
           let x = Math.max(bedBounds.minX + plantEdgeOffset, Math.min(bedBounds.maxX - plantEdgeOffset, pos.x));
           let y = Math.max(zone.minY, Math.min(zone.maxY, pos.y));
 
-          // For custom paths: ensure ENTIRE maturity circle stays inside
+          // For custom paths: use relaxed check at 2x+ for denser placement
           if (useCustomPath) {
             if (canSpillOver) {
               if (!isPointInPath(x, y, customBedPath)) return;
             } else {
-              if (!isCircleInsidePath(x, y, bundlePlant.radius, customBedPath)) return;
+              if (!isCircleInsidePathRelaxed(x, y, bundlePlant.radius, customBedPath)) return;
             }
           }
 
+          // Looser collision at 2x+ - pack plants tighter
+          const collisionMult = bundleScale >= 3 ? 0.3 : (bundleScale >= 2 ? 0.4 : 0.6);
           const tooClose = newPlants.some(p => {
             const d = Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
             const isSameType = p.plantId === bundlePlant.plantId;
             if (!isSameType) {
-              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * 0.6;
+              const minDist = getMinSpacing(bundlePlant.plantId, p.plantId) * collisionMult;
               return d < minDist;
             }
-            return d < bundlePlant.radius * 0.6;
+            return d < bundlePlant.radius * collisionMult;
           });
 
           if (!tooClose) {
@@ -2467,18 +2506,19 @@ export default function StudioPage() {
       for (const point of allFlowPoints) {
         if (placedCount >= targetQuantity) break;
 
-        // Apply edge offsets - groundcover maturity circles must stay inside custom paths
-        if (useCustomPath && !isCircleInsidePath(point.x, point.y, bundlePlant.radius, customBedPath)) continue;
+        // Apply edge offsets - use relaxed check at 2x+ for better coverage
+        if (useCustomPath && !isCircleInsidePathRelaxed(point.x, point.y, bundlePlant.radius, customBedPath)) continue;
         if (point.x < bedBounds.minX + EDGE_OFFSET_MIN || point.x > bedBounds.maxX - EDGE_OFFSET_MIN) continue;
         if (point.y < gcZone.minY || point.y > gcZone.maxY) continue;
 
-        // Check spacing - groundcover can be close to other plants but not overlapping
+        // Check spacing - tighter at 2x+ for fuller coverage
+        const gcCollisionMult = bundleScale >= 3 ? 0.35 : (bundleScale >= 2 ? 0.45 : 0.65);
         const tooClose = newPlants.some(p => {
           const dist = Math.sqrt(Math.pow(p.x - point.x, 2) + Math.pow(p.y - point.y, 2));
           const otherPlant = ALL_PLANTS.find(pl => pl.id === p.plantId);
           const isOtherGroundcover = otherPlant?.category === 'groundcover' || otherPlant?.category === 'front';
           // Groundcover can nestle close to larger plants
-          return dist < (isOtherGroundcover ? spacing * 0.65 : spacing * 0.3);
+          return dist < (isOtherGroundcover ? spacing * gcCollisionMult : spacing * 0.2);
         });
 
         if (!tooClose) {
@@ -2511,8 +2551,8 @@ export default function StudioPage() {
       for (let x = bedBounds.minX + EDGE_OFFSET_MIN + 60; x < bedBounds.maxX - EDGE_OFFSET_MIN - 60; x += gcSpacing) {
         const y = frontFillY + (Math.random() - 0.5) * 10;
 
-        // Groundcover gap-fill must also keep maturity circles inside custom path
-        if (useCustomPath && !isCircleInsidePath(x, y, primaryGroundcover.radius, customBedPath)) continue;
+        // Groundcover gap-fill: use relaxed check at 2x+ for better coverage
+        if (useCustomPath && !isCircleInsidePathRelaxed(x, y, primaryGroundcover.radius, customBedPath)) continue;
         if (y < gcZone.minY || y > gcZone.maxY) continue;
 
         // Find nearest groundcover plant (not any plant)
