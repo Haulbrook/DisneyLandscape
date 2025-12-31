@@ -1747,6 +1747,108 @@ export default function StudioPage() {
     }).filter(Boolean);
 
     // ═══════════════════════════════════════════════════════════════════════════════
+    // PLANT FAMILY CAP: Limit similar plants (all roses, all hostas) together
+    // Prevents 77 + 44 + 29 = 150 roses dominating the bed
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const PLANT_FAMILY_CAP = Math.round(25 * scaleFactor); // Max plants of same "family"
+    const plantFamilies = {
+      'rose': ['rose-knockout', 'rose-pink-drift', 'rose-coral-drift', 'rose-peach-drift', 'rose-red-drift', 'rose-apricot-drift'],
+      'hosta': ['hosta', 'hosta-blue-angel', 'hosta-guacamole', 'hosta-patriot'],
+      'hydrangea': ['hydrangea-annabelle', 'hydrangea-endless-summer', 'hydrangea-limelight', 'hydrangea-little-lime', 'hydrangea-little-quick-fire', 'hydrangea-oakleaf', 'hydrangea-summer-crush'],
+      'azalea': ['azalea-encore-amethyst', 'azalea-encore-autumn-twist', 'azalea-encore-bonfire', 'azalea-encore-carnation', 'azalea-encore-embers', 'azalea-encore-majesty'],
+      'fern': ['fern-autumn', 'fern-christmas', 'fern-japanese-painted', 'holly-fern']
+    };
+
+    // Calculate family totals and cap proportionally
+    Object.entries(plantFamilies).forEach(([family, plantIds]) => {
+      const familyPlants = processedPlants.filter(p => plantIds.some(id => p.plantId.includes(id)));
+      const familyTotal = familyPlants.reduce((sum, p) => sum + p.quantity, 0);
+
+      if (familyTotal > PLANT_FAMILY_CAP) {
+        const reductionRatio = PLANT_FAMILY_CAP / familyTotal;
+        familyPlants.forEach(p => {
+          p.quantity = roundToOddNumber(Math.max(3, Math.floor(p.quantity * reductionRatio)));
+        });
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // HEIGHT TIER GAP INJECTION: Add plants for missing height layers
+    // Waist (24-36"), Ankle (6-12") are commonly missing
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const heightTierCounts = {
+      groundPlane: 0, ankle: 0, knee: 0, waist: 0, chest: 0, eyeLevel: 0, canopy: 0
+    };
+
+    processedPlants.forEach(p => {
+      const h = p.height;
+      if (h <= 6) heightTierCounts.groundPlane += p.quantity;
+      else if (h <= 12) heightTierCounts.ankle += p.quantity;
+      else if (h <= 24) heightTierCounts.knee += p.quantity;
+      else if (h <= 36) heightTierCounts.waist += p.quantity;
+      else if (h <= 48) heightTierCounts.chest += p.quantity;
+      else if (h <= 72) heightTierCounts.eyeLevel += p.quantity;
+      else heightTierCounts.canopy += p.quantity;
+    });
+
+    const existingPlantIds = new Set(processedPlants.map(p => p.plantId));
+    const minTierQty = Math.max(5, Math.round(3 * bundleScale));
+
+    // WAIST HEIGHT (24-36") injection
+    if (heightTierCounts.waist < minTierQty) {
+      const waistPlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h >= 24 && h <= 36;
+      });
+      if (waistPlants.length > 0) {
+        const shuffled = waistPlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, 2);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'middle',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(5, minTierQty)),
+            isSmallPlant: false,
+            isCanopy: false,
+            injectedForHeight: true
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // ANKLE HEIGHT (6-12") injection
+    if (heightTierCounts.ankle < minTierQty) {
+      const anklePlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h >= 6 && h <= 12;
+      });
+      if (anklePlants.length > 0) {
+        const shuffled = anklePlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, 2);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'front',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(5, minTierQty)),
+            isSmallPlant: true,
+            isCanopy: false,
+            injectedForHeight: true
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
     // CHEST HEIGHT TIER BOOST: If missing 36-48" plants, boost existing ones
     // ═══════════════════════════════════════════════════════════════════════════════
     if (chestHeightCount < MIN_CHEST_HEIGHT_QTY) {
@@ -1755,6 +1857,20 @@ export default function StudioPage() {
         if (p.isChestHeight && p.quantity < 5) {
           p.quantity = roundToOddNumber(Math.max(5, p.quantity + 2));
         }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // TREE QUANTITY BOOST: Large beds need more trees
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const minTreesForBed = Math.max(3, Math.ceil(bedArea / 75)); // 1 tree per 75 sq ft minimum
+    const currentTrees = processedPlants.filter(p => p.role === 'focal' || p.isCanopy);
+    const currentTreeQty = currentTrees.reduce((sum, p) => sum + p.quantity, 0);
+
+    if (currentTreeQty < minTreesForBed) {
+      const treeBoost = Math.ceil((minTreesForBed - currentTreeQty) / Math.max(1, currentTrees.length));
+      currentTrees.forEach(p => {
+        p.quantity = roundToOddNumber(p.quantity + treeBoost);
       });
     }
 
