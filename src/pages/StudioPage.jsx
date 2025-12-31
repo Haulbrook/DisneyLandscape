@@ -306,6 +306,7 @@ export default function StudioPage() {
   const [placementWarnings, setPlacementWarnings] = useState([]); // Warnings for placement rule violations
 
   const canvasRef = useRef(null);
+  const canvasContainerRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Calculate coverage whenever plants change
@@ -571,6 +572,11 @@ export default function StudioPage() {
     e.preventDefault();
     e.stopPropagation();
 
+    // Store scroll position before any state changes
+    const container = canvasContainerRef.current;
+    const scrollLeft = container?.scrollLeft || 0;
+    const scrollTop = container?.scrollTop || 0;
+
     // Prevent any focus-related scrolling by blurring active element
     if (document.activeElement && document.activeElement !== document.body) {
       document.activeElement.blur();
@@ -579,15 +585,22 @@ export default function StudioPage() {
     // Shift+Click: Toggle multi-select
     if (e.shiftKey) {
       togglePlantMultiSelect(plant.id);
-      return;
+    } else {
+      // Regular click: Single select (clears multi-select)
+      if (multiSelectedPlants.length > 0) {
+        setMultiSelectedPlants([]);
+      }
+      // Use functional update to avoid any stale state issues
+      setSelectedPlacedPlant(prev => prev === plant.id ? null : plant.id);
     }
 
-    // Regular click: Single select (clears multi-select)
-    if (multiSelectedPlants.length > 0) {
-      setMultiSelectedPlants([]);
-    }
-    // Use functional update to avoid any stale state issues
-    setSelectedPlacedPlant(prev => prev === plant.id ? null : plant.id);
+    // Restore scroll position after React's state update (use requestAnimationFrame for after render)
+    requestAnimationFrame(() => {
+      if (container) {
+        container.scrollLeft = scrollLeft;
+        container.scrollTop = scrollTop;
+      }
+    });
   };
 
   // Handle drag start
@@ -4125,7 +4138,11 @@ export default function StudioPage() {
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 overflow-auto bg-cream-100 p-8">
+          <div
+            ref={canvasContainerRef}
+            className="flex-1 overflow-auto bg-cream-100 p-8"
+            style={{ scrollBehavior: 'auto' }}
+          >
             {/* Placement Warnings - Residential Rules Violations */}
             {placementWarnings.length > 0 && (
               <div className="max-w-2xl mx-auto mb-4 space-y-2">

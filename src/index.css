@@ -33,8 +33,8 @@
   background: #677c56;
 }
 
-/* Smooth transitions */
-* {
+/* Smooth scrolling only for html (landing page navigation) */
+html {
   scroll-behavior: smooth;
 }
 
