@@ -1854,29 +1854,57 @@ export default function StudioPage() {
       return b.height - a.height; // Taller plants first within same role
     });
 
-    // PHASE 1: Place focal/canopy trees with maximum spacing
-    // At 2x+, pack trees tighter for more coverage
+    // PHASE 1: Place focal/canopy trees with maximum spacing - LOBE-AWARE
+    // At 2x+, pack trees tighter for more coverage, ensure distribution across all lobes
     const focalPlants = processedPlants.filter(p => p.role === 'focal' || p.isCanopy);
+
+    // Pre-sample ALL valid tree positions across the entire bed
+    const allTreePositions = [];
+    const treeGridSpacing = 24; // Sample every 24 inches
+    for (let x = bedBounds.minX + 36; x <= bedBounds.maxX - 36; x += treeGridSpacing) {
+      for (let y = bedBounds.minY + 36; y <= bedBounds.maxY - 36; y += treeGridSpacing) {
+        if (useCustomPath) {
+          if (isPointInPath(x, y, customBedPath)) {
+            allTreePositions.push({ x, y });
+          }
+        } else {
+          allTreePositions.push({ x, y });
+        }
+      }
+    }
+
+    // Detect lobes in all tree positions for distribution
+    const treeLobes = detectLobes(allTreePositions, 60); // 60" connection radius for lobes
+
     focalPlants.forEach(bundlePlant => {
       // Tighter tree spacing at 2x+ for more trees
       const spacingMult = bundleScale >= 3 ? 1.8 : (bundleScale >= 2 ? 2.0 : 2.5);
       const minSpacing = bundlePlant.radius * spacingMult;
 
-      for (let i = 0; i < bundlePlant.quantity; i++) {
-        // Try to space trees evenly across interior
+      // LOBE-AWARE: Distribute trees across all lobes
+      const treesPerLobe = treeLobes.length > 1
+        ? Math.max(1, Math.ceil(bundlePlant.quantity / treeLobes.length))
+        : bundlePlant.quantity;
+
+      let totalPlaced = 0;
+      const lobeQueue = [...treeLobes]; // Rotate through lobes
+
+      for (let i = 0; i < bundlePlant.quantity && totalPlaced < bundlePlant.quantity; i++) {
+        // Pick next lobe (round-robin for even distribution)
+        const currentLobe = treeLobes.length > 1
+          ? lobeQueue[i % lobeQueue.length]
+          : allTreePositions;
+
         let bestPos = null;
         let bestMinDist = 0;
 
-        // More attempts at 2x+ to find valid positions in irregular beds
-        const maxAttempts = bundleScale >= 2 ? 100 : 50;
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          // Keep trees away from edges - smaller inset at 2x+ for better coverage
-          const baseInset = bundlePlant.isCanopy ? 24 : bundlePlant.radius + 36;
-          const inset = bundleScale >= 2 ? baseInset * 0.6 : baseInset;
-          const x = bedBounds.minX + inset + Math.random() * (bedBounds.width - inset * 2);
-          const y = bedBounds.minY + inset + Math.random() * (bedBounds.height - inset * 2);
+        // Try positions from the current lobe
+        const shuffledPositions = [...currentLobe].sort(() => Math.random() - 0.5);
 
-          // Check if in custom path - canopy trees (10'+) can spill, others use relaxed check at 2x+
+        for (const pos of shuffledPositions.slice(0, 50)) {
+          const { x, y } = pos;
+
+          // Verify position is still valid with plant radius
           if (useCustomPath) {
             if (bundlePlant.isCanopy) {
               if (!isPointInPath(x, y, customBedPath)) continue;
@@ -1909,6 +1937,7 @@ export default function StudioPage() {
             size: BUNDLE_DEFAULT_SIZE,
             sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
           });
+          totalPlaced++;
         }
       }
     });
@@ -2019,12 +2048,34 @@ export default function StudioPage() {
     const structurePlants = processedPlants.filter(p => p.role === 'back' || p.role === 'topiary');
     const usedClusterAreas = []; // Track cluster areas for bleeding overlap
 
-    // Pre-sample valid positions for back zone plants (with room for their radius)
-    const backZoneSampleSpacing = 30; // Sample every 30 inches
+    // Pre-sample ALL valid positions across ENTIRE bed (not filtered by Y)
+    // This ensures we get positions in all lobes
+    const zoneSampleSpacing = 30; // Sample every 30 inches
+    const allBedPositions = useCustomPath
+      ? sampleValidBedPositions(zoneSampleSpacing, 0)
+      : [];
+
+    // Detect lobes for ALL subsequent plant placement
+    const bedLobes = detectLobes(allBedPositions, 50); // 50" connection radius
+
+    // For back zone, use positions in the "back" portion of EACH lobe
+    // This is calculated relative to each lobe's local bounds, not the overall bed
     const allBackZonePositions = useCustomPath
-      ? sampleValidBedPositions(backZoneSampleSpacing, 0).filter(pos => {
+      ? allBedPositions.filter(pos => {
+          // Find which lobe this position belongs to
+          for (const lobe of bedLobes) {
+            if (lobe.some(p => Math.abs(p.x - pos.x) < 5 && Math.abs(p.y - pos.y) < 5)) {
+              // Calculate lobe's local bounds
+              const lobeMinY = Math.min(...lobe.map(p => p.y));
+              const lobeMaxY = Math.max(...lobe.map(p => p.y));
+              const lobeHeight = lobeMaxY - lobeMinY;
+              // Position is in back half of ITS OWN lobe
+              return pos.y <= lobeMinY + lobeHeight * 0.5;
+            }
+          }
+          // Fallback: use overall bed bounds
           const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
-          return relY <= 0.5; // Back half of bed
+          return relY <= 0.5;
         })
       : [];
 
@@ -2143,11 +2194,22 @@ export default function StudioPage() {
     const middlePlants = processedPlants.filter(p => p.role === 'middle');
 
     // Pre-sample valid positions for middle zone plants
-    const middleZoneSampleSpacing = 30;
+    // Use lobe-relative Y positioning for irregular shapes
     const allMiddleZonePositions = useCustomPath
-      ? sampleValidBedPositions(middleZoneSampleSpacing, 0).filter(pos => {
+      ? allBedPositions.filter(pos => {
+          // Find which lobe this position belongs to
+          for (const lobe of bedLobes) {
+            if (lobe.some(p => Math.abs(p.x - pos.x) < 5 && Math.abs(p.y - pos.y) < 5)) {
+              const lobeMinY = Math.min(...lobe.map(p => p.y));
+              const lobeMaxY = Math.max(...lobe.map(p => p.y));
+              const lobeHeight = lobeMaxY - lobeMinY;
+              // Position is in middle zone of ITS OWN lobe (25-75%)
+              return pos.y >= lobeMinY + lobeHeight * 0.25 && pos.y <= lobeMinY + lobeHeight * 0.75;
+            }
+          }
+          // Fallback: use overall bed bounds
           const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
-          return relY >= 0.25 && relY <= 0.75; // Middle zone
+          return relY >= 0.25 && relY <= 0.75;
         })
       : [];
 
@@ -2265,11 +2327,22 @@ export default function StudioPage() {
     const frontPlants = processedPlants.filter(p => p.role === 'front' || p.role === 'edge');
 
     // Pre-sample valid positions for front zone
-    const frontZoneSampleSpacing = 25;
+    // Use lobe-relative Y positioning for irregular shapes
     const allFrontZonePositions = useCustomPath
-      ? sampleValidBedPositions(frontZoneSampleSpacing, 0).filter(pos => {
+      ? allBedPositions.filter(pos => {
+          // Find which lobe this position belongs to
+          for (const lobe of bedLobes) {
+            if (lobe.some(p => Math.abs(p.x - pos.x) < 5 && Math.abs(p.y - pos.y) < 5)) {
+              const lobeMinY = Math.min(...lobe.map(p => p.y));
+              const lobeMaxY = Math.max(...lobe.map(p => p.y));
+              const lobeHeight = lobeMaxY - lobeMinY;
+              // Position is in front zone of ITS OWN lobe (bottom 45%)
+              return pos.y >= lobeMinY + lobeHeight * 0.55;
+            }
+          }
+          // Fallback: use overall bed bounds
           const relY = (pos.y - bedBounds.minY) / (bedBounds.maxY - bedBounds.minY);
-          return relY >= 0.55; // Front zone (bottom 45%)
+          return relY >= 0.55;
         })
       : [];
 
