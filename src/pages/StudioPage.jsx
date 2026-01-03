@@ -1513,6 +1513,7 @@ export default function StudioPage() {
 
     // Select evenly distributed cluster centers from sampled positions
     // ENHANCED: First ensures each detected lobe gets at least one cluster center
+    // Uses AREA-BASED distribution for professional proportional coverage
     const selectDistributedCenters = (positions, numCenters, minSpacing) => {
       if (positions.length === 0) return [];
       if (positions.length <= numCenters) return [...positions];
@@ -1525,13 +1526,20 @@ export default function StudioPage() {
         const lobes = detectLobes(positions, connectionRadius);
 
         if (lobes.length > 1) {
-          // Multiple lobes detected - distribute clusters proportionally
-          const totalPositions = positions.length;
+          // Calculate actual AREA of each lobe using bounding box
+          const lobeAreas = lobes.map(lobe => {
+            const minX = Math.min(...lobe.map(p => p.x));
+            const maxX = Math.max(...lobe.map(p => p.x));
+            const minY = Math.min(...lobe.map(p => p.y));
+            const maxY = Math.max(...lobe.map(p => p.y));
+            return (maxX - minX) * (maxY - minY);
+          });
+          const totalArea = lobeAreas.reduce((sum, a) => sum + a, 0);
 
-          lobes.forEach(lobe => {
-            // Each lobe gets clusters proportional to its size (min 1)
-            const lobeShare = lobe.length / totalPositions;
-            const lobeClusters = Math.max(1, Math.round(numCenters * lobeShare));
+          lobes.forEach((lobe, lobeIdx) => {
+            // Each lobe gets clusters proportional to its AREA (min 1)
+            const areaShare = totalArea > 0 ? lobeAreas[lobeIdx] / totalArea : 1 / lobes.length;
+            const lobeClusters = Math.max(1, Math.round(numCenters * areaShare));
 
             // Pick centers from this lobe using greedy selection
             const lobePositions = [...lobe];
@@ -1747,28 +1755,108 @@ export default function StudioPage() {
     }).filter(Boolean);
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // PLANT FAMILY CAP: Limit similar plants (all roses, all hostas) together
-    // Prevents 77 + 44 + 29 = 150 roses dominating the bed
+    // MINIMUM QUANTITY ENFORCEMENT: No plant should be qty 1 or 2
+    // Professional designs always group plants in 3-5-7
     // ═══════════════════════════════════════════════════════════════════════════════
-    const PLANT_FAMILY_CAP = Math.round(25 * scaleFactor); // Max plants of same "family"
+    processedPlants.forEach(p => {
+      if (p.quantity < 3) {
+        p.quantity = 3;
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // PLANT FAMILY CAP + VARIETY REQUIREMENT
+    // As quantity increases, require more varieties to prevent monoculture
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const PLANT_FAMILY_CAP = Math.round(18 * scaleFactor); // Tighter cap (was 25)
     const plantFamilies = {
       'rose': ['rose-knockout', 'rose-pink-drift', 'rose-coral-drift', 'rose-peach-drift', 'rose-red-drift', 'rose-apricot-drift'],
       'hosta': ['hosta', 'hosta-blue-angel', 'hosta-guacamole', 'hosta-patriot'],
       'hydrangea': ['hydrangea-annabelle', 'hydrangea-endless-summer', 'hydrangea-limelight', 'hydrangea-little-lime', 'hydrangea-little-quick-fire', 'hydrangea-oakleaf', 'hydrangea-summer-crush'],
       'azalea': ['azalea-encore-amethyst', 'azalea-encore-autumn-twist', 'azalea-encore-bonfire', 'azalea-encore-carnation', 'azalea-encore-embers', 'azalea-encore-majesty'],
-      'fern': ['fern-autumn', 'fern-christmas', 'fern-japanese-painted', 'holly-fern']
+      'fern': ['fern-autumn', 'fern-christmas', 'fern-japanese-painted', 'holly-fern'],
+      'camellia': ['camellia-japonica', 'camellia-sasanqua', 'camellia-shi-shi', 'camellia-yuletide'],
+      'tea-olive': ['tea-olive'],
+      'boxwood': ['baby-gem-boxwood', 'boxwood-wintergreen'],
+      'juniper': ['juniper-blue-pacific', 'juniper-blue-point', 'juniper-blue-rug', 'juniper-skyrocket', 'bar-harbor-juniper', 'blue-point-juniper']
     };
 
-    // Calculate family totals and cap proportionally
-    Object.entries(plantFamilies).forEach(([family, plantIds]) => {
-      const familyPlants = processedPlants.filter(p => plantIds.some(id => p.plantId.includes(id)));
-      const familyTotal = familyPlants.reduce((sum, p) => sum + p.quantity, 0);
+    // Dynamic variety requirement: more plants = more varieties needed
+    const getMinVarieties = (totalQty) => {
+      if (totalQty <= 10) return 1;
+      if (totalQty <= 20) return 2;
+      if (totalQty <= 35) return 3;
+      if (totalQty <= 50) return 4;
+      return 5; // 50+ plants need 5 varieties
+    };
 
-      if (familyTotal > PLANT_FAMILY_CAP) {
-        const reductionRatio = PLANT_FAMILY_CAP / familyTotal;
+    // Process each plant family
+    Object.entries(plantFamilies).forEach(([family, allFamilyIds]) => {
+      const familyPlants = processedPlants.filter(p => allFamilyIds.some(id => p.plantId.includes(id)));
+      if (familyPlants.length === 0) return;
+
+      const familyTotal = familyPlants.reduce((sum, p) => sum + p.quantity, 0);
+      const currentVarieties = familyPlants.length;
+      const requiredVarieties = getMinVarieties(familyTotal);
+
+      // VARIETY INJECTION: If not enough varieties for the quantity, add more
+      if (currentVarieties < requiredVarieties && familyTotal > 15) {
+        const existingIds = new Set(familyPlants.map(p => p.plantId));
+        const availableVarieties = allFamilyIds.filter(id => {
+          // Check if this variety exists in ALL_PLANTS and isn't already used
+          const plant = ALL_PLANTS.find(p => p.id === id || p.id.includes(id));
+          return plant && !existingIds.has(plant.id);
+        });
+
+        const varietiesToAdd = Math.min(requiredVarieties - currentVarieties, availableVarieties.length);
+        const qtyToRedistribute = Math.floor(familyTotal * 0.3); // Take 30% for new varieties
+        const qtyPerNewVariety = Math.max(3, Math.floor(qtyToRedistribute / Math.max(1, varietiesToAdd)));
+
+        // Reduce existing quantities to make room
+        const reductionPerPlant = Math.ceil(qtyToRedistribute / familyPlants.length);
         familyPlants.forEach(p => {
+          p.quantity = roundToOddNumber(Math.max(3, p.quantity - reductionPerPlant));
+        });
+
+        // Add new varieties
+        availableVarieties.slice(0, varietiesToAdd).forEach(varId => {
+          const plantData = ALL_PLANTS.find(p => p.id === varId || p.id.includes(varId));
+          if (plantData) {
+            processedPlants.push({
+              plantId: plantData.id,
+              plantData,
+              role: familyPlants[0]?.role || 'middle',
+              height: getPlantHeightInches(plantData.id),
+              radius: getPlantSpreadRadius(plantData.id),
+              quantity: roundToOddNumber(qtyPerNewVariety),
+              isSmallPlant: false,
+              isCanopy: false,
+              injectedForVariety: true
+            });
+          }
+        });
+      }
+
+      // CAP: Recalculate and cap if still over limit
+      const updatedFamilyPlants = processedPlants.filter(p => allFamilyIds.some(id => p.plantId.includes(id)));
+      const updatedTotal = updatedFamilyPlants.reduce((sum, p) => sum + p.quantity, 0);
+
+      if (updatedTotal > PLANT_FAMILY_CAP) {
+        const reductionRatio = PLANT_FAMILY_CAP / updatedTotal;
+        updatedFamilyPlants.forEach(p => {
           p.quantity = roundToOddNumber(Math.max(3, Math.floor(p.quantity * reductionRatio)));
         });
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // SINGLE PLANT TYPE CAP: No single variety should dominate
+    // Max 15 of any single plant type (e.g., max 15 Azalea Carnation)
+    // ═══════════════════════════════════════════════════════════════════════════════
+    const MAX_SINGLE_VARIETY = Math.round(12 * scaleFactor);
+    processedPlants.forEach(p => {
+      if (p.quantity > MAX_SINGLE_VARIETY && p.role !== 'focal') {
+        p.quantity = roundToOddNumber(MAX_SINGLE_VARIETY);
       }
     });
 
@@ -1992,68 +2080,140 @@ export default function StudioPage() {
     // Detect lobes in all tree positions for distribution
     const treeLobes = detectLobes(allTreePositions, 60); // 60" connection radius for lobes
 
-    focalPlants.forEach(bundlePlant => {
-      // Tighter tree spacing at 2x+ for more trees
+    // Calculate lobe areas for proportional distribution
+    const lobeAreas = treeLobes.map(lobe => {
+      const minX = Math.min(...lobe.map(p => p.x));
+      const maxX = Math.max(...lobe.map(p => p.x));
+      const minY = Math.min(...lobe.map(p => p.y));
+      const maxY = Math.max(...lobe.map(p => p.y));
+      return (maxX - minX) * (maxY - minY);
+    });
+    const totalLobeArea = lobeAreas.reduce((sum, a) => sum + a, 0);
+
+    // Helper: Find best tree position in a given set of positions
+    const findBestTreePosition = (positions, plantRadius, isCanopyTree) => {
       const spacingMult = bundleScale >= 3 ? 1.8 : (bundleScale >= 2 ? 2.0 : 2.5);
-      const minSpacing = bundlePlant.radius * spacingMult;
+      const minSpacing = plantRadius * spacingMult;
 
-      // LOBE-AWARE: Distribute trees across all lobes
-      const treesPerLobe = treeLobes.length > 1
-        ? Math.max(1, Math.ceil(bundlePlant.quantity / treeLobes.length))
-        : bundlePlant.quantity;
+      const shuffledPositions = [...positions].sort(() => Math.random() - 0.5);
+      let bestPos = null;
+      let bestMinDist = 0;
 
-      let totalPlaced = 0;
-      const lobeQueue = [...treeLobes]; // Rotate through lobes
+      for (const pos of shuffledPositions.slice(0, 50)) {
+        const { x, y } = pos;
 
-      for (let i = 0; i < bundlePlant.quantity && totalPlaced < bundlePlant.quantity; i++) {
-        // Pick next lobe (round-robin for even distribution)
-        const currentLobe = treeLobes.length > 1
-          ? lobeQueue[i % lobeQueue.length]
-          : allTreePositions;
-
-        let bestPos = null;
-        let bestMinDist = 0;
-
-        // Try positions from the current lobe
-        const shuffledPositions = [...currentLobe].sort(() => Math.random() - 0.5);
-
-        for (const pos of shuffledPositions.slice(0, 50)) {
-          const { x, y } = pos;
-
-          // Verify position is still valid with plant radius
-          if (useCustomPath) {
-            if (bundlePlant.isCanopy) {
-              if (!isPointInPath(x, y, customBedPath)) continue;
-            } else {
-              if (!isCircleInsidePathRelaxed(x, y, bundlePlant.radius, customBedPath)) continue;
-            }
-          }
-
-          // Check minimum distance from other trees
-          const minDistToOthers = newPlants
-            .filter(p => getPlantHeightInches(p.plantId) > 72)
-            .reduce((min, p) => Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
-
-          if (minDistToOthers > minSpacing && minDistToOthers > bestMinDist) {
-            if (!checkCollision(x, y, bundlePlant.plantId, newPlants)) {
-              bestPos = { x, y };
-              bestMinDist = minDistToOthers;
-            }
+        if (useCustomPath) {
+          if (isCanopyTree) {
+            if (!isPointInPath(x, y, customBedPath)) continue;
+          } else {
+            if (!isCircleInsidePathRelaxed(x, y, plantRadius, customBedPath)) continue;
           }
         }
 
-        if (bestPos) {
-          newPlants.push({
-            id: `bundle-${Date.now()}-focal-${i}`,
-            plantId: bundlePlant.plantId,
-            x: bestPos.x,
-            y: bestPos.y,
-            rotation: (Math.random() - 0.5) * 5,
-            scale: 0.95 + Math.random() * 0.1,
-            size: BUNDLE_DEFAULT_SIZE,
-            sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
-          });
-          totalPlaced++;
+        const minDistToOthers = newPlants
+          .filter(p => getPlantHeightInches(p.plantId) > 72)
+          .reduce((min, p) => Math.min(min, Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2))), Infinity);
+
+        if (minDistToOthers > minSpacing && minDistToOthers > bestMinDist) {
+          bestPos = { x, y };
+          bestMinDist = minDistToOthers;
+        }
+      }
+      return bestPos;
+    };
+
+    focalPlants.forEach(bundlePlant => {
+      let totalPlaced = 0;
+      const treesPlacedPerLobe = new Array(treeLobes.length).fill(0);
+
+      // ═══════════════════════════════════════════════════════════════════════════════
+      // PHASE 1A: GUARANTEE AT LEAST 1 TREE PER LOBE
+      // This ensures every lobe has tree coverage, even if total trees < lobes
+      // ═══════════════════════════════════════════════════════════════════════════════
+      if (treeLobes.length > 1) {
+        for (let lobeIdx = 0; lobeIdx < treeLobes.length && totalPlaced < bundlePlant.quantity; lobeIdx++) {
+          const bestPos = findBestTreePosition(treeLobes[lobeIdx], bundlePlant.radius, bundlePlant.isCanopy);
+
+          if (bestPos && !checkCollision(bestPos.x, bestPos.y, bundlePlant.plantId, newPlants)) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-focal-lobe${lobeIdx}-${Math.random().toString(36).substr(2, 5)}`,
+              plantId: bundlePlant.plantId,
+              x: bestPos.x,
+              y: bestPos.y,
+              rotation: (Math.random() - 0.5) * 5,
+              scale: 0.95 + Math.random() * 0.1,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
+            });
+            totalPlaced++;
+            treesPlacedPerLobe[lobeIdx]++;
+          }
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════════════════════════
+      // PHASE 1B: DISTRIBUTE REMAINING TREES PROPORTIONALLY BY LOBE AREA
+      // Larger lobes get more trees - professional distribution
+      // ═══════════════════════════════════════════════════════════════════════════════
+      const remainingTrees = bundlePlant.quantity - totalPlaced;
+
+      if (remainingTrees > 0 && treeLobes.length > 1 && totalLobeArea > 0) {
+        // Calculate how many additional trees each lobe should get based on area
+        const targetTreesPerLobe = lobeAreas.map((area, idx) => {
+          const areaShare = area / totalLobeArea;
+          // Target = area proportion of total trees, minus what's already placed
+          return Math.max(0, Math.round(bundlePlant.quantity * areaShare) - treesPlacedPerLobe[idx]);
+        });
+
+        // Distribute remaining trees to lobes that need more
+        for (let i = 0; i < remainingTrees; i++) {
+          // Find lobe with biggest deficit (most underserved relative to area)
+          let bestLobeIdx = 0;
+          let biggestDeficit = -Infinity;
+
+          for (let lobeIdx = 0; lobeIdx < treeLobes.length; lobeIdx++) {
+            const deficit = targetTreesPerLobe[lobeIdx] - treesPlacedPerLobe[lobeIdx];
+            if (deficit > biggestDeficit) {
+              biggestDeficit = deficit;
+              bestLobeIdx = lobeIdx;
+            }
+          }
+
+          const bestPos = findBestTreePosition(treeLobes[bestLobeIdx], bundlePlant.radius, bundlePlant.isCanopy);
+
+          if (bestPos && !checkCollision(bestPos.x, bestPos.y, bundlePlant.plantId, newPlants)) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-focal-${totalPlaced}-${Math.random().toString(36).substr(2, 5)}`,
+              plantId: bundlePlant.plantId,
+              x: bestPos.x,
+              y: bestPos.y,
+              rotation: (Math.random() - 0.5) * 5,
+              scale: 0.95 + Math.random() * 0.1,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
+            });
+            totalPlaced++;
+            treesPlacedPerLobe[bestLobeIdx]++;
+          }
+        }
+      } else if (remainingTrees > 0) {
+        // Single lobe or fallback - place remaining trees anywhere valid
+        for (let i = 0; i < remainingTrees; i++) {
+          const bestPos = findBestTreePosition(allTreePositions, bundlePlant.radius, bundlePlant.isCanopy);
+
+          if (bestPos && !checkCollision(bestPos.x, bestPos.y, bundlePlant.plantId, newPlants)) {
+            newPlants.push({
+              id: `bundle-${Date.now()}-focal-${totalPlaced}-${Math.random().toString(36).substr(2, 5)}`,
+              plantId: bundlePlant.plantId,
+              x: bestPos.x,
+              y: bestPos.y,
+              rotation: (Math.random() - 0.5) * 5,
+              scale: 0.95 + Math.random() * 0.1,
+              size: BUNDLE_DEFAULT_SIZE,
+              sizeMultiplier: BUNDLE_SIZE_MULTIPLIER
+            });
+            totalPlaced++;
+          }
         }
       }
     });
