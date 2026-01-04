@@ -58,13 +58,18 @@ export const PLANT_BUNDLES = [
         // CHEST HEIGHT (36-48") - 3 options
         { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'CHEST: Winter blooms', heightTier: 'chest' },
         { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'CHEST: Evergreen backdrop', heightTier: 'chest' },
-        { plantId: 'azalea-encore-autumn-royalty', quantity: 3, role: 'structure', note: 'CHEST: Purple rebloomer', heightTier: 'chest' }
+        { plantId: 'azalea-encore-autumn-royalty', quantity: 3, role: 'structure', note: 'CHEST: Purple rebloomer', heightTier: 'chest' },
+        // ZONE 7 ADDITIONS - Southern shrubs
+        { plantId: 'vitex', quantity: 2, role: 'structure', note: 'ZONE 7: Summer butterfly magnet', heightTier: 'eye' },
+        { plantId: 'clethra', quantity: 2, role: 'structure', note: 'US NATIVE: Summersweet fragrance', heightTier: 'chest' }
       ],
       seasonal: [
         // WAIST HEIGHT (24-36") - 3 options
         { plantId: 'azalea-encore-carnation', quantity: 8, role: 'seasonal', note: 'WAIST: Pink mass', heightTier: 'waist' },
         { plantId: 'azalea-encore-amethyst', quantity: 5, role: 'seasonal', note: 'WAIST: Purple accents', heightTier: 'waist' },
-        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'WAIST: Compact hydrangea', heightTier: 'waist' }
+        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'WAIST: Compact hydrangea', heightTier: 'waist' },
+        // ZONE 7 ADDITIONS - Shade perennials
+        { plantId: 'astilbe', quantity: 4, role: 'seasonal', note: 'ZONE 7: Feathery shade plumes', heightTier: 'knee' }
       ],
       texture: [
         // KNEE HEIGHT (12-24") - 3 options
@@ -73,13 +78,17 @@ export const PLANT_BUNDLES = [
         { plantId: 'cast-iron-plant', quantity: 5, role: 'texture', note: 'KNEE: Deep shade tolerant', heightTier: 'knee' },
         // ANKLE HEIGHT (6-12") - 2 options
         { plantId: 'liriope-variegated', quantity: 5, role: 'texture', note: 'ANKLE: Striped lilyturf', heightTier: 'ankle' },
-        { plantId: 'mondo-grass', quantity: 5, role: 'texture', note: 'ANKLE: Dark green edging', heightTier: 'ankle' }
+        { plantId: 'mondo-grass', quantity: 5, role: 'texture', note: 'ANKLE: Dark green edging', heightTier: 'ankle' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'coral-bells', quantity: 4, role: 'texture', note: 'ZONE 7: Colorful shade foliage', heightTier: 'knee' }
       ],
       carpet: [
         // GROUND PLANE (0-6") - 3 options
         { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'GROUND: Shade groundcover', heightTier: 'ground' },
         { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'GROUND: Purple accent carpet', heightTier: 'ground' },
-        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'GROUND: Golden carpet', heightTier: 'ground' }
+        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'GROUND: Golden carpet', heightTier: 'ground' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'sweet-woodruff', quantity: 2, role: 'carpet', note: 'ZONE 7: Fragrant shade carpet', heightTier: 'ground' }
       ]
     }
   },
@@ -115,13 +124,18 @@ export const PLANT_BUNDLES = [
         // CHEST HEIGHT (36-48") - 3 options
         { plantId: 'hydrangea-annabelle', quantity: 4, role: 'structure', note: 'CHEST: White pom-poms', heightTier: 'chest' },
         { plantId: 'holly-nellie-stevens', quantity: 2, role: 'structure', note: 'CHEST: Evergreen backdrop', heightTier: 'chest' },
-        { plantId: 'boxwood-wintergreen', quantity: 4, role: 'structure', note: 'CHEST: Classic American hedge', heightTier: 'chest' }
+        { plantId: 'boxwood-wintergreen', quantity: 4, role: 'structure', note: 'CHEST: Classic American hedge', heightTier: 'chest' },
+        // ZONE 7 ADDITIONS - American shrubs
+        { plantId: 'clethra', quantity: 2, role: 'structure', note: 'US NATIVE: Summersweet fragrance', heightTier: 'chest' },
+        { plantId: 'elderberry', quantity: 2, role: 'structure', note: 'US NATIVE: Wildlife-friendly shrub', heightTier: 'eye' }
       ],
       seasonal: [
         // WAIST HEIGHT (24-36") - 3 options
         { plantId: 'rose-knockout-double-red', quantity: 5, role: 'seasonal', note: 'WAIST: Red continuous bloom', heightTier: 'waist' },
         { plantId: 'rose-pink-drift', quantity: 4, role: 'seasonal', note: 'WAIST: Pink carpet roses', heightTier: 'waist' },
-        { plantId: 'rose-coral-drift', quantity: 4, role: 'seasonal', note: 'WAIST: Coral accents', heightTier: 'waist' }
+        { plantId: 'rose-coral-drift', quantity: 4, role: 'seasonal', note: 'WAIST: Coral accents', heightTier: 'waist' },
+        // ZONE 7 ADDITIONS - Native perennials
+        { plantId: 'coneflower', quantity: 4, role: 'seasonal', note: 'US NATIVE: Purple Americana classic', heightTier: 'knee' }
       ],
       texture: [
         // KNEE HEIGHT (12-24") - 3 options
@@ -130,13 +144,17 @@ export const PLANT_BUNDLES = [
         { plantId: 'daylily-stella', quantity: 8, role: 'texture', note: 'KNEE: Yellow continuous bloom', heightTier: 'knee' },
         // ANKLE HEIGHT (6-12") - 2 options
         { plantId: 'liriope-variegated', quantity: 5, role: 'texture', note: 'ANKLE: Striped edging', heightTier: 'ankle' },
-        { plantId: 'mondo-grass', quantity: 4, role: 'texture', note: 'ANKLE: Dark green border', heightTier: 'ankle' }
+        { plantId: 'mondo-grass', quantity: 4, role: 'texture', note: 'ANKLE: Dark green border', heightTier: 'ankle' },
+        // ZONE 7 ADDITIONS - American grasses
+        { plantId: 'switchgrass', quantity: 4, role: 'texture', note: 'US NATIVE: Prairie grass', heightTier: 'eye' }
       ],
       carpet: [
         // GROUND PLANE (0-6") - 3 options
         { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'GROUND: Spring color carpet', heightTier: 'ground' },
         { plantId: 'sedum-angelina', quantity: 3, role: 'carpet', note: 'GROUND: Golden succulent', heightTier: 'ground' },
-        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet', note: 'GROUND: Aromatic groundcover', heightTier: 'ground' }
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet', note: 'GROUND: Aromatic groundcover', heightTier: 'ground' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'vinca-minor', quantity: 2, role: 'carpet', note: 'ZONE 7: Classic ground cover', heightTier: 'ground' }
       ]
     }
   },
@@ -209,19 +227,29 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'beautyberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Purple berry clusters' },
         { plantId: 'fothergilla-dwarf', quantity: 4, role: 'structure', note: 'Native witch-hazel family' },
-        { plantId: 'sweetspire-little-henry', quantity: 5, role: 'structure', note: 'Native sweetspire' }
+        { plantId: 'sweetspire-little-henry', quantity: 5, role: 'structure', note: 'Native sweetspire' },
+        // ZONE 7 ADDITIONS - Native prairie shrubs
+        { plantId: 'ninebark', quantity: 4, role: 'structure', note: 'NATIVE: Purple foliage native' },
+        { plantId: 'summersweet', quantity: 3, role: 'structure', note: 'NATIVE: Fragrant wet tolerant' }
       ],
       seasonal: [
         { plantId: 'coneflower', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Purple prairie icon' },
         { plantId: 'coneflower-cheyenne', quantity: 8, role: 'seasonal', note: 'Yellow coneflower' },
         { plantId: 'black-eyed-susan', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Golden native' },
-        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Pollinator magnet' }
+        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Pollinator magnet' },
+        // ZONE 7 ADDITIONS - Native prairie perennials
+        { plantId: 'blanket-flower', quantity: 8, role: 'seasonal', note: 'NATIVE: Heat/drought tolerant' },
+        { plantId: 'coreopsis', quantity: 8, role: 'seasonal', note: 'NATIVE: Long-blooming prairie' },
+        { plantId: 'liatris', quantity: 6, role: 'seasonal', note: 'NATIVE: Prairie spike pollinator' }
       ],
       texture: [
         { plantId: 'muhly-grass-pink', quantity: 10, role: 'texture', note: 'SIGNATURE: Pink fall clouds' },
         { plantId: 'muhly-grass-white', quantity: 6, role: 'texture', note: 'White cloud grass' },
         { plantId: 'northern-sea-oats', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Native oats' },
-        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Feather reed grass' }
+        { plantId: 'karl-foerster', quantity: 6, role: 'texture', note: 'Feather reed grass' },
+        // ZONE 7 ADDITIONS - Native prairie grasses
+        { plantId: 'switch-grass', quantity: 6, role: 'texture', note: 'NATIVE: Upright prairie grass' },
+        { plantId: 'little-bluestem', quantity: 8, role: 'texture', note: 'NATIVE: Blue-copper prairie' }
       ],
       carpet: [
         { plantId: 'veronica-georgia-blue', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Blue spring carpet' },
@@ -249,17 +277,28 @@ export const PLANT_BUNDLES = [
       hero: [
         { plantId: 'bald-cypress', quantity: 1, role: 'hero', note: 'SIGNATURE: Wet feet champion' },
         { plantId: 'river-birch', quantity: 1, role: 'hero', note: 'Native water lover' },
-        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Swamp magnolia' }
+        { plantId: 'magnolia-sweetbay', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Swamp magnolia' },
+        // ZONE 7 ADDITIONS - Wet tolerant tree
+        { plantId: 'nuttall-oak', quantity: 1, role: 'hero', note: 'NATIVE: Fast-growing wet tolerant' }
       ],
       structure: [
         { plantId: 'wax-myrtle', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Coastal native' },
         { plantId: 'holly-inkberry', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Wet tolerant holly' },
-        { plantId: 'leucothoe', quantity: 4, role: 'structure', note: 'Arching wet-tolerant' }
+        { plantId: 'leucothoe', quantity: 4, role: 'structure', note: 'Arching wet-tolerant' },
+        // ZONE 7 ADDITIONS - Wet tolerant shrubs
+        { plantId: 'summersweet', quantity: 4, role: 'structure', note: 'NATIVE: Wet-tolerant fragrant' },
+        { plantId: 'red-twig-dogwood', quantity: 4, role: 'structure', note: 'NATIVE: Wet tolerant, red stems' },
+        { plantId: 'winterberry-holly', quantity: 3, role: 'structure', note: 'NATIVE: Wet tolerant berries' },
+        { plantId: 'arrowwood-viburnum', quantity: 3, role: 'structure', note: 'NATIVE: Wet tolerant wildlife' }
       ],
       seasonal: [
         { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Water iris' },
         { plantId: 'astilbe-fanal', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Red plumes' },
-        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'Moisture loving' }
+        { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'Moisture loving' },
+        // ZONE 7 ADDITIONS - Wet loving iris varieties
+        { plantId: 'japanese-iris', quantity: 6, role: 'seasonal', note: 'JAPAN NATIVE: Wet-loving iris' },
+        { plantId: 'louisiana-iris', quantity: 5, role: 'seasonal', note: 'NATIVE: Bog garden iris' },
+        { plantId: 'siberian-iris', quantity: 5, role: 'seasonal', note: 'EUROPE: Tough wet iris' }
       ],
       texture: [
         { plantId: 'carex-everillo', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Golden sedge' },
@@ -297,21 +336,31 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'wax-myrtle', quantity: 6, role: 'structure', note: 'SIGNATURE: Coastal essential' },
         { plantId: 'yew-podocarpus', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Coastal yew' },
-        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'Burgundy coastal accent' }
+        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'Burgundy coastal accent' },
+        // ZONE 7 ADDITIONS - Coastal shrubs
+        { plantId: 'vitex', quantity: 2, role: 'structure', note: 'ZONE 7: Beach butterfly bush' },
+        { plantId: 'clethra', quantity: 2, role: 'structure', note: 'US NATIVE: Coastal summersweet' }
       ],
       seasonal: [
         { plantId: 'lantana-ms-huff', quantity: 8, role: 'seasonal', note: 'EXCLUSIVE: Hardy lantana' },
         { plantId: 'gardenia-frost-proof', quantity: 4, role: 'seasonal', note: 'Fragrant coastal' },
-        { plantId: 'hibiscus', quantity: 4, role: 'seasonal', note: 'Tropical blooms' }
+        { plantId: 'hibiscus', quantity: 4, role: 'seasonal', note: 'Tropical blooms' },
+        // ZONE 7 ADDITIONS - Coastal perennials
+        { plantId: 'daylily-happy-returns', quantity: 4, role: 'seasonal', note: 'ZONE 7: Coastal yellow daylily' }
       ],
       texture: [
         { plantId: 'muhly-grass-pink', quantity: 12, role: 'texture', note: 'SIGNATURE: Pink coastal clouds' },
         { plantId: 'adagio-grass', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Compact miscanthus' },
-        { plantId: 'mexican-feather', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Wispy movement' }
+        { plantId: 'mexican-feather', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Wispy movement' },
+        // ZONE 7 ADDITIONS - Coastal grasses
+        { plantId: 'blue-oat-grass', quantity: 5, role: 'texture', note: 'ZONE 7: Steel blue coastal accent' },
+        { plantId: 'switchgrass', quantity: 4, role: 'texture', note: 'US NATIVE: Coastal prairie grass' }
       ],
       carpet: [
         { plantId: 'asiatic-jasmine', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Salt-tolerant carpet' },
-        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'Coastal juniper' }
+        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'Coastal juniper' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'ZONE 7: Golden groundcover' }
       ]
     }
   },
@@ -394,24 +443,35 @@ export const PLANT_BUNDLES = [
         // Classic English garden hedging
         { plantId: 'boxwood-wintergreen', quantity: 10, role: 'structure', note: 'SIGNATURE: English parterre hedge' },
         { plantId: 'english-yew', quantity: 3, role: 'structure', note: 'ENGLAND NATIVE: Classic topiary yew' },
-        { plantId: 'english-holly', quantity: 3, role: 'structure', note: 'ENGLAND NATIVE: Christmas holly' }
+        { plantId: 'english-holly', quantity: 3, role: 'structure', note: 'ENGLAND NATIVE: Christmas holly' },
+        // ZONE 7 ADDITIONS - European native shrubs
+        { plantId: 'mock-orange', quantity: 3, role: 'structure', note: 'EUROPE NATIVE: Fragrant white cottage shrub' },
+        { plantId: 'elderberry', quantity: 2, role: 'structure', note: 'EUROPE NATIVE: Traditional English hedgerow' }
       ],
       seasonal: [
         // English cottage roses and perennials
         { plantId: 'rose-apricot-drift', quantity: 6, role: 'seasonal', note: 'ENGLISH ROSE: Apricot cottage' },
         { plantId: 'rose-peach-drift', quantity: 6, role: 'seasonal', note: 'ENGLISH ROSE: Peach cottage' },
         { plantId: 'hydrangea-endless-summer', quantity: 4, role: 'seasonal', note: 'English cottage classic' },
-        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'ENGLAND: Traditional cottage peony' }
+        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'ENGLAND: Traditional cottage peony' },
+        // ZONE 7 ADDITIONS - European iris
+        { plantId: 'siberian-iris', quantity: 4, role: 'seasonal', note: 'EUROPE NATIVE: Blue cottage garden iris' }
       ],
       texture: [
         // Classic English herbaceous borders
         { plantId: 'lavender', quantity: 12, role: 'texture', note: 'SIGNATURE: English lavender borders' },
         { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'English border catmint' },
-        { plantId: 'lambs-ear', quantity: 8, role: 'texture', note: 'Traditional cottage silver' }
+        { plantId: 'lambs-ear', quantity: 8, role: 'texture', note: 'Traditional cottage silver' },
+        // ZONE 7 ADDITIONS - European texture
+        { plantId: 'blue-oat-grass', quantity: 6, role: 'texture', note: 'EUROPE NATIVE: Steel blue grass' },
+        { plantId: 'dianthus', quantity: 6, role: 'texture', note: 'EUROPE NATIVE: English cottage pinks' }
       ],
       carpet: [
         { plantId: 'creeping-thyme', quantity: 4, role: 'carpet', note: 'BRITAIN NATIVE: English herb carpet' },
-        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Bugle groundcover' }
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Bugle groundcover' },
+        // ZONE 7 ADDITIONS - European groundcovers
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Traditional periwinkle' },
+        { plantId: 'sweet-woodruff', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Fragrant shade carpet' }
       ]
     }
   },
@@ -491,24 +551,34 @@ export const PLANT_BUNDLES = [
         // Classic French parterre hedging
         { plantId: 'boxwood-wintergreen', quantity: 16, role: 'structure', note: 'SIGNATURE: Versailles parterre' },
         { plantId: 'baby-gem-boxwood', quantity: 10, role: 'structure', note: 'FRANCE: Compact broderie edging' },
-        { plantId: 'french-lavender', quantity: 6, role: 'structure', note: 'FRANCE NATIVE: Provence lavender shrub' }
+        { plantId: 'french-lavender', quantity: 6, role: 'structure', note: 'FRANCE NATIVE: Provence lavender shrub' },
+        // ZONE 7 ADDITIONS - European shrubs
+        { plantId: 'snowball-viburnum', quantity: 3, role: 'structure', note: 'EUROPE NATIVE: French snowball shrub' },
+        { plantId: 'mock-orange', quantity: 2, role: 'structure', note: 'EUROPE NATIVE: Fragrant Parisian favorite' }
       ],
       seasonal: [
         // French roses and hydrangeas
         { plantId: 'rose-red-drift', quantity: 6, role: 'seasonal', note: 'FRANCE: Classic French red rose' },
         { plantId: 'rose-peach-drift', quantity: 5, role: 'seasonal', note: 'FRANCE: Romantic peach rose' },
         { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'French garden hydrangea' },
-        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'FRANCE: Romantic French garden peony' }
+        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'FRANCE: Romantic French garden peony' },
+        // ZONE 7 ADDITIONS - European perennials
+        { plantId: 'siberian-iris', quantity: 4, role: 'seasonal', note: 'EUROPE NATIVE: Classic Monet garden iris' }
       ],
       texture: [
         // Provence-style planting
         { plantId: 'lavender', quantity: 14, role: 'texture', note: 'SIGNATURE: Provence lavender fields' },
         { plantId: 'catmint-walkers', quantity: 8, role: 'texture', note: 'French border catmint' },
-        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'FRANCE: Marguerite daisies' }
+        { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'FRANCE: Marguerite daisies' },
+        // ZONE 7 ADDITIONS - European texture
+        { plantId: 'dianthus', quantity: 6, role: 'texture', note: 'EUROPE NATIVE: French carnation pinks' }
       ],
       carpet: [
         { plantId: 'creeping-thyme', quantity: 4, role: 'carpet', note: 'FRANCE NATIVE: Herbes de Provence' },
-        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Purple bugle carpet' }
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Purple bugle carpet' },
+        // ZONE 7 ADDITIONS - European groundcovers
+        { plantId: 'creeping-jenny', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Golden moneywort' },
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: French periwinkle' }
       ]
     }
   },
@@ -541,24 +611,35 @@ export const PLANT_BUNDLES = [
         { plantId: 'spirea-gold-flame', quantity: 6, role: 'structure', note: 'EUROPE: Golden spirea' },
         { plantId: 'spirea-candy-corn', quantity: 5, role: 'structure', note: 'EUROPE: Multi-color spirea' },
         { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EUROPE: German cottage shrub' },
-        { plantId: 'boxwood-wintergreen', quantity: 5, role: 'structure', note: 'EUROPE: Classic German parterre hedge' }
+        { plantId: 'boxwood-wintergreen', quantity: 5, role: 'structure', note: 'EUROPE: Classic German parterre hedge' },
+        // ZONE 7 ADDITIONS - European native shrubs
+        { plantId: 'bridal-wreath-spirea', quantity: 3, role: 'structure', note: 'EUROPE NATIVE: Classic German bridal shrub' },
+        { plantId: 'mock-orange', quantity: 2, role: 'structure', note: 'EUROPE NATIVE: Fragrant cottage favorite' }
       ],
       seasonal: [
         // Forsythia is from Europe/Asia, naturalized in Germany
         { plantId: 'forsythia-sugar-baby', quantity: 4, role: 'seasonal', note: 'EUROPE: Spring yellow herald' },
         { plantId: 'hydrangea-summer-crush', quantity: 4, role: 'seasonal', note: 'European garden classic' },
         { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'EUROPE: Classic German cottage peony' },
-        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'EUROPE NATIVE: Helleborus for shade' }
+        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'EUROPE NATIVE: Helleborus for shade' },
+        // ZONE 7 ADDITIONS - European perennials
+        { plantId: 'siberian-iris', quantity: 4, role: 'seasonal', note: 'EUROPE NATIVE: Blue German garden iris' },
+        { plantId: 'astilbe', quantity: 4, role: 'seasonal', note: 'EUROPE/ASIA: Feathery shade perennial' }
       ],
       texture: [
         // Karl Foerster: THE German grass, named after the famous German nurseryman
         { plantId: 'karl-foerster', quantity: 12, role: 'texture', note: 'SIGNATURE: Named after legendary German nurseryman' },
         { plantId: 'karley-rose', quantity: 6, role: 'texture', note: 'European fountain grass' },
-        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'Shade garden essential' }
+        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'Shade garden essential' },
+        // ZONE 7 ADDITIONS - European grass
+        { plantId: 'blue-oat-grass', quantity: 6, role: 'texture', note: 'EUROPE NATIVE: Steel blue German grass' }
       ],
       carpet: [
         { plantId: 'ajuga', quantity: 4, role: 'carpet', note: 'EUROPE NATIVE: Purple bugle groundcover' },
-        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'German shade carpet' }
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'German shade carpet' },
+        // ZONE 7 ADDITIONS - European groundcovers
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: German periwinkle' },
+        { plantId: 'sweet-woodruff', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Waldmeister groundcover' }
       ]
     }
   },
@@ -637,7 +718,11 @@ export const PLANT_BUNDLES = [
         { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'CANOPY: Living fossil, ancient temple tree', heightTier: 'canopy' },
         { plantId: 'chinese-fringe-tree', quantity: 1, role: 'hero', note: 'CANOPY: White fringe flowers', heightTier: 'canopy' },
         { plantId: 'paperbark-maple', quantity: 1, role: 'hero', note: 'CANOPY: Cinnamon peeling bark', heightTier: 'canopy' },
-        { plantId: 'dawn-redwood', quantity: 1, role: 'hero', note: 'CANOPY: Living fossil conifer', heightTier: 'canopy' }
+        { plantId: 'dawn-redwood', quantity: 1, role: 'hero', note: 'CANOPY: Living fossil conifer', heightTier: 'canopy' },
+        // ZONE 7 ADDITIONS - Chinese native trees
+        { plantId: 'star-magnolia', quantity: 1, role: 'hero', note: 'CHINA/JAPAN: Early fragrant white', heightTier: 'canopy' },
+        { plantId: 'trident-maple', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Urban tolerant fall color', heightTier: 'canopy' },
+        { plantId: 'chinese-elm', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Disease-resistant shade', heightTier: 'canopy' }
       ],
       structure: [
         // EYE LEVEL (48-72") - 4 options - Chinese natives
@@ -648,7 +733,9 @@ export const PLANT_BUNDLES = [
         // CHEST HEIGHT (36-48") - 3 options
         { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'CHEST: Burgundy fringeflower', heightTier: 'chest' },
         { plantId: 'chinese-witch-hazel', quantity: 3, role: 'structure', note: 'CHEST: Yellow winter flowers', heightTier: 'chest' },
-        { plantId: 'camellia-shi-shi', quantity: 3, role: 'structure', note: 'CHEST: Compact pink camellia 4-5ft', heightTier: 'chest' }
+        { plantId: 'camellia-shi-shi', quantity: 3, role: 'structure', note: 'CHEST: Compact pink camellia 4-5ft', heightTier: 'chest' },
+        // ZONE 7 ADDITIONS - Chinese native shrub
+        { plantId: 'bridal-wreath-spirea', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Classic white arching', heightTier: 'chest' }
       ],
       seasonal: [
         // WAIST HEIGHT (24-36") - 3 options
@@ -705,25 +792,35 @@ export const PLANT_BUNDLES = [
         { plantId: 'rhododendron-roseum-elegans', quantity: 3, role: 'structure', note: 'Cold-hardy pink rhodo' },
         { plantId: 'boxwood-wintergreen', quantity: 5, role: 'structure', note: 'Cold-hardy evergreen' },
         { plantId: 'viburnum-chindo', quantity: 3, role: 'structure', note: 'Cold-hardy viburnum' },
-        { plantId: 'pieris-mountain-fire', quantity: 3, role: 'structure', note: 'Nordic-adapted pieris' }
+        { plantId: 'pieris-mountain-fire', quantity: 3, role: 'structure', note: 'Nordic-adapted pieris' },
+        // ZONE 7 ADDITIONS - Northern European shrubs
+        { plantId: 'elderberry', quantity: 2, role: 'structure', note: 'EUROPE NATIVE: Scandinavian hedgerow' },
+        { plantId: 'snowball-viburnum', quantity: 2, role: 'structure', note: 'EUROPE NATIVE: Cold-hardy snowball' }
       ],
       seasonal: [
         // AUTHENTIC: Heather is native to Nordic heathlands
         { plantId: 'heather', quantity: 10, role: 'seasonal', note: 'NORDIC NATIVE: Purple heath flowers' },
         { plantId: 'hydrangea-oakleaf', quantity: 5, role: 'seasonal', note: 'Cold-hardy hydrangea' },
         { plantId: 'astilbe-fanal', quantity: 5, role: 'seasonal', note: 'Shade garden plumes' },
-        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'Early spring hellebore' }
+        { plantId: 'lenten-rose', quantity: 5, role: 'seasonal', note: 'Early spring hellebore' },
+        // ZONE 7 ADDITIONS - Cold-hardy perennials
+        { plantId: 'siberian-iris', quantity: 4, role: 'seasonal', note: 'EUROPE/ASIA: Cold-hardy Nordic iris' }
       ],
       texture: [
         { plantId: 'fern-christmas', quantity: 7, role: 'texture', note: 'Evergreen woodland fern' },
         { plantId: 'fern-autumn', quantity: 5, role: 'texture', note: 'Deciduous fern' },
         { plantId: 'hosta-blue-angel', quantity: 5, role: 'texture', note: 'Blue woodland hosta' },
-        { plantId: 'carex-everillo', quantity: 5, role: 'texture', note: 'Golden sedge accent' }
+        { plantId: 'carex-everillo', quantity: 5, role: 'texture', note: 'Golden sedge accent' },
+        // ZONE 7 ADDITIONS - European grass
+        { plantId: 'blue-oat-grass', quantity: 5, role: 'texture', note: 'EUROPE NATIVE: Steel blue Nordic grass' }
       ],
       carpet: [
         // AUTHENTIC: Lingonberry is native Nordic groundcover
         { plantId: 'lingonberry', quantity: 7, role: 'carpet', note: 'NORDIC NATIVE: Edible red berries' },
-        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'Purple bugle groundcover' }
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'Purple bugle groundcover' },
+        // ZONE 7 ADDITIONS - European groundcovers
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Cold-hardy periwinkle' },
+        { plantId: 'sweet-woodruff', quantity: 3, role: 'carpet', note: 'EUROPE NATIVE: Scandinavian woodland' }
       ]
     }
   },
@@ -756,19 +853,29 @@ export const PLANT_BUNDLES = [
         { plantId: 'azalea-encore-bonfire', quantity: 5, role: 'structure', note: 'JAPAN: Red karafuto azalea style' },
         { plantId: 'azalea-encore-embers', quantity: 5, role: 'structure', note: 'JAPAN: Orange-red kirishima style' },
         { plantId: 'pieris-mountain-fire', quantity: 4, role: 'structure', note: 'JAPAN NATIVE: Asebi pieris' },
-        { plantId: 'cryptomeria-shrub', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Sugi dwarf cedar' }
+        { plantId: 'cryptomeria-shrub', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Sugi dwarf cedar' },
+        // ZONE 7 ADDITIONS - Japanese native shrubs
+        { plantId: 'aucuba', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Gold dust shade shrub' },
+        { plantId: 'japanese-quince', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Early spring color' },
+        { plantId: 'deutzia', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: White spring bells' },
+        { plantId: 'kerria', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Yellow shade flowers' }
       ],
       seasonal: [
         // Camellias and iris are essential Japanese garden plants
         { plantId: 'camellia-sasanqua', quantity: 5, role: 'seasonal', note: 'JAPAN NATIVE: Sazanka camellia' },
         { plantId: 'iris', quantity: 10, role: 'seasonal', note: 'JAPAN NATIVE: Hanashobu iris' },
-        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'ASIA: Botan peony, beloved in Japan' }
+        { plantId: 'peony', quantity: 4, role: 'seasonal', note: 'ASIA: Botan peony, beloved in Japan' },
+        // ZONE 7 ADDITIONS - Japanese iris varieties
+        { plantId: 'japanese-iris', quantity: 6, role: 'seasonal', note: 'JAPAN NATIVE: Large flat iris' }
       ],
       texture: [
         // Japanese ferns and grasses
         { plantId: 'fern-japanese-painted', quantity: 10, role: 'texture', note: 'JAPAN NATIVE: Silver painted fern' },
         { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'JAPAN NATIVE: Cyrtomium fern' },
-        { plantId: 'sweet-flag', quantity: 6, role: 'texture', note: 'JAPAN: Sekisho sweet flag grass' }
+        { plantId: 'sweet-flag', quantity: 6, role: 'texture', note: 'JAPAN: Sekisho sweet flag grass' },
+        // ZONE 7 ADDITIONS - Japanese grasses
+        { plantId: 'japanese-forest-grass', quantity: 6, role: 'texture', note: 'JAPAN NATIVE: Golden cascade' },
+        { plantId: 'black-mondo-grass', quantity: 5, role: 'texture', note: 'JAPAN NATIVE: Dramatic black accent' }
       ],
       carpet: [
         { plantId: 'mondo-grass', quantity: 5, role: 'carpet', note: 'JAPAN NATIVE: Ryuunohige grass' },
@@ -802,18 +909,29 @@ export const PLANT_BUNDLES = [
         { plantId: 'butterfly-bush-davidii', quantity: 4, role: 'structure', note: 'SIGNATURE: Butterfly bush' },
         { plantId: 'butterfly-bush-ice-chip', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Compact white' },
         { plantId: 'pugster-blue-buddleia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Dwarf blue' },
-        { plantId: 'abelia-kaleidoscope', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Multi-color abelia' }
+        { plantId: 'abelia-kaleidoscope', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Multi-color abelia' },
+        // ZONE 7 ADDITIONS - Pollinator shrubs
+        { plantId: 'rose-of-sharon', quantity: 3, role: 'structure', note: 'Summer pollinator shrub' },
+        { plantId: 'summersweet', quantity: 3, role: 'structure', note: 'NATIVE: Fragrant pollinator' },
+        { plantId: 'blue-mist-shrub', quantity: 4, role: 'structure', note: 'Late summer blue pollinator' }
       ],
       seasonal: [
         { plantId: 'coneflower', quantity: 12, role: 'seasonal', note: 'SIGNATURE: Butterfly favorite' },
         { plantId: 'bee-balm', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Hummingbird magnet' },
         { plantId: 'black-eyed-susan', quantity: 10, role: 'seasonal', note: 'Native pollinator food' },
-        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Butterfly nectar' }
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Butterfly nectar' },
+        // ZONE 7 ADDITIONS - Native pollinator perennials
+        { plantId: 'blanket-flower', quantity: 8, role: 'seasonal', note: 'NATIVE: Heat-proof pollinator' },
+        { plantId: 'liatris', quantity: 6, role: 'seasonal', note: 'NATIVE: Blazing star pollinator' },
+        { plantId: 'agastache', quantity: 6, role: 'seasonal', note: 'Pollinator magnet blue spikes' },
+        { plantId: 'sedum-autumn-joy', quantity: 5, role: 'seasonal', note: 'Fall butterfly favorite' }
       ],
       texture: [
         { plantId: 'muhly-grass-pink', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Fall habitat' },
         { plantId: 'northern-sea-oats', quantity: 8, role: 'texture', note: 'Native seed heads' },
-        { plantId: 'catmint-walkers', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Bee haven' }
+        { plantId: 'catmint-walkers', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Bee haven' },
+        // ZONE 7 ADDITIONS - Native prairie grass
+        { plantId: 'little-bluestem', quantity: 6, role: 'texture', note: 'NATIVE: Prairie habitat' }
       ],
       carpet: [
         { plantId: 'creeping-thyme', quantity: 3, role: 'carpet', note: 'SIGNATURE: Ground bee food' },
@@ -842,7 +960,9 @@ export const PLANT_BUNDLES = [
       hero: [
         { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'SPRING: White blooms, fall color, winter berries' },
         { plantId: 'crape-myrtle-tuscarora', quantity: 1, role: 'hero', note: 'SUMMER: Coral-pink 100 days' },
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'FALL: Crimson specimen' }
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'FALL: Crimson specimen' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'star-magnolia', quantity: 1, role: 'hero', note: 'EARLY SPRING: First to bloom' }
       ],
       structure: [
         // EVERGREEN ANCHORS - year-round structure (critical for winter)
@@ -855,13 +975,20 @@ export const PLANT_BUNDLES = [
         { plantId: 'paper-bush', quantity: 4, role: 'structure', note: 'WINTER: Yellow fragrant Jan-Feb' },
         // SPRING/SUMMER BLOOMERS
         { plantId: 'hydrangea-endless-summer', quantity: 8, role: 'structure', note: 'SUMMER: Blue/pink rebloomer' },
-        { plantId: 'azalea-encore-autumn-twist', quantity: 5, role: 'structure', note: 'SPRING+FALL: Reblooming' }
+        { plantId: 'azalea-encore-autumn-twist', quantity: 5, role: 'structure', note: 'SPRING+FALL: Reblooming' },
+        // ZONE 7 ADDITIONS - Winter interest shrubs
+        { plantId: 'winterberry-holly', quantity: 3, role: 'structure', note: 'WINTER: Red berry interest' },
+        { plantId: 'red-twig-dogwood', quantity: 3, role: 'structure', note: 'WINTER: Red stem interest' },
+        { plantId: 'korean-spice-viburnum', quantity: 2, role: 'structure', note: 'SPRING: Fragrant blooms' }
       ],
       seasonal: [
         { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'LATE WINTER: First color Feb-Apr' },
         { plantId: 'rose-knockout-double-red', quantity: 6, role: 'seasonal', note: 'SUMMER: Continuous May-frost' },
         { plantId: 'coneflower', quantity: 5, role: 'seasonal', note: 'SUMMER: Native pollinator' },
-        { plantId: 'black-eyed-susan', quantity: 5, role: 'seasonal', note: 'SUMMER-FALL: Golden daisies' }
+        { plantId: 'black-eyed-susan', quantity: 5, role: 'seasonal', note: 'SUMMER-FALL: Golden daisies' },
+        // ZONE 7 ADDITIONS - Seasonal color
+        { plantId: 'sedum-autumn-joy', quantity: 5, role: 'seasonal', note: 'FALL: Pink to rust' },
+        { plantId: 'liatris', quantity: 4, role: 'seasonal', note: 'SUMMER: Purple spikes' }
       ],
       texture: [
         { plantId: 'muhly-grass-white', quantity: 15, role: 'texture', note: 'FALL: White cloud masses' },
@@ -901,7 +1028,12 @@ export const PLANT_BUNDLES = [
         { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'structure', note: 'SIGNATURE: Shade oakleaf' },
         { plantId: 'fatsia', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Bold tropical' },
         { plantId: 'leucothoe', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Arching shade shrub' },
-        { plantId: 'pieris-dorothy-wycoff', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Pink pieris' }
+        { plantId: 'pieris-dorothy-wycoff', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Pink pieris' },
+        // ZONE 7 ADDITIONS - Shade-loving shrubs
+        { plantId: 'mountain-laurel', quantity: 3, role: 'structure', note: 'NATIVE: Shade evergreen' },
+        { plantId: 'sweetbox', quantity: 4, role: 'structure', note: 'Fragrant winter shade shrub' },
+        { plantId: 'aucuba', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Gold dust shade' },
+        { plantId: 'kerria', quantity: 3, role: 'structure', note: 'JAPAN NATIVE: Yellow shade flowers' }
       ],
       seasonal: [
         { plantId: 'lenten-rose', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Shade hellebore' },
@@ -912,11 +1044,18 @@ export const PLANT_BUNDLES = [
         { plantId: 'hosta-blue-angel', quantity: 8, role: 'texture', note: 'SIGNATURE: Giant blue' },
         { plantId: 'hosta-guacamole', quantity: 6, role: 'texture', note: 'Golden center' },
         { plantId: 'fern-japanese-painted', quantity: 10, role: 'texture', note: 'Silver fronds' },
-        { plantId: 'cast-iron-plant', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Indestructible' }
+        { plantId: 'cast-iron-plant', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Indestructible' },
+        // ZONE 7 ADDITIONS - Shade grasses and ferns
+        { plantId: 'japanese-forest-grass', quantity: 6, role: 'texture', note: 'JAPAN NATIVE: Golden shade grass' },
+        { plantId: 'lady-fern', quantity: 6, role: 'texture', note: 'NATIVE: Graceful deciduous fern' }
       ],
       carpet: [
         { plantId: 'pachysandra', quantity: 4, role: 'carpet', note: 'SIGNATURE: Shade essential' },
-        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple accent' }
+        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple accent' },
+        // ZONE 7 ADDITIONS - Shade groundcovers
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'EUROPE: Periwinkle shade spreader' },
+        { plantId: 'dead-nettle', quantity: 3, role: 'carpet', note: 'EUROPE: Silver shade groundcover' },
+        { plantId: 'sweet-woodruff', quantity: 2, role: 'carpet', note: 'EUROPE: Fragrant shade carpet' }
       ]
     }
   },
@@ -945,17 +1084,30 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'juniper-blue-point', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Blue column' },
         { plantId: 'yew-yewtopia', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Compact yew' },
-        { plantId: 'dwarf-yaupon-holly', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Native drought holly' }
+        { plantId: 'dwarf-yaupon-holly', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Native drought holly' },
+        // ZONE 7 ADDITIONS - Drought tolerant shrub
+        { plantId: 'blue-mist-shrub', quantity: 4, role: 'structure', note: 'Drought tolerant blue' }
       ],
       seasonal: [
         { plantId: 'russian-sage', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Silver sage' },
         { plantId: 'lavender-phenomenal', quantity: 8, role: 'seasonal', note: 'Drought lavender' },
-        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Drought bloomer' }
+        { plantId: 'lantana-ms-huff', quantity: 6, role: 'seasonal', note: 'Drought bloomer' },
+        // ZONE 7 ADDITIONS - Drought tolerant perennials
+        { plantId: 'blanket-flower', quantity: 8, role: 'seasonal', note: 'NATIVE: Heat/drought proof' },
+        { plantId: 'yarrow', quantity: 6, role: 'seasonal', note: 'NATIVE: Drought/deer resistant' },
+        { plantId: 'coreopsis', quantity: 6, role: 'seasonal', note: 'NATIVE: Long-blooming drought' },
+        { plantId: 'gaura', quantity: 5, role: 'seasonal', note: 'NATIVE: Wispy drought tolerant' },
+        { plantId: 'sedum-autumn-joy', quantity: 5, role: 'seasonal', note: 'Drought succulent' },
+        { plantId: 'agastache', quantity: 5, role: 'seasonal', note: 'Drought blue spikes' },
+        { plantId: 'penstemon', quantity: 5, role: 'seasonal', note: 'NATIVE: Drought tolerant' }
       ],
       texture: [
         { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'SIGNATURE: Blue tufts' },
         { plantId: 'hamlin-grass', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Fountain grass' },
-        { plantId: 'mexican-feather', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Wispy blonde' }
+        { plantId: 'mexican-feather', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Wispy blonde' },
+        // ZONE 7 ADDITIONS - Drought grasses
+        { plantId: 'blue-oat-grass', quantity: 8, role: 'texture', note: 'EUROPE: Blue drought grass' },
+        { plantId: 'little-bluestem', quantity: 6, role: 'texture', note: 'NATIVE: Prairie drought' }
       ],
       carpet: [
         { plantId: 'sedum-angelina', quantity: 4, role: 'carpet', note: 'SIGNATURE: Golden succulent' },
@@ -984,13 +1136,21 @@ export const PLANT_BUNDLES = [
       hero: [
         { plantId: 'arborvitae-emerald-green', quantity: 3, role: 'hero', note: 'SIGNATURE: Classic column' },
         { plantId: 'arborvitae-green-giant', quantity: 2, role: 'hero', note: 'EXCLUSIVE: Fast screen' },
-        { plantId: 'holly-american', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Native holly' }
+        { plantId: 'holly-american', quantity: 1, role: 'hero', note: 'EXCLUSIVE: Native holly' },
+        // ZONE 7 ADDITIONS - Evergreen trees
+        { plantId: 'colorado-blue-spruce', quantity: 1, role: 'hero', note: 'NATIVE: Blue specimen' },
+        { plantId: 'white-pine', quantity: 1, role: 'hero', note: 'NATIVE: Soft evergreen' }
       ],
       structure: [
         { plantId: 'holly-nellie-stevens', quantity: 5, role: 'structure', note: 'SIGNATURE: Workhorse holly' },
         { plantId: 'cherry-laurel', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Glossy hedge' },
         { plantId: 'laurel-compact-cherry', quantity: 4, role: 'structure', note: 'Compact version' },
-        { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'Evergreen backdrop' }
+        { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'Evergreen backdrop' },
+        // ZONE 7 ADDITIONS - Commercial foundation shrubs
+        { plantId: 'indian-hawthorn', quantity: 5, role: 'structure', note: 'ELITE: Commercial #2 foundation' },
+        { plantId: 'pittosporum', quantity: 4, role: 'structure', note: 'ELITE: Commercial workhorse' },
+        { plantId: 'skip-laurel', quantity: 4, role: 'structure', note: 'Shade screening laurel' },
+        { plantId: 'pjm-rhododendron', quantity: 3, role: 'structure', note: 'Cold-hardy evergreen' }
       ],
       seasonal: [
         { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'Fall color' },
@@ -1000,7 +1160,9 @@ export const PLANT_BUNDLES = [
       texture: [
         { plantId: 'holly-fern', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
         { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden sedge' },
-        { plantId: 'cast-iron-plant', quantity: 6, role: 'texture', note: 'Indestructible texture' }
+        { plantId: 'cast-iron-plant', quantity: 6, role: 'texture', note: 'Indestructible texture' },
+        // ZONE 7 ADDITIONS - Liriope
+        { plantId: 'big-blue-liriope', quantity: 8, role: 'texture', note: 'ELITE: Commercial spec standard' }
       ],
       carpet: [
         { plantId: 'asiatic-jasmine', quantity: 3, role: 'carpet', note: 'SIGNATURE: Evergreen carpet' },
@@ -1077,22 +1239,34 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'hydrangea-endless-summer', quantity: 5, role: 'structure', note: 'SIGNATURE: Cottage hydrangea' },
         { plantId: 'weigela', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Pink bells' },
-        { plantId: 'forsythia-sugar-baby', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Spring yellow' }
+        { plantId: 'forsythia-sugar-baby', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Spring yellow' },
+        // ZONE 7 ADDITIONS - Cottage shrubs
+        { plantId: 'mock-orange', quantity: 3, role: 'structure', note: 'ZONE 7: Fragrant white cottage classic' },
+        { plantId: 'bridal-wreath-spirea', quantity: 3, role: 'structure', note: 'ZONE 7: Classic white arching' }
       ],
       seasonal: [
         { plantId: 'peony', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Cottage classic' },
         { plantId: 'rose-apricot-drift', quantity: 5, role: 'seasonal', note: 'Apricot cottage rose' },
         { plantId: 'rose-peach-drift', quantity: 5, role: 'seasonal', note: 'Peach cottage' },
-        { plantId: 'daylily-happy-returns', quantity: 8, role: 'seasonal', note: 'Yellow rebloomer' }
+        { plantId: 'daylily-happy-returns', quantity: 8, role: 'seasonal', note: 'Yellow rebloomer' },
+        // ZONE 7 ADDITIONS - Cottage perennials
+        { plantId: 'siberian-iris', quantity: 4, role: 'seasonal', note: 'ZONE 7: Blue cottage iris' },
+        { plantId: 'astilbe', quantity: 4, role: 'seasonal', note: 'ZONE 7: Feathery cottage plumes' }
       ],
       texture: [
         { plantId: 'catmint-walkers', quantity: 10, role: 'texture', note: 'SIGNATURE: Blue cottage border' },
         { plantId: 'shasta-daisy-becky', quantity: 8, role: 'texture', note: 'EXCLUSIVE: White daisies' },
-        { plantId: 'coral-bell', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Heuchera foliage' }
+        { plantId: 'coral-bell', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Heuchera foliage' },
+        // ZONE 7 ADDITIONS - Cottage texture
+        { plantId: 'dianthus', quantity: 6, role: 'texture', note: 'ZONE 7: Cottage garden pinks' },
+        { plantId: 'coral-bells', quantity: 4, role: 'texture', note: 'ZONE 7: Colorful shade foliage' }
       ],
       carpet: [
         { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'SIGNATURE: Spring color carpet' },
-        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'Blue spring' }
+        { plantId: 'veronica-georgia-blue', quantity: 2, role: 'carpet', note: 'Blue spring' },
+        // ZONE 7 ADDITIONS - Cottage groundcovers
+        { plantId: 'sweet-woodruff', quantity: 3, role: 'carpet', note: 'ZONE 7: Fragrant shade carpet' },
+        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'ZONE 7: Golden cottage carpet' }
       ]
     }
   },
@@ -1121,7 +1295,9 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'holly-carissa', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Soft holly' },
         { plantId: 'holly-helleri', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Compact holly' },
-        { plantId: 'yew-dukes-garden', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Spreading yew' }
+        { plantId: 'yew-dukes-garden', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Spreading yew' },
+        // ZONE 7 ADDITIONS - Modern shrubs
+        { plantId: 'sky-pencil-holly', quantity: 3, role: 'structure', note: 'ZONE 7: Narrow architectural column' }
       ],
       seasonal: [
         { plantId: 'hydrangea-little-lime', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Compact lime' },
@@ -1130,11 +1306,16 @@ export const PLANT_BUNDLES = [
       texture: [
         { plantId: 'karl-foerster', quantity: 12, role: 'texture', note: 'SIGNATURE: Vertical grass lines' },
         { plantId: 'blue-fescue', quantity: 15, role: 'texture', note: 'Blue spheres' },
-        { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden accents' }
+        { plantId: 'carex-everillo', quantity: 10, role: 'texture', note: 'Golden accents' },
+        // ZONE 7 ADDITIONS - Architectural grasses
+        { plantId: 'blue-oat-grass', quantity: 6, role: 'texture', note: 'ZONE 7: Steel blue architectural' },
+        { plantId: 'japanese-forest-grass', quantity: 4, role: 'texture', note: 'ZONE 7: Golden cascading grass' }
       ],
       carpet: [
         { plantId: 'juniper-blue-rug', quantity: 3, role: 'carpet', note: 'SIGNATURE: Blue carpet' },
-        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Pacific juniper' }
+        { plantId: 'juniper-blue-pacific', quantity: 2, role: 'carpet', note: 'EXCLUSIVE: Pacific juniper' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'vinca-minor', quantity: 2, role: 'carpet', note: 'ZONE 7: Clean evergreen carpet' }
       ]
     }
   },
@@ -1164,21 +1345,33 @@ export const PLANT_BUNDLES = [
         { plantId: 'beautyberry', quantity: 5, role: 'structure', note: 'SIGNATURE: Purple berry clusters' },
         { plantId: 'fothergilla-dwarf', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Native witch-hazel' },
         { plantId: 'hydrangea-oakleaf', quantity: 4, role: 'structure', note: 'Native hydrangea' },
-        { plantId: 'sweetspire-little-henry', quantity: 4, role: 'structure', note: 'Native sweetspire' }
+        { plantId: 'sweetspire-little-henry', quantity: 4, role: 'structure', note: 'Native sweetspire' },
+        // ZONE 7 ADDITIONS - Woodland shrubs
+        { plantId: 'elderberry', quantity: 2, role: 'structure', note: 'US NATIVE: Wildlife-friendly' },
+        { plantId: 'clethra', quantity: 2, role: 'structure', note: 'US NATIVE: Summersweet shade' }
       ],
       seasonal: [
         { plantId: 'lenten-rose', quantity: 8, role: 'seasonal', note: 'SIGNATURE: Early shade bloom' },
         { plantId: 'azalea-encore-carnation', quantity: 5, role: 'seasonal', note: 'Woodland azalea' },
-        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Native pollinator' }
+        { plantId: 'bee-balm', quantity: 6, role: 'seasonal', note: 'EXCLUSIVE: Native pollinator' },
+        // ZONE 7 ADDITIONS - Woodland perennials
+        { plantId: 'astilbe', quantity: 4, role: 'seasonal', note: 'ZONE 7: Feathery shade plumes' },
+        { plantId: 'coneflower', quantity: 3, role: 'seasonal', note: 'US NATIVE: Woodland edge pollinator' }
       ],
       texture: [
         { plantId: 'fern-autumn', quantity: 12, role: 'texture', note: 'SIGNATURE: Woodland fern' },
         { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern' },
-        { plantId: 'northern-sea-oats', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Native oats' }
+        { plantId: 'northern-sea-oats', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Native oats' },
+        // ZONE 7 ADDITIONS - Woodland texture
+        { plantId: 'coral-bells', quantity: 4, role: 'texture', note: 'ZONE 7: Colorful shade foliage' },
+        { plantId: 'japanese-forest-grass', quantity: 4, role: 'texture', note: 'ZONE 7: Golden shade grass' }
       ],
       carpet: [
         { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'SIGNATURE: Woodland carpet' },
-        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Native phlox' }
+        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Native phlox' },
+        // ZONE 7 ADDITIONS - Woodland groundcovers
+        { plantId: 'sweet-woodruff', quantity: 3, role: 'carpet', note: 'ZONE 7: Fragrant shade carpet' },
+        { plantId: 'vinca-minor', quantity: 2, role: 'carpet', note: 'ZONE 7: Evergreen shade carpet' }
       ]
     }
   },
@@ -1207,7 +1400,10 @@ export const PLANT_BUNDLES = [
       structure: [
         { plantId: 'holly-nellie-stevens', quantity: 6, role: 'structure', note: 'SIGNATURE: Dense holly' },
         { plantId: 'cherry-laurel', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Fast evergreen' },
-        { plantId: 'wax-myrtle', quantity: 4, role: 'structure', note: 'Fast native screen' }
+        { plantId: 'wax-myrtle', quantity: 4, role: 'structure', note: 'Fast native screen' },
+        // ZONE 7 ADDITIONS - Privacy shrubs
+        { plantId: 'sky-pencil-holly', quantity: 4, role: 'structure', note: 'ZONE 7: Narrow columnar accent' },
+        { plantId: 'snowball-viburnum', quantity: 3, role: 'structure', note: 'ZONE 7: Dense screening viburnum' }
       ],
       seasonal: [
         { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'EXCLUSIVE: Screening camellia' },
@@ -1215,11 +1411,15 @@ export const PLANT_BUNDLES = [
       ],
       texture: [
         { plantId: 'holly-fern', quantity: 10, role: 'texture', note: 'EXCLUSIVE: Evergreen fern' },
-        { plantId: 'carex-everillo', quantity: 8, role: 'texture', note: 'Golden sedge' }
+        { plantId: 'carex-everillo', quantity: 8, role: 'texture', note: 'Golden sedge' },
+        // ZONE 7 ADDITIONS - Screen understory
+        { plantId: 'blue-oat-grass', quantity: 5, role: 'texture', note: 'ZONE 7: Steel blue accent' }
       ],
       carpet: [
         { plantId: 'asiatic-jasmine', quantity: 4, role: 'carpet', note: 'SIGNATURE: Fast evergreen carpet' },
-        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped edge' }
+        { plantId: 'liriope-variegated', quantity: 2, role: 'carpet', note: 'Striped edge' },
+        // ZONE 7 ADDITIONS
+        { plantId: 'vinca-minor', quantity: 3, role: 'carpet', note: 'ZONE 7: Evergreen shade carpet' }
       ]
     }
   }
