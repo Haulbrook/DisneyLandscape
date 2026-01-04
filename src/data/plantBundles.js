@@ -1258,3 +1258,251 @@ export const INVASIVE_WARNINGS = {
 export const getInvasiveWarning = (plantId) => {
   return INVASIVE_WARNINGS[plantId] || null;
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DISNEY HORTICULTURE SPACING & DENSITY RULES
+// Source: Disney Imagineering Horticulture Standards
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Layer Distribution Ratios (by bed volume)
+export const DISNEY_LAYER_RATIOS = {
+  TALL_THRILLERS: 0.10,    // 10% - Focal points, hero plants, canopy trees
+  MEDIUM_FILLERS: 0.60,    // 60% - Bulk of planting (structure, seasonal)
+  LOW_SPILLERS: 0.30       // 30% - Borders, groundcovers (texture, carpet)
+};
+
+// Spacing Standards (in inches, on center)
+export const DISNEY_SPACING = {
+  LOW: { min: 6, max: 8, label: '6-8" OC', avgSpacing: 7 },      // Groundcovers, low perennials
+  MEDIUM: { min: 10, max: 12, label: '10-12" OC', avgSpacing: 11 }, // Shrubs, perennials
+  TALL: { min: 18, max: 24, label: '18-24" OC', avgSpacing: 21 },   // Large shrubs
+  TREE: { min: 72, max: 180, label: '6-15ft', avgSpacing: 120 }    // Trees, focal points
+};
+
+// Map plant roles to spacing standards
+export const ROLE_TO_SPACING = {
+  hero: 'TREE',
+  structure: 'TALL',
+  seasonal: 'MEDIUM',
+  texture: 'MEDIUM',
+  carpet: 'LOW'
+};
+
+// Map plant roles to layer categories
+export const ROLE_TO_LAYER = {
+  hero: 'TALL_THRILLERS',
+  structure: 'MEDIUM_FILLERS',
+  seasonal: 'MEDIUM_FILLERS',
+  texture: 'LOW_SPILLERS',
+  carpet: 'LOW_SPILLERS'
+};
+
+// Coverage Standards
+// IMPORTANT: 85-90% coverage is TARGET AT PLANT MATURITY, not at planting
+// 70% of installs use younger plants with multiplier for immediate "full" look
+export const DISNEY_COVERAGE = {
+  TARGET_COVERAGE_AT_MATURITY: 0.90,  // 90% surface coverage WHEN MATURE
+  MIN_COVERAGE_AT_MATURITY: 0.85,     // 85% minimum acceptable AT MATURITY
+  YOUNG_PLANT_USAGE: 0.70,            // 70% of installs use younger plants
+  PLANTS_PER_SQFT: {
+    dense: 2,              // Young plants, instant impact (1.5-2x multiplier)
+    standard: 1,           // Mature plants or budget installs (1x multiplier)
+    sparse: 0.5            // Specimen/focal planting
+  },
+  MULTIPLIER_GUIDE: {
+    young_instant: 2.0,    // Young plants, want immediate full coverage
+    young_standard: 1.5,   // Young plants, standard growth room
+    mature: 1.0,           // Mature plants, proper spacing for final size
+    specimen: 0.75         // Focal specimens, room to showcase
+  }
+};
+
+/**
+ * Calculate Disney-standard plant quantities based on bed area
+ * Coverage target is 85-90% AT MATURITY - multiplier compensates for young plant installs
+ *
+ * @param {number} bedAreaSqFt - Bed area in square feet
+ * @param {string} plantAge - 'young' (70% of installs), 'mature', or 'specimen'
+ * @returns {Object} Plant count targets by role
+ */
+export const calculateDisneyQuantities = (bedAreaSqFt, plantAge = 'young') => {
+  // Select plants per sqft based on plant age/install type
+  let plantsPerSqFt;
+  switch (plantAge) {
+    case 'young':
+    case 'dense':
+      plantsPerSqFt = DISNEY_COVERAGE.PLANTS_PER_SQFT.dense;  // 2 per sqft
+      break;
+    case 'mature':
+    case 'standard':
+    case 'normal':
+      plantsPerSqFt = DISNEY_COVERAGE.PLANTS_PER_SQFT.standard; // 1 per sqft
+      break;
+    case 'specimen':
+    case 'sparse':
+      plantsPerSqFt = DISNEY_COVERAGE.PLANTS_PER_SQFT.sparse; // 0.5 per sqft
+      break;
+    default:
+      plantsPerSqFt = DISNEY_COVERAGE.PLANTS_PER_SQFT.dense;  // Default to young/dense
+  }
+
+  const totalPlants = Math.round(bedAreaSqFt * plantsPerSqFt);
+
+  // Apply layer ratios (10% Tall, 60% Medium, 30% Low)
+  const tallCount = Math.max(1, Math.round(totalPlants * DISNEY_LAYER_RATIOS.TALL_THRILLERS));
+  const mediumCount = Math.round(totalPlants * DISNEY_LAYER_RATIOS.MEDIUM_FILLERS);
+  const lowCount = Math.round(totalPlants * DISNEY_LAYER_RATIOS.LOW_SPILLERS);
+
+  return {
+    total: totalPlants,
+    hero: Math.max(1, Math.round(tallCount * 0.5)),           // Half of tall allocation
+    structure: Math.round(mediumCount * 0.6),                  // 60% of medium allocation
+    seasonal: Math.round(mediumCount * 0.4),                   // 40% of medium allocation
+    texture: Math.round(lowCount * 0.6),                       // 60% of low allocation
+    carpet: Math.round(lowCount * 0.4),                        // 40% of low allocation
+    byLayer: {
+      tall: tallCount,
+      medium: mediumCount,
+      low: lowCount
+    },
+    plantAge,
+    plantsPerSqFt
+  };
+};
+
+/**
+ * Get spacing for a plant based on its role
+ * @param {string} role - Plant role (hero, structure, seasonal, texture, carpet)
+ * @returns {Object} Spacing configuration
+ */
+export const getPlantSpacing = (role) => {
+  const spacingKey = ROLE_TO_SPACING[role] || 'MEDIUM';
+  return DISNEY_SPACING[spacingKey];
+};
+
+/**
+ * Calculate how many plants fit in area based on spacing
+ * @param {number} areaSqFt - Area in square feet
+ * @param {string} role - Plant role
+ * @returns {number} Number of plants that fit
+ */
+export const calculatePlantsFromSpacing = (areaSqFt, role) => {
+  const spacing = getPlantSpacing(role);
+  const avgSpacingFt = spacing.avgSpacing / 12; // Convert inches to feet
+  const plantsPerRow = Math.sqrt(areaSqFt) / avgSpacingFt;
+  return Math.round(plantsPerRow * plantsPerRow);
+};
+
+/**
+ * Apply Disney density multiplier to bundle plants
+ *
+ * Multiplier Guide (from DISNEY_COVERAGE.MULTIPLIER_GUIDE):
+ * - 2.0: Young plants, instant full coverage (most common - 70% of installs)
+ * - 1.5: Young plants, standard growth room
+ * - 1.0: Mature plants, proper spacing for final size
+ * - 0.75: Specimen planting, room to showcase
+ *
+ * @param {Object} bundle - The bundle definition
+ * @param {number} multiplier - Density multiplier (default 1.5 for young plants)
+ * @param {number} bedAreaSqFt - Bed area in square feet
+ * @returns {Array} Plants with adjusted quantities
+ */
+export const applyDisneyDensity = (bundle, multiplier = 1.5, bedAreaSqFt = 200) => {
+  const plants = getBundlePlants(bundle);
+
+  // Determine plant age category based on multiplier
+  let plantAge = 'young';
+  if (multiplier >= 1.75) plantAge = 'young';       // Dense young plants
+  else if (multiplier >= 1.25) plantAge = 'young';  // Standard young plants
+  else if (multiplier >= 0.9) plantAge = 'mature';  // Mature plants
+  else plantAge = 'specimen';                        // Specimen planting
+
+  const targetCounts = calculateDisneyQuantities(bedAreaSqFt, plantAge);
+
+  // Group plants by role
+  const byRole = {};
+  plants.forEach(p => {
+    if (!byRole[p.role]) byRole[p.role] = [];
+    byRole[p.role].push(p);
+  });
+
+  // Scale quantities based on role targets and multiplier
+  const result = [];
+  Object.entries(byRole).forEach(([role, rolePlants]) => {
+    const roleTarget = targetCounts[role] || 5;
+    const totalInRole = rolePlants.reduce((sum, p) => sum + p.quantity, 0);
+    const scaleFactor = (roleTarget * multiplier) / totalInRole;
+
+    rolePlants.forEach(p => {
+      const scaledQty = Math.max(1, Math.round(p.quantity * scaleFactor));
+      result.push({
+        ...p,
+        quantity: scaledQty,
+        spacing: getPlantSpacing(p.role),
+        plantAge
+      });
+    });
+  });
+
+  return result;
+};
+
+/**
+ * Validate bundle against Disney layer ratios
+ * @param {Object} bundle - Bundle to validate
+ * @returns {Object} Validation result with issues
+ */
+export const validateBundleRatios = (bundle) => {
+  const plants = getBundlePlants(bundle);
+  const totalQty = plants.reduce((sum, p) => sum + p.quantity, 0);
+
+  if (totalQty === 0) return { valid: true, issues: [] };
+
+  // Calculate actual ratios
+  const heroQty = plants.filter(p => p.role === 'hero').reduce((sum, p) => sum + p.quantity, 0);
+  const structureQty = plants.filter(p => p.role === 'structure').reduce((sum, p) => sum + p.quantity, 0);
+  const seasonalQty = plants.filter(p => p.role === 'seasonal').reduce((sum, p) => sum + p.quantity, 0);
+  const textureQty = plants.filter(p => p.role === 'texture').reduce((sum, p) => sum + p.quantity, 0);
+  const carpetQty = plants.filter(p => p.role === 'carpet').reduce((sum, p) => sum + p.quantity, 0);
+
+  const tallRatio = heroQty / totalQty;
+  const mediumRatio = (structureQty + seasonalQty) / totalQty;
+  const lowRatio = (textureQty + carpetQty) / totalQty;
+
+  const issues = [];
+
+  // Check tall (should be ~10%)
+  if (tallRatio > 0.20) {
+    issues.push(`Too many hero plants (${Math.round(tallRatio * 100)}%). Target: 10%`);
+  }
+
+  // Check medium (should be ~60%)
+  if (mediumRatio < 0.40) {
+    issues.push(`Not enough fillers (${Math.round(mediumRatio * 100)}%). Target: 60%`);
+  } else if (mediumRatio > 0.80) {
+    issues.push(`Too many fillers (${Math.round(mediumRatio * 100)}%). Target: 60%`);
+  }
+
+  // Check low (should be ~30%)
+  if (lowRatio < 0.15) {
+    issues.push(`Not enough groundcover (${Math.round(lowRatio * 100)}%). Target: 30%`);
+  }
+
+  return {
+    valid: issues.length === 0,
+    issues,
+    ratios: {
+      tall: Math.round(tallRatio * 100),
+      medium: Math.round(mediumRatio * 100),
+      low: Math.round(lowRatio * 100)
+    },
+    counts: {
+      hero: heroQty,
+      structure: structureQty,
+      seasonal: seasonalQty,
+      texture: textureQty,
+      carpet: carpetQty,
+      total: totalQty
+    }
+  };
+};

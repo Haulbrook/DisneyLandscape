@@ -757,25 +757,262 @@ export const inferPlantTexture = (plant) => {
   return 'medium';
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// DISNEY HORTICULTURE STANDARDS - Official Park Design Rules
+// Source: Disney Imagineering Horticulture Documentation
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Layer Distribution Ratios (by bed volume)
+export const LAYER_RATIOS = {
+  TALL_THRILLERS: 0.10,    // 10% - Focal points, canopy trees, statement plants
+  MEDIUM_FILLERS: 0.60,    // 60% - Bulk of the planting, shrubs, perennials
+  LOW_SPILLERS: 0.30       // 30% - Borders, groundcovers, edging
+};
+
+// Plant Spacing Standards (in inches, on center)
+export const SPACING_STANDARDS = {
+  LOW: { min: 6, max: 8, label: '6-8" OC', plants: ['alyssum', 'pansy', 'viola', 'lobelia'] },
+  MEDIUM: { min: 10, max: 12, label: '10-12" OC', plants: ['geranium', 'pentas', 'dianthus', 'marigold'] },
+  TALL: { min: 18, max: 24, label: '18-24" OC', plants: ['sunflower', 'canna', 'miscanthus', 'elephant-ear'] },
+  TREE: { min: 72, max: 180, label: '6-15ft', plants: ['magnolia', 'oak', 'maple'] }
+};
+
+// Edge Buffer Standards
+export const EDGE_BUFFERS = {
+  HARD_EDGE: { min: 2, max: 4, note: 'From concrete, pavers, or walls' },
+  PATH_EDGE: { min: 1, max: 2, note: 'Low plants only within 1-2ft of walkway' },
+  SIGHTLINE_BUFFER: { min: 0, max: 36, note: 'Keep taller plants from blocking key views' }
+};
+
+// Disney Coverage Standards
+// IMPORTANT: 85-90% coverage is the TARGET AT PLANT MATURITY
+// 70% of installations use younger plants with density multiplier for immediate impact
+export const COVERAGE_STANDARDS = {
+  MATURITY_TARGET: {
+    minCoverage: 0.85,     // 85% minimum surface coverage AT MATURITY
+    targetCoverage: 0.90,  // 90% optimal coverage AT MATURITY
+    note: 'This is the end goal - what the bed looks like when plants reach full size'
+  },
+  YOUNG_PLANT_INSTALL: {
+    typicalUsage: 0.70,    // 70% of installs use younger/smaller plants
+    densityMultiplier: 1.5, // Use 1.5-2x multiplier for younger plants
+    maxMultiplier: 2.5,    // Maximum density for instant gratification
+    note: 'Younger plants allow immediate "full" look at lower cost, plants grow together'
+  },
+  MATURE_PLANT_INSTALL: {
+    typicalUsage: 0.30,    // 30% of installs use mature specimens
+    densityMultiplier: 1.0, // Standard spacing for mature plants
+    note: 'Mature plants for instant showcase, higher cost, less growth room needed'
+  },
+  PLANTS_PER_SQFT: {
+    dense: 2,              // 2 plants per sq ft - young plants, instant impact
+    standard: 1,           // 1 plant per sq ft - mature plants or budget installs
+    sparse: 0.5            // 0.5 plants per sq ft - specimen planting, focal areas
+  }
+};
+
+// Seasonal Planting Templates
+export const SEASONAL_TEMPLATES = {
+  WINTER: {
+    months: [11, 12, 1],
+    plants: ['poinsettia', 'impatiens', 'dusty-miller', 'cyclamen'],
+    colors: ['red', 'pink', 'white', 'silver'],
+    note: 'Silver contrast with reds/pinks'
+  },
+  SPRING: {
+    months: [2, 3, 4],
+    plants: ['geranium', 'pentas', 'snapdragon', 'petunia', 'viola', 'dianthus'],
+    colors: ['red', 'pink', 'white', 'purple'],
+    note: 'Full color range, maximum bloom impact'
+  },
+  SUMMER: {
+    months: [5, 6, 7, 8],
+    plants: ['caladium', 'vinca', 'begonia', 'marigold', 'coleus', 'zinnia'],
+    colors: ['red', 'pink', 'white', 'orange', 'yellow'],
+    note: 'Use white caladium in shade areas'
+  },
+  FALL: {
+    months: [9, 10],
+    plants: ['marigold', 'ornamental-pepper', 'pentas', 'chrysanthemum'],
+    colors: ['orange', 'yellow', 'red', 'bronze'],
+    note: 'Warm autumn tones'
+  }
+};
+
+// World Showcase Color Palettes (EPCOT Standards)
+export const PAVILION_PALETTES = {
+  MEXICO: {
+    primary: ['#D84315', '#FFB300', '#FF6F00'],  // Warm: Red, Orange, Yellow
+    plants: ['marigold', 'hibiscus', 'salvia', 'lantana', 'agave'],
+    note: 'Hacienda warmth - terracotta, gold, orange'
+  },
+  NORWAY: {
+    primary: ['#7B1FA2', '#E1BEE7', '#FFFFFF'],  // Cool pastels and White
+    plants: ['viola', 'petunia', 'heather', 'lingonberry'],
+    note: 'Cool Nordic tones - lavender, white, soft purple'
+  },
+  CHINA: {
+    primary: ['#FFFFFF', '#1B5E20', '#D84315'],  // White, Green, Red accent
+    plants: ['azalea', 'chrysanthemum', 'bamboo', 'camellia', 'peony'],
+    note: 'Formal garden - white blooms with green foliage'
+  },
+  GERMANY: {
+    primary: ['#D32F2F', '#FFFFFF', '#FFD54F'],  // Bold Red, White, Gold
+    plants: ['geranium', 'ivy', 'rose', 'boxwood'],
+    note: 'Window box style - bold red geraniums'
+  },
+  ITALY: {
+    primary: ['#E91E63', '#7B1FA2', '#FFFFFF', '#43A047'],  // All colors EXCEPT Yellow
+    plants: ['petunia', 'geranium', 'olive', 'cypress', 'rosemary'],
+    note: 'Mediterranean - avoid yellow, focus on pinks/purples'
+  },
+  AMERICAN_ADVENTURE: {
+    primary: ['#D32F2F', '#FFFFFF', '#1565C0'],  // Red, White, Blue
+    plants: ['salvia', 'alyssum', 'lobelia', 'petunia'],
+    note: 'Patriotic palette - classic American colors'
+  },
+  FRANCE: {
+    primary: ['#CE93D8', '#F8BBD9', '#E1BEE7'],  // Soft Pastels
+    plants: ['lavender', 'verbena', 'begonia', 'rose', 'boxwood'],
+    note: 'Romantic Provence - soft lavenders and pinks'
+  },
+  JAPAN: {
+    primary: ['#C62828', '#FFFFFF', '#1B5E20'],  // Red, White, Green
+    plants: ['azalea', 'maple', 'pine', 'bamboo', 'moss', 'iris'],
+    note: 'Zen minimalism - controlled color, emphasis on form'
+  },
+  MOROCCO: {
+    primary: ['#1565C0', '#FFFFFF', '#FFB300'],  // Blue, White, Gold
+    plants: ['olive', 'oleander', 'rosemary', 'citrus', 'palm'],
+    note: 'Riad courtyard - blue tiles with green/gold accents'
+  },
+  UK_CANADA: {
+    primary: null,  // Full cottage garden mix
+    plants: ['rose', 'lavender', 'delphinium', 'foxglove', 'peony'],
+    note: 'Cottage garden - diverse, romantic, full spectrum'
+  }
+};
+
+// Disney Common Bundle Combinations (Thriller-Filler-Spiller)
+export const DISNEY_BUNDLE_COMBOS = [
+  {
+    name: 'Bird Garden Layer',
+    thriller: 'sunflower',
+    filler: 'dianthus',
+    spiller: 'alyssum',
+    theme: 'Wildlife attraction'
+  },
+  {
+    name: 'Tropical Impact',
+    thriller: 'canna',
+    filler: 'geranium',
+    spiller: 'pansy',
+    theme: 'Bold tropical color'
+  },
+  {
+    name: 'Pollinator Haven',
+    thriller: 'nicotiana',
+    filler: 'pentas',
+    spiller: 'lobelia',
+    theme: 'Butterfly and hummingbird attraction'
+  },
+  {
+    name: 'Shade Garden',
+    thriller: 'elephant-ear',
+    filler: 'impatiens',
+    spiller: 'coleus',
+    theme: 'Under-canopy planting'
+  }
+];
+
+// Forced Perspective Rules
+export const FORCED_PERSPECTIVE = {
+  DISTANCE_SIMULATION: {
+    foreground: { texture: 'coarse', color: 'saturated', leafSize: 'large' },
+    background: { texture: 'fine', color: 'lighter', leafSize: 'small' },
+    note: 'Plant taller/larger species closer to viewer, smaller deeper in beds'
+  },
+  DEPTH_EXTENSION: {
+    near: { hue: 'warm', saturation: 'high' },
+    far: { hue: 'cool', saturation: 'low' },
+    note: 'Warm colors advance, cool colors recede'
+  }
+};
+
+// Verified Disney Park Plants (from WDW Plant Bank 1996-2026)
+export const VERIFIED_DISNEY_PLANTS = {
+  EPCOT_WORLD_SHOWCASE: {
+    AMERICAN_ADVENTURE: ['platanus-acerifolia', 'quercus-species', 'magnolia-grandiflora'],
+    CHINA: ['phyllostachys-aurea', 'morus-alba-unryu', 'morus-alba-pendula', 'camellia-sinensis'],
+    GERMANY: ['pelargonium-peltatum', 'hedera-helix', 'rosa-damascena'],
+    ITALY: ['vitis-vinifera', 'olea-europaea', 'cupressus-sempervirens', 'citrus-japonica'],
+    JAPAN: ['bambusa-sp']
+  },
+  EPCOT_GENERAL: ['impatiens-walleriana', 'pentas-lanceolata', 'pelargonium-hortorum', 'caladium-bicolor', 'euphorbia-pulcherrima'],
+  ANIMAL_KINGDOM: {
+    AFRICA: ['quercus-virginiana', 'acacia-xanthophloea'],
+    ASIA: ['dendrocalamus-giganteus'],
+    OASIS: ['araucaria-araucana', 'cycas-revoluta']
+  }
+};
+
+// Water-Savvy Plants (from Disneyland Resort)
+export const WATER_SAVVY_PLANTS = {
+  FRONTIERLAND: ['echeveria-lipstick', 'aeonium-arboretum', 'russelia-equisetiformis', 'citrus-spp'],
+  TOMORROWLAND: ['agave-blue-flame', 'euphorbia-sticks-on-fire', 'crassula-hobbit', 'portulacaria-aurea', 'agave-quadricolor', 'agave-ivory-curls'],
+  DOWNTOWN_DISNEY: ['euphorbia-candelabrum', 'phormium-allison-blackman', 'echium-candicans', 'phormium-jester'],
+  CARS_LAND: ['yucca-recurvifolia', 'encelia-farinosa', 'opuntia-baby-rita', 'echinopsis-spp', 'carex-pansa']
+};
+
+// Topiary and Pattern Planting
+export const PATTERN_PLANTING = {
+  MAX_COLORS: 3,  // Maximum 2-3 colors per pattern
+  FILLER_PLANTS: ['alternanthera', 'viola', 'petunia', 'coleus', 'marigold', 'begonia'],
+  TOPIARY_BASE: ['mondo-grass', 'alternanthera', 'begonia'],
+  NOTE: 'Beds surrounding topiary should contrast in color/form'
+};
+
 export default {
+  // Height tiers & parsing
   HEIGHT_TIERS,
-  PLANT_FORMS,
-  PLANT_TEXTURES,
-  MONTHS,
-  SEASONS,
-  FORM_PAIRING_RULES,
-  TEXTURE_PAIRING_RULES,
-  MASS_PLANTING_RULES,
-  SHOW_READY_CRITERIA,
   getHeightTier,
   parseHeightToInches,
-  parseBloomTime,
+
+  // Form & texture
+  PLANT_FORMS,
+  PLANT_TEXTURES,
+  FORM_PAIRING_RULES,
+  TEXTURE_PAIRING_RULES,
+  inferPlantForm,
+  inferPlantTexture,
   validateFormVariety,
   validateTextureVariety,
-  analyzeMassPlanting,
+
+  // Bloom timing
+  MONTHS,
+  SEASONS,
+  parseBloomTime,
   analyzeBloomSequence,
+
+  // Mass planting
+  MASS_PLANTING_RULES,
+  analyzeMassPlanting,
   analyzeHeightLayering,
+
+  // Show ready scoring
+  SHOW_READY_CRITERIA,
   calculateShowReadyScore,
-  inferPlantForm,
-  inferPlantTexture
+
+  // Disney Horticulture Standards
+  LAYER_RATIOS,
+  SPACING_STANDARDS,
+  EDGE_BUFFERS,
+  COVERAGE_STANDARDS,
+  SEASONAL_TEMPLATES,
+  PAVILION_PALETTES,
+  DISNEY_BUNDLE_COMBOS,
+  FORCED_PERSPECTIVE,
+  VERIFIED_DISNEY_PLANTS,
+  WATER_SAVVY_PLANTS,
+  PATTERN_PLANTING
 };
