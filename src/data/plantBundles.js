@@ -30,6 +30,7 @@ export const PLANT_BUNDLES = [
   // ─────────────────────────────────────────────────────────────────────────────
   // 1. AUGUSTA CLASSIC - Southern Golf Elegance
   // EXCLUSIVE: Magnolias, Dogwoods, Azaleas, Tea Olives, Ferns
+  // HEIGHT TIERS: All 7 tiers covered with Southern-appropriate plants
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'augusta-classic',
@@ -44,28 +45,41 @@ export const PLANT_BUNDLES = [
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'showcase' },
     plants: {
       hero: [
-        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'SIGNATURE: Grand Southern statement' },
-        { plantId: 'dogwood', quantity: 2, role: 'hero', note: 'SIGNATURE: Masters spring timing' },
-        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'Burgundy specimen focal' }
+        // CANOPY (72"+) - 3 options
+        { plantId: 'magnolia-southern', quantity: 1, role: 'hero', note: 'CANOPY: Grand Southern statement', heightTier: 'canopy' },
+        { plantId: 'dogwood', quantity: 2, role: 'hero', note: 'CANOPY: Masters spring timing', heightTier: 'canopy' },
+        { plantId: 'japanese-maple-bloodgood', quantity: 1, role: 'hero', note: 'CANOPY: Burgundy specimen focal', heightTier: 'canopy' }
       ],
       structure: [
-        { plantId: 'tea-olive', quantity: 3, role: 'structure', note: 'EXCLUSIVE: Signature fragrance' },
-        { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'EXCLUSIVE: Winter blooms' },
-        { plantId: 'cleyera', quantity: 5, role: 'structure', note: 'Evergreen backdrop' }
+        // EYE LEVEL (48-72") - 3 options
+        { plantId: 'tea-olive', quantity: 3, role: 'structure', note: 'EYE LEVEL: Signature fragrance', heightTier: 'eye' },
+        { plantId: 'gardenia-august-beauty', quantity: 3, role: 'structure', note: 'EYE LEVEL: Summer fragrance 4-6ft', heightTier: 'eye' },
+        { plantId: 'nandina', quantity: 3, role: 'structure', note: 'EYE LEVEL: Heavenly bamboo 4-8ft', heightTier: 'eye' },
+        // CHEST HEIGHT (36-48") - 3 options
+        { plantId: 'camellia-japonica', quantity: 4, role: 'structure', note: 'CHEST: Winter blooms', heightTier: 'chest' },
+        { plantId: 'cleyera', quantity: 4, role: 'structure', note: 'CHEST: Evergreen backdrop', heightTier: 'chest' },
+        { plantId: 'azalea-encore-autumn-royalty', quantity: 3, role: 'structure', note: 'CHEST: Purple rebloomer', heightTier: 'chest' }
       ],
       seasonal: [
-        { plantId: 'azalea-encore-carnation', quantity: 10, role: 'seasonal', note: 'SIGNATURE: Pink mass' },
-        { plantId: 'azalea-encore-amethyst', quantity: 6, role: 'seasonal', note: 'Purple accents' },
-        { plantId: 'gardenia-august-beauty', quantity: 4, role: 'seasonal', note: 'Summer fragrance' }
+        // WAIST HEIGHT (24-36") - 3 options
+        { plantId: 'azalea-encore-carnation', quantity: 8, role: 'seasonal', note: 'WAIST: Pink mass', heightTier: 'waist' },
+        { plantId: 'azalea-encore-amethyst', quantity: 5, role: 'seasonal', note: 'WAIST: Purple accents', heightTier: 'waist' },
+        { plantId: 'hydrangea-little-quick-fire', quantity: 4, role: 'seasonal', note: 'WAIST: Compact hydrangea', heightTier: 'waist' }
       ],
       texture: [
-        { plantId: 'fern-autumn', quantity: 12, role: 'texture', note: 'EXCLUSIVE: Woodland texture' },
-        { plantId: 'fern-christmas', quantity: 8, role: 'texture', note: 'Evergreen fern' },
-        { plantId: 'cast-iron-plant', quantity: 6, role: 'texture', note: 'Deep shade tolerant' }
+        // KNEE HEIGHT (12-24") - 3 options
+        { plantId: 'fern-autumn', quantity: 8, role: 'texture', note: 'KNEE: Woodland texture', heightTier: 'knee' },
+        { plantId: 'fern-christmas', quantity: 6, role: 'texture', note: 'KNEE: Evergreen fern', heightTier: 'knee' },
+        { plantId: 'cast-iron-plant', quantity: 5, role: 'texture', note: 'KNEE: Deep shade tolerant', heightTier: 'knee' },
+        // ANKLE HEIGHT (6-12") - 2 options
+        { plantId: 'liriope-variegated', quantity: 5, role: 'texture', note: 'ANKLE: Striped lilyturf', heightTier: 'ankle' },
+        { plantId: 'mondo-grass', quantity: 5, role: 'texture', note: 'ANKLE: Dark green edging', heightTier: 'ankle' }
       ],
       carpet: [
-        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Shade groundcover' },
-        { plantId: 'ajuga', quantity: 2, role: 'carpet', note: 'Purple accent carpet' }
+        // GROUND PLANE (0-6") - 3 options
+        { plantId: 'pachysandra', quantity: 3, role: 'carpet', note: 'GROUND: Shade groundcover', heightTier: 'ground' },
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'GROUND: Purple accent carpet', heightTier: 'ground' },
+        { plantId: 'creeping-jenny', quantity: 2, role: 'carpet', note: 'GROUND: Golden carpet', heightTier: 'ground' }
       ]
     }
   },
@@ -73,6 +87,7 @@ export const PLANT_BUNDLES = [
   // ─────────────────────────────────────────────────────────────────────────────
   // 2. MAIN STREET CLASSIC - Patriotic Americana
   // EXCLUSIVE: Roses, Hydrangeas, Hostas, Daylilies
+  // HEIGHT TIERS: All 7 tiers covered with American garden classics
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'main-street-classic',
@@ -87,28 +102,41 @@ export const PLANT_BUNDLES = [
     filters: { light: 'full-sun', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'SIGNATURE: White summer blooms' },
-        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'SIGNATURE: Early spring purple' },
-        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'Native four-season interest' }
+        // CANOPY (72"+) - 3 options
+        { plantId: 'crape-myrtle-natchez', quantity: 1, role: 'hero', note: 'CANOPY: White summer blooms', heightTier: 'canopy' },
+        { plantId: 'redbud', quantity: 1, role: 'hero', note: 'CANOPY: Early spring purple', heightTier: 'canopy' },
+        { plantId: 'serviceberry', quantity: 1, role: 'hero', note: 'CANOPY: Native four-season interest', heightTier: 'canopy' }
       ],
       structure: [
-        { plantId: 'hydrangea-limelight', quantity: 5, role: 'structure', note: 'EXCLUSIVE: Summer showstopper' },
-        { plantId: 'hydrangea-annabelle', quantity: 4, role: 'structure', note: 'White pom-poms' },
-        { plantId: 'holly-nellie-stevens', quantity: 3, role: 'structure', note: 'Evergreen backdrop' }
+        // EYE LEVEL (48-72") - 3 options
+        { plantId: 'hydrangea-limelight', quantity: 4, role: 'structure', note: 'EYE LEVEL: Summer showstopper 6-8ft', heightTier: 'eye' },
+        { plantId: 'hydrangea-oakleaf', quantity: 3, role: 'structure', note: 'EYE LEVEL: Native oakleaf 4-8ft', heightTier: 'eye' },
+        { plantId: 'weigela', quantity: 3, role: 'structure', note: 'EYE LEVEL: Pink bells 4-6ft', heightTier: 'eye' },
+        // CHEST HEIGHT (36-48") - 3 options
+        { plantId: 'hydrangea-annabelle', quantity: 4, role: 'structure', note: 'CHEST: White pom-poms', heightTier: 'chest' },
+        { plantId: 'holly-nellie-stevens', quantity: 2, role: 'structure', note: 'CHEST: Evergreen backdrop', heightTier: 'chest' },
+        { plantId: 'boxwood-wintergreen', quantity: 4, role: 'structure', note: 'CHEST: Classic American hedge', heightTier: 'chest' }
       ],
       seasonal: [
-        { plantId: 'rose-knockout-double-red', quantity: 6, role: 'seasonal', note: 'SIGNATURE: Red continuous bloom' },
-        { plantId: 'rose-pink-drift', quantity: 5, role: 'seasonal', note: 'Pink carpet roses' },
-        { plantId: 'rose-coral-drift', quantity: 5, role: 'seasonal', note: 'Coral accents' }
+        // WAIST HEIGHT (24-36") - 3 options
+        { plantId: 'rose-knockout-double-red', quantity: 5, role: 'seasonal', note: 'WAIST: Red continuous bloom', heightTier: 'waist' },
+        { plantId: 'rose-pink-drift', quantity: 4, role: 'seasonal', note: 'WAIST: Pink carpet roses', heightTier: 'waist' },
+        { plantId: 'rose-coral-drift', quantity: 4, role: 'seasonal', note: 'WAIST: Coral accents', heightTier: 'waist' }
       ],
       texture: [
-        { plantId: 'hosta', quantity: 8, role: 'texture', note: 'EXCLUSIVE: Shade texture' },
-        { plantId: 'hosta-patriot', quantity: 6, role: 'texture', note: 'White-edged patriotic' },
-        { plantId: 'daylily-stella', quantity: 10, role: 'texture', note: 'Yellow continuous bloom' }
+        // KNEE HEIGHT (12-24") - 3 options
+        { plantId: 'hosta', quantity: 6, role: 'texture', note: 'KNEE: Shade texture', heightTier: 'knee' },
+        { plantId: 'hosta-patriot', quantity: 5, role: 'texture', note: 'KNEE: White-edged patriotic', heightTier: 'knee' },
+        { plantId: 'daylily-stella', quantity: 8, role: 'texture', note: 'KNEE: Yellow continuous bloom', heightTier: 'knee' },
+        // ANKLE HEIGHT (6-12") - 2 options
+        { plantId: 'liriope-variegated', quantity: 5, role: 'texture', note: 'ANKLE: Striped edging', heightTier: 'ankle' },
+        { plantId: 'mondo-grass', quantity: 4, role: 'texture', note: 'ANKLE: Dark green border', heightTier: 'ankle' }
       ],
       carpet: [
-        { plantId: 'liriope-variegated', quantity: 3, role: 'carpet', note: 'EXCLUSIVE: Striped edging' },
-        { plantId: 'creeping-phlox', quantity: 2, role: 'carpet', note: 'Spring color carpet' }
+        // GROUND PLANE (0-6") - 3 options
+        { plantId: 'creeping-phlox', quantity: 3, role: 'carpet', note: 'GROUND: Spring color carpet', heightTier: 'ground' },
+        { plantId: 'sedum-angelina', quantity: 3, role: 'carpet', note: 'GROUND: Golden succulent', heightTier: 'ground' },
+        { plantId: 'creeping-thyme', quantity: 2, role: 'carpet', note: 'GROUND: Aromatic groundcover', heightTier: 'ground' }
       ]
     }
   },
@@ -590,6 +618,7 @@ export const PLANT_BUNDLES = [
   // 13. CHINA PAVILION - Authentic Chinese Temple Garden
   // EXCLUSIVE: Ginkgo, Chinese Fringe Tree, Dawn Redwood, Peonies, Camellias
   // ALL PLANTS NATIVE TO CHINA
+  // HEIGHT TIERS: All 7 tiers covered with authentic Chinese plants
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'china-pavilion',
@@ -604,36 +633,44 @@ export const PLANT_BUNDLES = [
     filters: { light: 'part-shade', moisture: 'average', maintenance: 'standard' },
     plants: {
       hero: [
-        // AUTHENTIC: All three are NATIVE to China
-        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Living fossil, ancient temple tree' },
-        { plantId: 'chinese-fringe-tree', quantity: 1, role: 'hero', note: 'CHINA NATIVE: White fringe flowers' },
-        { plantId: 'paperbark-maple', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Cinnamon peeling bark' },
-        { plantId: 'dawn-redwood', quantity: 1, role: 'hero', note: 'CHINA NATIVE: Living fossil conifer' }
+        // CANOPY (72"+) - 4 options - All NATIVE to China
+        { plantId: 'ginkgo', quantity: 1, role: 'hero', note: 'CANOPY: Living fossil, ancient temple tree', heightTier: 'canopy' },
+        { plantId: 'chinese-fringe-tree', quantity: 1, role: 'hero', note: 'CANOPY: White fringe flowers', heightTier: 'canopy' },
+        { plantId: 'paperbark-maple', quantity: 1, role: 'hero', note: 'CANOPY: Cinnamon peeling bark', heightTier: 'canopy' },
+        { plantId: 'dawn-redwood', quantity: 1, role: 'hero', note: 'CANOPY: Living fossil conifer', heightTier: 'canopy' }
       ],
       structure: [
-        // AUTHENTIC: Chinese fringeflower is native to China
-        { plantId: 'loropetalum-purple-pixie', quantity: 5, role: 'structure', note: 'CHINA NATIVE: Purple fringeflower' },
-        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'CHINA NATIVE: Burgundy fringeflower' },
-        { plantId: 'chinese-witch-hazel', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Yellow winter flowers' },
-        { plantId: 'chinese-snowball-viburnum', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Massive white blooms' },
-        { plantId: 'paper-bush', quantity: 3, role: 'structure', note: 'CHINA NATIVE: Fragrant winter blooms' }
+        // EYE LEVEL (48-72") - 4 options - Chinese natives
+        { plantId: 'paper-bush', quantity: 3, role: 'structure', note: 'EYE LEVEL: Fragrant winter blooms 4-6ft', heightTier: 'eye' },
+        { plantId: 'nandina', quantity: 4, role: 'structure', note: 'EYE LEVEL: Heavenly bamboo 4-8ft', heightTier: 'eye' },
+        { plantId: 'chinese-snowball-viburnum', quantity: 3, role: 'structure', note: 'EYE LEVEL: Massive white blooms 6-10ft', heightTier: 'eye' },
+        { plantId: 'pieris-mountain-fire', quantity: 3, role: 'structure', note: 'EYE LEVEL: Red new growth 4-6ft', heightTier: 'eye' },
+        // CHEST HEIGHT (36-48") - 3 options
+        { plantId: 'loropetalum-crimson-fire', quantity: 4, role: 'structure', note: 'CHEST: Burgundy fringeflower', heightTier: 'chest' },
+        { plantId: 'chinese-witch-hazel', quantity: 3, role: 'structure', note: 'CHEST: Yellow winter flowers', heightTier: 'chest' },
+        { plantId: 'camellia-shi-shi', quantity: 3, role: 'structure', note: 'CHEST: Compact pink camellia 4-5ft', heightTier: 'chest' }
       ],
       seasonal: [
-        // AUTHENTIC: Peony and Camellia are both native to China
-        { plantId: 'peony', quantity: 7, role: 'seasonal', note: 'CHINA NATIVE: National flower of China' },
-        { plantId: 'camellia-yuletide', quantity: 5, role: 'seasonal', note: 'CHINA NATIVE: Red winter camellia' },
-        { plantId: 'camellia-sasanqua', quantity: 5, role: 'seasonal', note: 'CHINA NATIVE: Fall-blooming camellia' }
+        // WAIST HEIGHT (24-36") - 3 options
+        { plantId: 'peony', quantity: 5, role: 'seasonal', note: 'WAIST: National flower of China', heightTier: 'waist' },
+        { plantId: 'camellia-sasanqua', quantity: 4, role: 'seasonal', note: 'WAIST: Fall-blooming camellia', heightTier: 'waist' },
+        { plantId: 'loropetalum-purple-pixie', quantity: 4, role: 'seasonal', note: 'WAIST: Purple fringeflower', heightTier: 'waist' }
       ],
       texture: [
-        // AUTHENTIC: Chinese beautyberry and Asian grasses
-        { plantId: 'chinese-beautyberry', quantity: 5, role: 'texture', note: 'CHINA NATIVE: Purple berry clusters' },
-        { plantId: 'maiden-grass', quantity: 6, role: 'texture', note: 'Asian ornamental grass' },
-        { plantId: 'hosta-guacamole', quantity: 8, role: 'texture', note: 'Shade texture foliage' }
+        // KNEE HEIGHT (12-24") - 3 options
+        { plantId: 'chinese-beautyberry', quantity: 4, role: 'texture', note: 'KNEE: Purple berry clusters', heightTier: 'knee' },
+        { plantId: 'hosta-guacamole', quantity: 6, role: 'texture', note: 'KNEE: Shade texture foliage', heightTier: 'knee' },
+        { plantId: 'fern-japanese-painted', quantity: 6, role: 'texture', note: 'KNEE: Silver painted fern', heightTier: 'knee' },
+        // ANKLE HEIGHT (6-12") - 3 options
+        { plantId: 'liriope-variegated', quantity: 5, role: 'texture', note: 'ANKLE: Striped lilyturf', heightTier: 'ankle' },
+        { plantId: 'mondo-grass', quantity: 5, role: 'texture', note: 'ANKLE: Temple groundcover', heightTier: 'ankle' },
+        { plantId: 'carex-everillo', quantity: 4, role: 'texture', note: 'ANKLE: Golden sedge', heightTier: 'ankle' }
       ],
       carpet: [
-        // Mondo grass is from East Asia
-        { plantId: 'mondo-grass', quantity: 5, role: 'carpet', note: 'EAST ASIA NATIVE: Temple groundcover' },
-        { plantId: 'liriope-variegated', quantity: 3, role: 'carpet', note: 'CHINA NATIVE: Striped lilyturf' }
+        // GROUND PLANE (0-6") - 3 options
+        { plantId: 'ajuga', quantity: 3, role: 'carpet', note: 'GROUND: Purple bugle groundcover', heightTier: 'ground' },
+        { plantId: 'creeping-mazus', quantity: 3, role: 'carpet', note: 'GROUND: Purple stepping stones', heightTier: 'ground' },
+        { plantId: 'pachysandra', quantity: 2, role: 'carpet', note: 'GROUND: Shade carpet', heightTier: 'ground' }
       ]
     }
   },

@@ -1861,8 +1861,9 @@ export default function StudioPage() {
     });
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // HEIGHT TIER GAP INJECTION: Add plants for missing height layers
-    // Waist (24-36"), Ankle (6-12") are commonly missing
+    // HEIGHT TIER GAP INJECTION: Add plants for ALL missing height layers
+    // CRITICAL: Every bundle MUST have all 7 tiers for professional design
+    // Tiers: Ground (0-6), Ankle (6-12), Knee (12-24), Waist (24-36), Chest (36-48), Eye (48-72), Canopy (72+)
     // ═══════════════════════════════════════════════════════════════════════════════
     const heightTierCounts = {
       groundPlane: 0, ankle: 0, knee: 0, waist: 0, chest: 0, eyeLevel: 0, canopy: 0
@@ -1881,17 +1882,49 @@ export default function StudioPage() {
 
     const existingPlantIds = new Set(processedPlants.map(p => p.plantId));
     const minTierQty = Math.max(5, Math.round(3 * bundleScale));
+    const plantsPerInjection = 2; // Add 2 plant varieties per missing tier
 
-    // WAIST HEIGHT (24-36") injection
-    if (heightTierCounts.waist < minTierQty) {
-      const waistPlants = ALL_PLANTS.filter(p => {
+    // ═══════════════════════════════════════════════════════════════════════════════
+    // EYE LEVEL (48-72") injection - CRITICAL TIER often missing!
+    // Plants: Gardenias, Nandina, Pieris, Weigela, Paper Bush, Hibiscus, etc.
+    // ═══════════════════════════════════════════════════════════════════════════════
+    if (heightTierCounts.eyeLevel < minTierQty) {
+      const eyeLevelPlants = ALL_PLANTS.filter(p => {
         if (existingPlantIds.has(p.id)) return false;
         const h = getPlantHeightInches(p.id);
-        return h >= 24 && h <= 36;
+        return h >= 48 && h <= 72;
       });
-      if (waistPlants.length > 0) {
-        const shuffled = waistPlants.sort(() => Math.random() - 0.5);
-        const plantsToAdd = shuffled.slice(0, 2);
+      if (eyeLevelPlants.length > 0) {
+        const shuffled = eyeLevelPlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'back',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(5, minTierQty)),
+            isSmallPlant: false,
+            isCanopy: false,
+            injectedForHeight: true,
+            heightTierInjected: 'eyeLevel'
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // CHEST HEIGHT (36-48") injection
+    if (heightTierCounts.chest < minTierQty) {
+      const chestPlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h >= 36 && h <= 48;
+      });
+      if (chestPlants.length > 0) {
+        const shuffled = chestPlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
         plantsToAdd.forEach(plantData => {
           processedPlants.push({
             plantId: plantData.id,
@@ -1902,7 +1935,64 @@ export default function StudioPage() {
             quantity: roundToOddNumber(Math.max(5, minTierQty)),
             isSmallPlant: false,
             isCanopy: false,
-            injectedForHeight: true
+            injectedForHeight: true,
+            heightTierInjected: 'chest'
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // WAIST HEIGHT (24-36") injection
+    if (heightTierCounts.waist < minTierQty) {
+      const waistPlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h >= 24 && h <= 36;
+      });
+      if (waistPlants.length > 0) {
+        const shuffled = waistPlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'middle',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(5, minTierQty)),
+            isSmallPlant: false,
+            isCanopy: false,
+            injectedForHeight: true,
+            heightTierInjected: 'waist'
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // KNEE HEIGHT (12-24") injection
+    if (heightTierCounts.knee < minTierQty) {
+      const kneePlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h >= 12 && h <= 24;
+      });
+      if (kneePlants.length > 0) {
+        const shuffled = kneePlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'middle',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(5, minTierQty)),
+            isSmallPlant: false,
+            isCanopy: false,
+            injectedForHeight: true,
+            heightTierInjected: 'knee'
           });
           existingPlantIds.add(plantData.id);
         });
@@ -1918,7 +2008,7 @@ export default function StudioPage() {
       });
       if (anklePlants.length > 0) {
         const shuffled = anklePlants.sort(() => Math.random() - 0.5);
-        const plantsToAdd = shuffled.slice(0, 2);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
         plantsToAdd.forEach(plantData => {
           processedPlants.push({
             plantId: plantData.id,
@@ -1929,7 +2019,36 @@ export default function StudioPage() {
             quantity: roundToOddNumber(Math.max(5, minTierQty)),
             isSmallPlant: true,
             isCanopy: false,
-            injectedForHeight: true
+            injectedForHeight: true,
+            heightTierInjected: 'ankle'
+          });
+          existingPlantIds.add(plantData.id);
+        });
+      }
+    }
+
+    // GROUND PLANE (0-6") injection
+    if (heightTierCounts.groundPlane < minTierQty) {
+      const groundPlants = ALL_PLANTS.filter(p => {
+        if (existingPlantIds.has(p.id)) return false;
+        const h = getPlantHeightInches(p.id);
+        return h <= 6;
+      });
+      if (groundPlants.length > 0) {
+        const shuffled = groundPlants.sort(() => Math.random() - 0.5);
+        const plantsToAdd = shuffled.slice(0, plantsPerInjection);
+        plantsToAdd.forEach(plantData => {
+          processedPlants.push({
+            plantId: plantData.id,
+            plantData,
+            role: 'edge',
+            height: getPlantHeightInches(plantData.id),
+            radius: getPlantSpreadRadius(plantData.id),
+            quantity: roundToOddNumber(Math.max(7, minTierQty + 2)), // More groundcover needed
+            isSmallPlant: true,
+            isCanopy: false,
+            injectedForHeight: true,
+            heightTierInjected: 'groundPlane'
           });
           existingPlantIds.add(plantData.id);
         });
@@ -1937,9 +2056,13 @@ export default function StudioPage() {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════════
-    // CHEST HEIGHT TIER BOOST: If missing 36-48" plants, boost existing ones
+    // CHEST HEIGHT TIER BOOST: If still below minimum, boost existing ones
     // ═══════════════════════════════════════════════════════════════════════════════
-    if (chestHeightCount < MIN_CHEST_HEIGHT_QTY) {
+    const updatedChestCount = processedPlants
+      .filter(p => p.height >= 36 && p.height <= 48)
+      .reduce((sum, p) => sum + p.quantity, 0);
+
+    if (updatedChestCount < MIN_CHEST_HEIGHT_QTY) {
       // Find chest-height plants in processed list and boost them
       processedPlants.forEach(p => {
         if (p.isChestHeight && p.quantity < 5) {
