@@ -29,3 +29,6 @@ npm-debug.log*
 
 # Local Netlify folder
 .netlify
+
+# Local scripts
+scripts/
